@@ -1,0 +1,31 @@
+{
+  "name": "jzz-midi-smf",
+  "version": "0.0.0",
+  "description": "Standard MIDI File reader/writer",
+  "main": "javascript/JZZ.midi.SMF.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "MIDI",
+    "midi",
+    "SMF",
+    "Standard MIDI File"
+  ],
+  "author": "jazz-soft (http://jazz-soft.net/)",
+  "dependencies": {
+    "jzz": "^0.4.6"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.2",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-uglify": "^3.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jazz-soft/JZZ-midi-GM.git"
+  },
+  "homepage": "http://jazz-soft.net",
+  "bugs": "http://jazz-soft.org",
+  "license": "MIT"
+}
