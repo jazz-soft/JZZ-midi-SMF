@@ -87,7 +87,7 @@
       this.push(new Chunk(type, data));
       p += len;
     }
-    if(p != s.length || n != this.ntrk) throw new Error("Corrupted MIDI file");
+    if (p != s.length || n != this.ntrk) throw new Error("Corrupted MIDI file");
   };
 
   SMF.prototype.dump = function() {
@@ -226,8 +226,9 @@
       }
     }
   }
-//JZZ_.MidiFile.MTrk.prototype=(function(p){ function f(){}; f.prototype=p; return new f();})(JZZ_.MidiFile.Chunk.prototype);
-//JZZ_.MidiFile.MTrk.prototype.type='MTrk';
+
+  MTrk.prototype = [];
+  MTrk.prototype.constructor = MTrk;
   MTrk.prototype.dump = function() {
     var s = '';
     var t = 0;
