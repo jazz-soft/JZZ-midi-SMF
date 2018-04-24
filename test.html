@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+<title>JZZ.midi.SMF Test</title>
+<script src="node_modules/jzz/javascript/JZZ.js"></script>
+<script src="javascript/JZZ.midi.SMF.js"></script>
+</head>
+
+<body>
+
+<h1>JZZ.midi.SMF Test</h1>
+<pre id=log></pre>
+
+<script><!--
+var log = document.getElementById('log');
+var xhttp = new XMLHttpRequest();
+xhttp.onreadystatechange = function() {
+  if (this.readyState == 4) {
+    if (this.status == 200) { // works in Firefox and Edge
+      var r = xhttp.responseText;
+      data = '';
+      for (var i = 0; i < r.length; i++) data += String.fromCharCode(r.charCodeAt(i) & 0xff);
+      var smf = new JZZ.MIDI.SMF(data);
+      log.innerHTML = 'Loaded: ' + smf.toString();
+      console.log(smf);
+    }
+    else {
+      log.innerHTML = 'XMLHttpRequest error';
+    }
+  }
+};
+xhttp.overrideMimeType("text/plain; charset=x-user-defined");
+try {
+  xhttp.open("GET", 'test.mid', true);
+}
+catch (e) {
+  log.innerHTML = 'XMLHttpRequest error'; // Internrt Explorer
+}
+xhttp.send();
+--></script>
+
+</body>
+</html>
