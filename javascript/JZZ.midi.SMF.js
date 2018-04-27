@@ -12,6 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
+  var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
 
   function SMF() {
@@ -433,6 +434,7 @@
     this.playing = false;
     this.looped = false;
     this._data = [];
+    this._tick = (function(x) { return function(){ x.tick(); }; })(this);
   }
   Player.prototype = new JZZ.Widget();
   Player.prototype.constructor = Player;
@@ -446,7 +448,7 @@
     this.playing = true;
     this.ptr = 0;
     this.c0 = 0;
-    this.t0 = JZZ.now();
+    this.t0 = _now();
     this.tick();
   };
   Player.prototype.stop = function() {
@@ -460,8 +462,8 @@
   };
   Player.prototype.resume = function() {
     if (this.playing || this.paused == undefined) return;
-    var t = JZZ.now();
-    this.t0 += JZZ.now() - this.paused;
+    var t = _now();
+    this.t0 += _now() - this.paused;
     this.playing = true;
     this.tick();
   };
@@ -472,7 +474,7 @@
     return JZZ.MIDI(m);
   }
   Player.prototype.tick = function() {
-    var t = JZZ.now();
+    var t = _now();
     var c = this.c0 + (t - this.t0) * this.mul;
     var e;
     var evt;
@@ -509,9 +511,8 @@
       }
       else this.stop();
     }
-    var f = (function(x) { return function(){ x.tick(); }; })(this);
     if (this.playing) {
-      setTimeout(f, 0);
+      JZZ.lib.schedule(this._tick);
       return;
     }
     if (this.event == 'pause') this.paused = t;
