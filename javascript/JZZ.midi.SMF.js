@@ -147,7 +147,7 @@
           var evt = new Event();
           for (var attr in obj) if (obj.hasOwnProperty(attr)) evt[attr] = obj[attr];
           evt.track = i;
-          pl.push(evt);
+          pl._data.push(evt);
           pp[i]++;
         }
         if (pp[i] >= tt[i].length) continue;
@@ -437,9 +437,10 @@
   Player.prototype = new JZZ.Widget();
   Player.prototype.constructor = Player;
 
+  Player.prototype.onEnd = function() {};
+  Player.prototype.onData = function() {};
   Player.prototype.loop = function(b) { this.looped = b ? true : false; };
   Player.prototype.play = function() {
-    this.onEvent({ control: 'play' });
     if (this.ppqn) this.mul = this.ppqn / 500.0;
     else this.mul = this.fps * this.ppf / 1000.0;
     this.playing = true;
@@ -452,7 +453,6 @@
     this.event = 'stop';
     this.paused = undefined;
     if (this.playing) this.playing = false;
-    else this.onEvent({ control: this.event });
   };
   Player.prototype.pause = function() {
     this.event = 'pause';
@@ -462,16 +462,21 @@
     if (this.playing || this.paused == undefined) return;
     var t = JZZ.now();
     this.t0 += JZZ.now() - this.paused;
-    this.onEvent({ control: 'resume' });
     this.playing = true;
     this.tick();
   };
+  function _midi(s) {
+    var m = [];
+    var i;
+    for (i = 0; i < s.length; i++) m.push(s.charCodeAt(i));
+    return JZZ.MIDI(m);
+  }
   Player.prototype.tick = function() {
     var t = JZZ.now();
     var c = this.c0 + (t - this.t0) * this.mul;
     var e;
     var evt;
-    for(; this.ptr < this.length; this.ptr++) {
+    for(; this.ptr < this._data.length; this.ptr++) {
       e = this._data[this.ptr];
       if (e.time > c) break;
       evt = {};
@@ -480,18 +485,23 @@
         this.t0 = t;
         this.c0 = c;
       }
-      else if (e.status.charCodeAt(0) == 0xf7) { evt.midi = JZZ_.MIDI(e.data); }
-      else if (e.status.charCodeAt(0) != 0xff) { evt.midi = JZZ_.MIDI(e.status + e.data); }
+      else if (e.status.charCodeAt(0) == 0xf7) { evt.midi = e.data; }
+      else if (e.status.charCodeAt(0) != 0xff) { evt.midi = e.status + e.data; }
       else {
         evt.status = e.status;
-        evt.data=e.data;
+        evt.data = e.data;
       }
       evt.track = e.track;
       if (typeof e.user != 'undefined') evt.user = e.user;
-      this.onEvent(evt);
+      if (evt.midi) {
+        this._emit(_midi(evt.midi));
+      }
+      else {
+        this.onData(e);
+      }
     }
-    if (this.ptr >= this.length) {
-      this.onEvent({ control: 'end' });
+    if (this.ptr >= this._data.length) {
+      this.onEnd();
       if (this.looped) {
         this.ptr = 0;
         this.c0 = 0;
@@ -501,11 +511,10 @@
     }
     var f = (function(x) { return function(){ x.tick(); }; })(this);
     if (this.playing) {
-      window.setTimeout(f, 0);
+      setTimeout(f, 0);
       return;
     }
     if (this.event == 'pause') this.paused = t;
-    this.onEvent({ control: this.event });
   };
 
   JZZ.MIDI.SMF = SMF;
