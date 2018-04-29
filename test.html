@@ -10,27 +10,118 @@
 <body>
 
 <h1>JZZ.midi.SMF Test</h1>
-<p><input type=file id=file onchange='load();'></p>
+<span>
+<button onclick='fromBase64();'>Load from base64</button>
+</span><span>
+<button onclick="document.getElementById('file').click();">Load from file</button>
+<input type=file id=file style='display:none;' onchange='fromFile();'>
+</span><span>
+<button onclick='fromURL();'>Load from URL</button>
+<input type=text id=url value=test.mid onkeydown='if (event.keyCode == 13) fromURL();'>
+</span>
 <pre id=log></pre>
 
 <script><!--
 var log = document.getElementById('log');
+function report(s) { return function() { log.innerHTML = s; }; }
 JZZ.synth.OSC.register('Web Audio');
-var out = JZZ().or('Cannot start MIDI engine!').openMidiOut().or('Cannot open MIDI Out!');
+var midiout = JZZ().or(report('Cannot start MIDI engine!')).openMidiOut().or(report('Cannot open MIDI Out!'));
 
-function load() {
+function clear() {
+  log.innerHTML = '';
+}
+function load(s) {
+  var smf = new JZZ.MIDI.SMF(s);
+  var player = smf.player();
+  player.connect(midiout);
+  player.play();
+}
+
+function fromFile() {
+  clear();
   if (window.FileReader) {
     var reader = new FileReader();
     var f = document.getElementById('file').files[0];
     reader.onload = function(e) {
-      var smf = new JZZ.MIDI.SMF(e.target.result);
-      var player = smf.player();
-      player.connect(out);
-      player.play();
+      var data = '';
+      var bytes = new Uint8Array(e.target.result);
+      for (var i = 0; i < bytes.length; i++) {
+        data += String.fromCharCode(bytes[i]);
+      }
+      load(data);
     };
-    reader.readAsBinaryString(f);
+    reader.readAsArrayBuffer(f);
   }
-  else console.log('File API is not supported in this browser!');
+  else report('File API is not supported in this browser.')();
+}
+
+function fromURL() {
+  clear();
+  var url = document.getElementById('url').value;
+  try {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+      if (this.readyState == 4) {
+        if (this.status == 200) { // works in Firefox and Edge
+          var r = xhttp.responseText;
+          var data = '';
+          for (var i = 0; i < r.length; i++) data += String.fromCharCode(r.charCodeAt(i) & 0xff);
+          load(data);
+        }
+        else {
+          report('XMLHttpRequest error')();
+        }
+      }
+    };
+    xhttp.overrideMimeType('text/plain; charset=x-user-defined');
+    xhttp.open('GET', url, true);
+    xhttp.send();
+  }
+  catch (e) {
+    report('XMLHttpRequest error')();
+  }
+}
+
+var _b64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+function _fromBase64(input) {
+  var output = '';
+  var chr1, chr2, chr3;
+  var enc1, enc2, enc3, enc4;
+  var i = 0;
+  input=input.replace(/[^A-Za-z0-9\+\/\=]/g, '');
+  while (i < input.length) {
+    enc1 = _b64.indexOf(input.charAt(i++));
+    enc2 = _b64.indexOf(input.charAt(i++));
+    enc3 = _b64.indexOf(input.charAt(i++));
+    enc4 = _b64.indexOf(input.charAt(i++));
+    chr1 = (enc1 << 2) | (enc2 >> 4);
+    chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+    chr3 = ((enc3 & 3) << 6) | enc4;
+    output = output + String.fromCharCode(chr1);
+    if (enc3 != 64) {
+      output = output + String.fromCharCode(chr2);
+    }
+    if (enc4 != 64) {
+      output = output + String.fromCharCode(chr3);
+    }
+  }
+  return output;
+}
+
+var data='\
+TVRoZAAAAAYAAQADAGRNVHJrAAAAGgD/AwtMaXR0bGUgTGFtYgD/UQMKLCsA/y8ATVRyawAAAPEA/wMF\
+V29yZHMA/wEYQFRNYXJ5IEhhZCBBIExpdHRsZSBMYW1iZP8BA1xNYTL/AQNyeSAy/wEEaGFkIDL/AQJh\
+IDL/AQNsaXQy/wEEdGxlIDL/AQVsYW1iLGT/AQQvTGl0Mv8BBHRsZSAy/wEFbGFtYixk/wEEL0xpdDL/\
+AQR0bGUgMv8BBWxhbWIsZP8BAy9NYTL/AQNyeSAy/wEEaGFkIDL/AQJhIDL/AQNsaXQy/wEEdGxlIDL/\
+AQVsYW1iLGT/AQYvQmxhaC0y/wEFYmxhaC0y/wEFYmxhaC0y/wEFYmxhaC0y/wEFYmxhaCEA/y8ATVRy\
+awAAALkA/wMFTXVzaWMAwAtkkEB/MkAAAD5/Mj4AADx/MjwAAD5/Mj4AAEB/MkAAAEB/MkAAAEB/WkAA\
+Cj5/Mj4AAD5/Mj4AAD5/Wj4ACkB/MkAAAEN/MkMAAEN/WkMACkB/MkAAAD5/Mj4AADx/MjwAAD5/Mj4A\
+AEB/MkAAAEB/MkAAAEB/WkAACj5/Mj4AAD5/Mj4AAEB/MkAAAD5/Mj4AADx/ZEBkAENkAEh/WjwAAEAA\
+AEMAAEgACv8vAA==';
+
+function fromBase64() {
+  clear();
+  load(_fromBase64(data));
 }
 --></script>
 
