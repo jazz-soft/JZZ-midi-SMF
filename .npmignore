@@ -4,4 +4,3 @@ minified
 .npmignore
 bower.json
 Gruntfile.js
-*.html
