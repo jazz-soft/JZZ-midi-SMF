@@ -10,6 +10,7 @@
 <body>
 
 <h1>JZZ.midi.SMF Test</h1>
+<div id=ctrl></div>
 <span>
 <button onclick='fromBase64();'>Load from base64</button>
 </span><span>
@@ -27,14 +28,24 @@ function report(s) { return function() { log.innerHTML = s; }; }
 JZZ.synth.OSC.register('Web Audio');
 var midiout = JZZ().or(report('Cannot start MIDI engine!')).openMidiOut().or(report('Cannot open MIDI Out!'));
 
+var ctrl;
+
 function clear() {
   log.innerHTML = '';
+  ctrl.disable();
 }
+
 function load(s) {
-  var smf = new JZZ.MIDI.SMF(s);
-  var player = smf.player();
-  player.connect(midiout);
-  player.play();
+  try {
+    var smf = new JZZ.MIDI.SMF(s);
+    var player = smf.player();
+    player.connect(midiout);
+    ctrl.enable();
+    player.play();
+  }
+  catch (e) {
+    report(e)();
+  }
 }
 
 function fromFile() {
@@ -123,6 +134,102 @@ function fromBase64() {
   clear();
   load(_fromBase64(data));
 }
+
+// MIDI controls
+
+function Btn(html) {
+  this.div = document.createElement('div');
+  this.div.style.display = 'inline-block';
+  this.div.style.margin = '12px';
+  this.div.style.marginRight = '0px';
+  this.div.style.padding = '0px';
+  this.div.style.borderStyle = 'solid';
+  this.div.style.borderWidth = '1px';
+  this.div.style.borderColor = '#ccc';
+  this.div.style.backgroundColor = '#888';
+  this.div.style.width = '18px';
+  this.div.style.height = '18px';
+  this.div.innerHTML = html;
+}
+Btn.prototype.on = function() {
+  this.div.style.backgroundColor = '#ccc';
+};
+Btn.prototype.off = function() {
+  this.div.style.backgroundColor = '#aaa';
+};
+Btn.prototype.disable = function() {
+  this.div.style.backgroundColor = '#888';
+};
+
+var svg_play = '<svg fill="#000000" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/><path d="M0 0h24v24H0z" fill="none"/></svg>';
+
+var svg_pause = '<svg fill="#000000" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/><path d="M0 0h24v24H0z" fill="none"/></svg>';
+
+var svg_stop = '<svg fill="#000000" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 6h12v12H6z"/></svg>';
+
+var svg_loop = '<svg fill="#000000" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>';
+
+var svg_more = '<svg fill="#000000" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>';
+
+function Ctrl() {
+  this.div = document.createElement('div');
+  this.div.style.display = 'inline-block';
+  this.div.style.margin = '0px';
+  this.div.style.padding = '0px';
+  this.div.style.borderStyle = 'solid';
+  this.div.style.borderWidth = '1px';
+  this.div.style.borderColor = '#ccc';
+  this.div.style.backgroundColor = '#888';
+  this.div.style.width = '270px';
+  this.div.style.height = '40px';
+  this.play = new Btn(svg_play);
+  this.play.div.addEventListener('click', this.onPlay);
+  this.div.appendChild(this.play.div);
+  this.pause = new Btn(svg_pause);
+  this.pause.div.addEventListener('click', this.onPause);
+  this.div.appendChild(this.pause.div);
+  this.stop = new Btn(svg_stop);
+  this.stop.div.addEventListener('click', this.onStop);
+  this.div.appendChild(this.stop.div);
+  this.loop = new Btn(svg_loop);
+  this.loop.div.addEventListener('click', this.onLoop);
+  this.div.appendChild(this.loop.div);
+  this.more = new Btn(svg_more);
+  this.more.div.addEventListener('click', this.onMore);
+  this.more.off();
+  this.div.appendChild(this.more.div);
+}
+Ctrl.prototype.disable = function() {
+  ctrl.play.disable();
+  ctrl.pause.disable();
+  ctrl.stop.disable();
+  ctrl.loop.disable();
+};
+Ctrl.prototype.enable = function() {
+  ctrl.play.off();
+  ctrl.pause.off();
+  ctrl.stop.off();
+  ctrl.loop.off();
+};
+Ctrl.prototype.onPlay = function() {
+  alert('work in progress...');
+};
+Ctrl.prototype.onPause = function() {
+  alert('work in progress...');
+};
+Ctrl.prototype.onStop = function() {
+  alert('work in progress...');
+};
+Ctrl.prototype.onLoop = function() {
+  alert('work in progress...');
+};
+Ctrl.prototype.onMore = function() {
+  alert('work in progress...');
+};
+
+ctrl = new Ctrl();
+document.getElementById('ctrl').appendChild(ctrl.div);
+
 --></script>
 
 </body>
