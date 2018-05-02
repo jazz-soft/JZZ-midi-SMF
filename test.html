@@ -11,6 +11,12 @@
 
 <h1>JZZ.midi.SMF Test</h1>
 <div id=ctrl></div>
+<div>
+<em>NOTE:</em> For better sound quality, you may want to install
+<a href=http://jazz-soft.net>Jazz-Plugin</a> and browser extension from
+<a href=https://chrome.google.com/webstore/detail/jazz-midi/jhdoobfdaejmldnpihidjemjcbpfmbkm>Chrome Web Store</a>
+or <a href=https://addons.mozilla.org/en-US/firefox/addon/jazz-midi>Mozilla Add-ons</a>.
+</div>
 <span>
 <button onclick='fromBase64();'>Load from base64</button>
 </span><span>
@@ -32,21 +38,23 @@ var ctrl;
 var player;
 var playing;
 var paused;
+var loop;
 
 function clear() {
   if (player) player.stop();
   player = undefined;
   playing = false;
   paused = false;
+  loop = false;
   ctrl.disable();
   log.innerHTML = '';
 }
 
 function onEnd() {
-  playing = false;
-  paused = false;
-  ctrl.play.off();
-  player.rewind();
+  if (!loop) {
+    playing = false;
+    ctrl.play.off();
+  }
 }
 
 function load(s) {
@@ -67,7 +75,7 @@ function load(s) {
 
 function fileClicked() {
   clear();
-  document.getElementById('file').click();
+  setTimeout(function() { document.getElementById('file').click(); }, 0);
 }
 
 function fromFile() {
@@ -196,7 +204,7 @@ var svg_stop = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmln
 
 var svg_loop = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>';
 
-var svg_more = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>';
+var svg_more = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/></svg>';
 
 function Ctrl() {
   this.div = document.createElement('div');
@@ -267,7 +275,6 @@ Ctrl.prototype.onStop = function() {
   if (player) {
     if (playing) {
       player.stop();
-      player.rewind();
     }
     playing = false;
     paused = false;
@@ -276,6 +283,12 @@ Ctrl.prototype.onStop = function() {
   }
 };
 Ctrl.prototype.onLoop = function() {
+  if (player) {
+    loop = !loop;
+    player.loop(loop);
+    if (loop) ctrl.loop.on();
+    else ctrl.loop.off();
+  }
 };
 Ctrl.prototype.onMore = function() {
 };

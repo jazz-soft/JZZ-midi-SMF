@@ -454,10 +454,6 @@
   Player.prototype.stop = function() {
     this.event = 'stop';
     this.paused = undefined;
-    if (this.playing) this.playing = false;
-  };
-  Player.prototype.rewind = function() {
-    this.ptr = 0;
   };
   Player.prototype.pause = function() {
     this.event = 'pause';
@@ -470,6 +466,9 @@
     this.playing = true;
     this.tick();
   };
+  Player.prototype.sndOff = function() {
+    for (var c = 0; c < 16; c++) this._emit(JZZ.MIDI.allSoundOff(c));
+  }
   function _midi(s) {
     var m = [];
     var i;
@@ -514,11 +513,20 @@
       }
       else this.stop();
     }
+    if (this.event == 'stop') {
+      this.playing = false;
+      this.sndOff();
+      this.event = undefined;
+    }
     if (this.playing) {
       JZZ.lib.schedule(this._tick);
       return;
     }
-    if (this.event == 'pause') this.paused = t;
+    if (this.event == 'pause') {
+      this.paused = t;
+      this.sndOff();
+      this.event = undefined;
+    }
   };
 
   JZZ.MIDI.SMF = SMF;
