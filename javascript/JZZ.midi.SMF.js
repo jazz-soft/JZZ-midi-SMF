@@ -456,6 +456,9 @@
     this.paused = undefined;
     if (this.playing) this.playing = false;
   };
+  Player.prototype.rewind = function() {
+    this.ptr = 0;
+  };
   Player.prototype.pause = function() {
     this.event = 'pause';
     this.playing = false;

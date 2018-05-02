@@ -14,7 +14,7 @@
 <span>
 <button onclick='fromBase64();'>Load from base64</button>
 </span><span>
-<button onclick="document.getElementById('file').click();">Load from file</button>
+<button onclick="fileClicked();">Load from file</button>
 <input type=file id=file style='display:none;' onchange='fromFile();'>
 </span><span>
 <button onclick='fromURL();'>Load from URL</button>
@@ -29,18 +29,35 @@ JZZ.synth.OSC.register('Web Audio');
 var midiout = JZZ().or(report('Cannot start MIDI engine!')).openMidiOut().or(report('Cannot open MIDI Out!'));
 
 var ctrl;
+var player;
+var playing;
+var paused;
 
 function clear() {
-  log.innerHTML = '';
+  if (player) player.stop();
+  player = undefined;
+  playing = false;
+  paused = false;
   ctrl.disable();
+  log.innerHTML = '';
+}
+
+function onEnd() {
+  playing = false;
+  paused = false;
+  ctrl.play.off();
+  player.rewind();
 }
 
 function load(s) {
   try {
     var smf = new JZZ.MIDI.SMF(s);
-    var player = smf.player();
+    player = smf.player();
+    player.onEnd = onEnd;
     player.connect(midiout);
     ctrl.enable();
+    ctrl.play.on();
+    playing = true;
     player.play();
   }
   catch (e) {
@@ -48,8 +65,12 @@ function load(s) {
   }
 }
 
-function fromFile() {
+function fileClicked() {
   clear();
+  document.getElementById('file').click();
+}
+
+function fromFile() {
   if (window.FileReader) {
     var reader = new FileReader();
     var f = document.getElementById('file').files[0];
@@ -140,36 +161,42 @@ function fromBase64() {
 function Btn(html) {
   this.div = document.createElement('div');
   this.div.style.display = 'inline-block';
-  this.div.style.margin = '12px';
+  this.div.style.margin = '8px';
   this.div.style.marginRight = '0px';
-  this.div.style.padding = '0px';
+  this.div.style.padding = '2px';
   this.div.style.borderStyle = 'solid';
   this.div.style.borderWidth = '1px';
-  this.div.style.borderColor = '#ccc';
+  this.div.style.borderColor = '#aaa';
   this.div.style.backgroundColor = '#888';
   this.div.style.width = '18px';
   this.div.style.height = '18px';
   this.div.innerHTML = html;
 }
 Btn.prototype.on = function() {
-  this.div.style.backgroundColor = '#ccc';
+  this.div.style.backgroundColor = '#ddd';
+  this.div.style.borderColor = '#ccc';
+  this.div.firstChild.style.fill = '#000';
 };
 Btn.prototype.off = function() {
   this.div.style.backgroundColor = '#aaa';
+  this.div.style.borderColor = '#ccc';
+  this.div.firstChild.style.fill = '#000';
 };
 Btn.prototype.disable = function() {
   this.div.style.backgroundColor = '#888';
+  this.div.style.borderColor = '#aaa';
+  this.div.firstChild.style.fill = '#555';
 };
 
-var svg_play = '<svg fill="#000000" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/><path d="M0 0h24v24H0z" fill="none"/></svg>';
+var svg_play = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/><path d="M0 0h24v24H0z" fill="none"/></svg>';
 
-var svg_pause = '<svg fill="#000000" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/><path d="M0 0h24v24H0z" fill="none"/></svg>';
+var svg_pause = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/><path d="M0 0h24v24H0z" fill="none"/></svg>';
 
-var svg_stop = '<svg fill="#000000" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 6h12v12H6z"/></svg>';
+var svg_stop = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 6h12v12H6z"/></svg>';
 
-var svg_loop = '<svg fill="#000000" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>';
+var svg_loop = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>';
 
-var svg_more = '<svg fill="#000000" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>';
+var svg_more = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>';
 
 function Ctrl() {
   this.div = document.createElement('div');
@@ -212,19 +239,45 @@ Ctrl.prototype.enable = function() {
   ctrl.loop.off();
 };
 Ctrl.prototype.onPlay = function() {
-  alert('work in progress...');
+  if (player) {
+    if (paused) player.resume();
+    else if (!playing) player.play();
+    playing = true;
+    paused = false;
+    ctrl.play.on();
+    ctrl.pause.off();
+  }
 };
 Ctrl.prototype.onPause = function() {
-  alert('work in progress...');
+  if (playing) {
+    ctrl.play.off();
+    ctrl.pause.on();
+    playing = false;
+    paused = true;
+    player.pause();
+  }
+  else if (paused) {
+    ctrl.play.on();
+    ctrl.pause.off();
+    playing = true;
+    player.resume();
+  }
 };
 Ctrl.prototype.onStop = function() {
-  alert('work in progress...');
+  if (player) {
+    if (playing) {
+      player.stop();
+      player.rewind();
+    }
+    playing = false;
+    paused = false;
+    ctrl.play.off();
+    ctrl.pause.off();
+  }
 };
 Ctrl.prototype.onLoop = function() {
-  alert('work in progress...');
 };
 Ctrl.prototype.onMore = function() {
-  alert('work in progress...');
 };
 
 ctrl = new Ctrl();
