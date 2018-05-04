@@ -13,9 +13,9 @@
 <div id=ctrl></div>
 <div>
 <em>NOTE:</em> For better sound quality, you may want to install
-<a href=http://jazz-soft.net>Jazz-Plugin</a> and browser extension from
-<a href=https://chrome.google.com/webstore/detail/jazz-midi/jhdoobfdaejmldnpihidjemjcbpfmbkm>Chrome Web Store</a>
-or <a href=https://addons.mozilla.org/en-US/firefox/addon/jazz-midi>Mozilla Add-ons</a>.
+<a target=_blank href=http://jazz-soft.net>Jazz-Plugin</a> and browser extension from
+<a target=_blank href=https://chrome.google.com/webstore/detail/jazz-midi/jhdoobfdaejmldnpihidjemjcbpfmbkm>Chrome Web Store</a>
+or <a target=_blank href=https://addons.mozilla.org/en-US/firefox/addon/jazz-midi>Mozilla Add-ons</a>.
 </div>
 <span>
 <button onclick='fromBase64();'>Load from base64</button>
@@ -29,17 +29,21 @@ or <a href=https://addons.mozilla.org/en-US/firefox/addon/jazz-midi>Mozilla Add-
 <pre id=log></pre>
 
 <script><!--
-var log = document.getElementById('log');
-function report(s) { return function() { log.innerHTML = s; }; }
-JZZ.synth.OSC.register('Web Audio');
-var midiout = JZZ().or(report('Cannot start MIDI engine!')).openMidiOut().or(report('Cannot open MIDI Out!'));
-
+var midiname;
+var newname;
 var ctrl;
 var player;
 var playing;
 var paused;
 var loop;
+var more;
+var log = document.getElementById('log');
+function report(s) { return function() { log.innerHTML = s; }; }
 
+JZZ.synth.OSC.register('Web Audio');
+var midiout = JZZ().or(report('Cannot start MIDI engine!'))
+                   .openMidiOut().or(report('Cannot open MIDI Out!'))
+                                 .and(function() { midiname = this.info().name; });
 function clear() {
   if (player) player.stop();
   player = undefined;
@@ -169,8 +173,9 @@ function fromBase64() {
 function Btn(html) {
   this.div = document.createElement('div');
   this.div.style.display = 'inline-block';
-  this.div.style.margin = '8px';
-  this.div.style.marginRight = '0px';
+  this.div.style.position = 'absolute';
+  this.div.style.top = '8px';
+  this.div.style.margin = '0';
   this.div.style.padding = '2px';
   this.div.style.borderStyle = 'solid';
   this.div.style.borderWidth = '1px';
@@ -209,6 +214,7 @@ var svg_more = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmln
 function Ctrl() {
   this.div = document.createElement('div');
   this.div.style.display = 'inline-block';
+  this.div.style.position = 'relative';
   this.div.style.margin = '0px';
   this.div.style.padding = '0px';
   this.div.style.borderStyle = 'solid';
@@ -218,21 +224,39 @@ function Ctrl() {
   this.div.style.width = '270px';
   this.div.style.height = '40px';
   this.play = new Btn(svg_play);
+  this.play.div.style.left = '8px';
+  this.play.div.title = 'play';
   this.play.div.addEventListener('click', this.onPlay);
   this.div.appendChild(this.play.div);
   this.pause = new Btn(svg_pause);
+  this.pause.div.style.left = '36px';
+  this.pause.div.title = 'pause';
   this.pause.div.addEventListener('click', this.onPause);
   this.div.appendChild(this.pause.div);
   this.stop = new Btn(svg_stop);
+  this.stop.div.style.left = '64px';
+  this.stop.div.title = 'stop';
   this.stop.div.addEventListener('click', this.onStop);
   this.div.appendChild(this.stop.div);
   this.loop = new Btn(svg_loop);
+  this.loop.div.style.left = '92px';
+  this.loop.div.title = 'loop';
   this.loop.div.addEventListener('click', this.onLoop);
   this.div.appendChild(this.loop.div);
   this.more = new Btn(svg_more);
+  this.more.div.style.left = '238px';
+  this.more.div.title = 'midi';
   this.more.div.addEventListener('click', this.onMore);
   this.more.off();
   this.div.appendChild(this.more.div);
+  this.select = document.createElement('select');
+  this.select.style.position = 'absolute';
+  this.select.style.top = '30px';
+  this.select.style.left = '40px'; // 8
+  this.select.style.width = '230px'; // 262
+  this.select.style.display = 'none';
+  this.select.addEventListener('click', this.onSelect);
+  this.div.appendChild(this.select);
 }
 Ctrl.prototype.disable = function() {
   ctrl.play.disable();
@@ -291,6 +315,49 @@ Ctrl.prototype.onLoop = function() {
   }
 };
 Ctrl.prototype.onMore = function() {
+  if (more) return;
+  more = true;
+  ctrl.more.on();
+  ctrl.select.style.display = 'inline-block';
+  JZZ().refresh().and(function() {
+    var outs = this.info().outputs;
+    var i;
+    for (i = 0; i < ctrl.select.options.length; i++) ctrl.select.remove(i);
+    for (i = 0; i < outs.length; i++) ctrl.select[i] = new Option(outs[i].name, outs[i].name);
+    ctrl.select.size = outs.length < 2 ? 2 : outs.length;
+  });
+};
+function changeMidi() {
+  var port = JZZ().openMidiOut(newname).or(function() {
+    newname = undefined;
+    ctrl.more.off();
+    ctrl.select.style.display = 'none';
+    more = false;
+  }).and(function() {
+    midiname = newname;
+    if (player) {
+      player.sndOff();
+      player.disconnect(midiout);
+    }
+    midiout = this;
+    if (player) player.connect(midiout);
+    newname = undefined;
+    ctrl.more.off();
+    ctrl.select.style.display = 'none';
+    more = false;
+  });
+}
+Ctrl.prototype.onSelect = function() {
+  newname = ctrl.select.options[ctrl.select.selectedIndex].value;
+  if (newname == midiname) {
+    newname = undefined;
+    ctrl.more.off();
+    ctrl.select.style.display = 'none';
+    more = false;
+  }
+  else {
+    setTimeout(changeMidi, 0);
+  }
 };
 
 ctrl = new Ctrl();
