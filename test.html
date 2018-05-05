@@ -10,13 +10,13 @@
 <body>
 
 <h1>JZZ.midi.SMF Test</h1>
-<div id=ctrl></div>
-<div>
+<p id=player>Please enable JavaScript!</p>
+<p id=note style='display:none;'>
 <em>NOTE:</em> For better sound quality, you may want to install
 <a target=_blank href=http://jazz-soft.net>Jazz-Plugin</a> and browser extension from
 <a target=_blank href=https://chrome.google.com/webstore/detail/jazz-midi/jhdoobfdaejmldnpihidjemjcbpfmbkm>Chrome Web Store</a>
 or <a target=_blank href=https://addons.mozilla.org/en-US/firefox/addon/jazz-midi>Mozilla Add-ons</a>.
-</div>
+</p>
 <span>
 <button onclick='fromBase64();'>Load from base64</button>
 </span><span>
@@ -40,7 +40,12 @@ var more;
 var log = document.getElementById('log');
 function report(s) { return function() { log.innerHTML = s; }; }
 
+document.getElementById('player').innerHTML = 'Please run <tt style="background-color:#bbf;"><b>npm install</b></tt> to enable this test.';
+
 JZZ.synth.OSC.register('Web Audio');
+document.getElementById('player').innerHTML = '';
+document.getElementById('note').style.display = 'block';
+
 var midiout = JZZ().or(report('Cannot start MIDI engine!'))
                    .openMidiOut().or(report('Cannot open MIDI Out!'))
                                  .and(function() { midiname = this.info().name; });
@@ -257,18 +262,57 @@ function Ctrl() {
   this.select.style.display = 'none';
   this.select.addEventListener('click', this.onSelect);
   this.div.appendChild(this.select);
+
+  this.rail = document.createElement('div');
+  this.rail.style.display = 'inline-block';
+  this.rail.style.position = 'absolute';
+  this.rail.style.top = '19px';
+  this.rail.style.left = '125px';
+  this.rail.style.width = '100px';
+  this.rail.style.height = '0';
+  this.rail.style.padding = '1px';
+  this.rail.style.borderStyle = 'solid';
+  this.rail.style.borderWidth = '1px';
+  this.rail.style.borderRadius = '2px';
+  this.rail.style.borderColor = '#aaa';
+  this.rail.style.backgroundColor = '#888';
+  this.div.appendChild(this.rail);
+
+  this.caret = document.createElement('div');
+  this.caret.style.display = 'inline-block';
+  this.caret.style.position = 'absolute';
+  this.caret.style.width = '2px';
+  this.caret.style.height = '2px';
+  this.caret.style.top = '-5px';
+  this.caret.style.left = '-5px';
+  this.caret.style.padding = '4px';
+  this.caret.style.borderStyle = 'solid';
+  this.caret.style.borderWidth = '1px';
+  this.caret.style.borderRadius = '6px';
+  this.caret.style.borderColor = '#aaa';
+  this.caret.style.backgroundColor = '#888';
+
+  this.rail.appendChild(this.caret);
 }
 Ctrl.prototype.disable = function() {
   ctrl.play.disable();
   ctrl.pause.disable();
   ctrl.stop.disable();
   ctrl.loop.disable();
+  ctrl.rail.style.borderColor = '#aaa';
+  ctrl.rail.style.backgroundColor = '#888';
+  ctrl.caret.style.borderColor = '#aaa';
+  ctrl.caret.style.backgroundColor = '#888';
 };
 Ctrl.prototype.enable = function() {
   ctrl.play.off();
   ctrl.pause.off();
   ctrl.stop.off();
   ctrl.loop.off();
+  //ctrl.rail.style.backgroundColor = '#aaa';
+  ctrl.rail.style.borderColor = '#ccc';
+  ctrl.caret.style.backgroundColor = '#aaa';
+  ctrl.caret.style.borderColor = '#ccc';
 };
 Ctrl.prototype.onPlay = function() {
   if (player) {
@@ -361,7 +405,7 @@ Ctrl.prototype.onSelect = function() {
 };
 
 ctrl = new Ctrl();
-document.getElementById('ctrl').appendChild(ctrl.div);
+document.getElementById('player').appendChild(ctrl.div);
 
 --></script>
 

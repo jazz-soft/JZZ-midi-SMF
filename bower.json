@@ -17,7 +17,7 @@
     "SMF",
     "Standard MIDI File"
   ],
-  "homepage": "https://github.com/jazz-soft/JZZ-midi-GM",
+  "homepage": "https://github.com/jazz-soft/JZZ-midi-SMF",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -27,6 +27,6 @@
     "Gruntfile.js"
   ],
   "dependencies": {
-    "jzz": "^0.4.6"
+    "jzz": "^0.4.7"
   }
 }
