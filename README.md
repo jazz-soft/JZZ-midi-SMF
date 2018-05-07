@@ -1,14 +1,13 @@
 # JZZ-midi-SMF
 
-The work is still in progress, but the working demo is already there...
+MIDI Files: read / write / play
 
-## Demo
+## Install
 
-In the working copy directory, run
-`npm install`,  
-then run
-`node test`,
-or open `test.html`.
+[**npm install jzz-midi-smf**](https://www.npmjs.com/package/jzz-midi-smf)  
+or **bower install jzz-midi-smf**  
+or **yarn add jzz-midi-smf**  
+or get the full development version and minified scripts from [**GitHub**](https://github.com/jazz-soft/JZZ-midi-SMF)
 
 ## Usage
 
@@ -42,9 +41,16 @@ Accepted file formats: `.mid`, `.kar`, `.rmi`
 ##### Playing MIDI file
 
     var midiout = JZZ().openMidiOut();
-    var data = ... // see test.html for the
-                   // various ways to load MIDI file
+    var data = ... // load MIDI file as string
     var smf = new JZZ.MIDI.SMF(data);
     var player = smf.player();
     player.connect(midiout);
     player.play();
+
+
+## More information
+
+Please visit [**https://jazz-soft.net**](https://jazz-soft.net) for more information.  
+Your questions and comments are welcome [**here**](https://jazz-soft.org).
+
+We would really appreciate your [**support**](https://jazz-soft.net/donate)!
