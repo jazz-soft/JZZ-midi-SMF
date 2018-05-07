@@ -1,6 +1,6 @@
 {
   "name": "jzz-midi-smf",
-  "description": "Standard MIDI File reader/writer",
+  "description": "Standard MIDI Files: read / write / play",
   "authors": [
     "jazz-soft (http://jazz-soft.net/)"
   ],

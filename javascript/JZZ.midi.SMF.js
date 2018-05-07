@@ -159,6 +159,7 @@
       t = m;
       if (b) break;
     }
+    pl._duration = t;
     return pl;
   };
 
@@ -434,6 +435,7 @@
     this.playing = false;
     this.looped = false;
     this._data = [];
+    this._pos = 0;
     this._tick = (function(x) { return function(){ x.tick(); }; })(this);
   }
   Player.prototype = new JZZ.Widget();
@@ -445,19 +447,21 @@
   Player.prototype.play = function() {
     if (this.ppqn) this.mul = this.ppqn / 500.0;
     else this.mul = this.fps * this.ppf / 1000.0;
+    this.event = undefined;
     this.playing = true;
+    this._pos = 0;
     this.ptr = 0;
     this.c0 = 0;
     this.t0 = _now();
     this.tick();
   };
   Player.prototype.stop = function() {
+    this._pos = 0;
     this.event = 'stop';
     this.paused = undefined;
   };
   Player.prototype.pause = function() {
     this.event = 'pause';
-    this.playing = false;
   };
   Player.prototype.resume = function() {
     if (this.playing || this.paused == undefined) return;
@@ -468,7 +472,7 @@
   };
   Player.prototype.sndOff = function() {
     for (var c = 0; c < 16; c++) this._emit(JZZ.MIDI.allSoundOff(c));
-  }
+  };
   function _midi(s) {
     var m = [];
     var i;
@@ -477,17 +481,17 @@
   }
   Player.prototype.tick = function() {
     var t = _now();
-    var c = this.c0 + (t - this.t0) * this.mul;
     var e;
     var evt;
+    this._pos = this.c0 + (t - this.t0) * this.mul;
     for(; this.ptr < this._data.length; this.ptr++) {
       e = this._data[this.ptr];
-      if (e.time > c) break;
+      if (e.time > this._pos) break;
       evt = {};
       if (e.status == '\xff\x51' && this.ppqn) {
         this.mul = this.ppqn * 1000.0 / ((e.data.charCodeAt(0) << 16) + (e.data.charCodeAt(1) << 8) + e.data.charCodeAt(2));
         this.t0 = t;
-        this.c0 = c;
+        this.c0 = this._pos;
       }
       else if (e.status.charCodeAt(0) == 0xf7) { evt.midi = e.data; }
       else if (e.status.charCodeAt(0) != 0xff) { evt.midi = e.status + e.data; }
@@ -505,29 +509,29 @@
       }
     }
     if (this.ptr >= this._data.length) {
-      this.onEnd();
       if (this.looped) {
         this.ptr = 0;
         this.c0 = 0;
         this.t0 = t;
       }
       else this.stop();
+      this.onEnd();
     }
     if (this.event == 'stop') {
       this.playing = false;
       this.sndOff();
       this.event = undefined;
     }
-    if (this.playing) {
-      JZZ.lib.schedule(this._tick);
-      return;
-    }
     if (this.event == 'pause') {
+      this.playing = false;
       this.paused = t;
       this.sndOff();
       this.event = undefined;
     }
+    if (this.playing) JZZ.lib.schedule(this._tick);
   };
+  Player.prototype.duration = function() { return this._duration; };
+  Player.prototype.position = function() { return this._pos; };
 
   JZZ.MIDI.SMF = SMF;
 });

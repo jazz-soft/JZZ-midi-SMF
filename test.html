@@ -5,6 +5,7 @@
 <script src="node_modules/jzz/javascript/JZZ.js"></script>
 <script src="node_modules/jzz-synth-osc/javascript/JZZ.synth.OSC.js"></script>
 <script src="javascript/JZZ.midi.SMF.js"></script>
+<script src="node_modules/jzz-gui-player/javascript/JZZ.gui.Player.js"></script>
 </head>
 
 <body>
@@ -29,14 +30,6 @@ or <a target=_blank href=https://addons.mozilla.org/en-US/firefox/addon/jazz-mid
 <pre id=log></pre>
 
 <script><!--
-var midiname;
-var newname;
-var ctrl;
-var player;
-var playing;
-var paused;
-var loop;
-var more;
 var log = document.getElementById('log');
 function report(s) { return function() { log.innerHTML = s; }; }
 
@@ -46,35 +39,18 @@ JZZ.synth.OSC.register('Web Audio');
 document.getElementById('player').innerHTML = '';
 document.getElementById('note').style.display = 'block';
 
-var midiout = JZZ().or(report('Cannot start MIDI engine!'))
-                   .openMidiOut().or(report('Cannot open MIDI Out!'))
-                                 .and(function() { midiname = this.info().name; });
+JZZ().or(report('Cannot start MIDI engine!')).openMidiOut().or(report('Cannot open MIDI Out!'));
+var player = new JZZ.gui.Player('player');
+
 function clear() {
-  if (player) player.stop();
-  player = undefined;
-  playing = false;
-  paused = false;
-  loop = false;
-  ctrl.disable();
+  player.stop();
+  player.disable();
   log.innerHTML = '';
 }
 
-function onEnd() {
-  if (!loop) {
-    playing = false;
-    ctrl.play.off();
-  }
-}
-
-function load(s) {
+function load(data) {
   try {
-    var smf = new JZZ.MIDI.SMF(s);
-    player = smf.player();
-    player.onEnd = onEnd;
-    player.connect(midiout);
-    ctrl.enable();
-    ctrl.play.on();
-    playing = true;
+    player.load(new JZZ.MIDI.SMF(data));
     player.play();
   }
   catch (e) {
@@ -172,241 +148,6 @@ function fromBase64() {
   clear();
   load(_fromBase64(data));
 }
-
-// MIDI controls
-
-function Btn(html) {
-  this.div = document.createElement('div');
-  this.div.style.display = 'inline-block';
-  this.div.style.position = 'absolute';
-  this.div.style.top = '8px';
-  this.div.style.margin = '0';
-  this.div.style.padding = '2px';
-  this.div.style.borderStyle = 'solid';
-  this.div.style.borderWidth = '1px';
-  this.div.style.borderColor = '#aaa';
-  this.div.style.backgroundColor = '#888';
-  this.div.style.width = '18px';
-  this.div.style.height = '18px';
-  this.div.innerHTML = html;
-}
-Btn.prototype.on = function() {
-  this.div.style.backgroundColor = '#ddd';
-  this.div.style.borderColor = '#ccc';
-  this.div.firstChild.style.fill = '#000';
-};
-Btn.prototype.off = function() {
-  this.div.style.backgroundColor = '#aaa';
-  this.div.style.borderColor = '#ccc';
-  this.div.firstChild.style.fill = '#000';
-};
-Btn.prototype.disable = function() {
-  this.div.style.backgroundColor = '#888';
-  this.div.style.borderColor = '#aaa';
-  this.div.firstChild.style.fill = '#555';
-};
-
-var svg_play = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/><path d="M0 0h24v24H0z" fill="none"/></svg>';
-
-var svg_pause = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/><path d="M0 0h24v24H0z" fill="none"/></svg>';
-
-var svg_stop = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 6h12v12H6z"/></svg>';
-
-var svg_loop = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>';
-
-var svg_more = '<svg fill="#555" height="18" viewBox="0 0 24 24" width="18" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 3v9.28c-.47-.17-.97-.28-1.5-.28C8.01 12 6 14.01 6 16.5S8.01 21 10.5 21c2.31 0 4.2-1.75 4.45-4H15V6h4V3h-7z"/></svg>';
-
-function Ctrl() {
-  this.div = document.createElement('div');
-  this.div.style.display = 'inline-block';
-  this.div.style.position = 'relative';
-  this.div.style.margin = '0px';
-  this.div.style.padding = '0px';
-  this.div.style.borderStyle = 'solid';
-  this.div.style.borderWidth = '1px';
-  this.div.style.borderColor = '#ccc';
-  this.div.style.backgroundColor = '#888';
-  this.div.style.width = '270px';
-  this.div.style.height = '40px';
-  this.play = new Btn(svg_play);
-  this.play.div.style.left = '8px';
-  this.play.div.title = 'play';
-  this.play.div.addEventListener('click', this.onPlay);
-  this.div.appendChild(this.play.div);
-  this.pause = new Btn(svg_pause);
-  this.pause.div.style.left = '36px';
-  this.pause.div.title = 'pause';
-  this.pause.div.addEventListener('click', this.onPause);
-  this.div.appendChild(this.pause.div);
-  this.stop = new Btn(svg_stop);
-  this.stop.div.style.left = '64px';
-  this.stop.div.title = 'stop';
-  this.stop.div.addEventListener('click', this.onStop);
-  this.div.appendChild(this.stop.div);
-  this.loop = new Btn(svg_loop);
-  this.loop.div.style.left = '92px';
-  this.loop.div.title = 'loop';
-  this.loop.div.addEventListener('click', this.onLoop);
-  this.div.appendChild(this.loop.div);
-  this.more = new Btn(svg_more);
-  this.more.div.style.left = '238px';
-  this.more.div.title = 'midi';
-  this.more.div.addEventListener('click', this.onMore);
-  this.more.off();
-  this.div.appendChild(this.more.div);
-  this.select = document.createElement('select');
-  this.select.style.position = 'absolute';
-  this.select.style.top = '30px';
-  this.select.style.left = '40px'; // 8
-  this.select.style.width = '230px'; // 262
-  this.select.style.display = 'none';
-  this.select.addEventListener('click', this.onSelect);
-  this.div.appendChild(this.select);
-
-  this.rail = document.createElement('div');
-  this.rail.style.display = 'inline-block';
-  this.rail.style.position = 'absolute';
-  this.rail.style.top = '19px';
-  this.rail.style.left = '125px';
-  this.rail.style.width = '100px';
-  this.rail.style.height = '0';
-  this.rail.style.padding = '1px';
-  this.rail.style.borderStyle = 'solid';
-  this.rail.style.borderWidth = '1px';
-  this.rail.style.borderRadius = '2px';
-  this.rail.style.borderColor = '#aaa';
-  this.rail.style.backgroundColor = '#888';
-  this.div.appendChild(this.rail);
-
-  this.caret = document.createElement('div');
-  this.caret.style.display = 'inline-block';
-  this.caret.style.position = 'absolute';
-  this.caret.style.width = '2px';
-  this.caret.style.height = '2px';
-  this.caret.style.top = '-5px';
-  this.caret.style.left = '-5px';
-  this.caret.style.padding = '4px';
-  this.caret.style.borderStyle = 'solid';
-  this.caret.style.borderWidth = '1px';
-  this.caret.style.borderRadius = '6px';
-  this.caret.style.borderColor = '#aaa';
-  this.caret.style.backgroundColor = '#888';
-
-  this.rail.appendChild(this.caret);
-}
-Ctrl.prototype.disable = function() {
-  ctrl.play.disable();
-  ctrl.pause.disable();
-  ctrl.stop.disable();
-  ctrl.loop.disable();
-  ctrl.rail.style.borderColor = '#aaa';
-  ctrl.rail.style.backgroundColor = '#888';
-  ctrl.caret.style.borderColor = '#aaa';
-  ctrl.caret.style.backgroundColor = '#888';
-};
-Ctrl.prototype.enable = function() {
-  ctrl.play.off();
-  ctrl.pause.off();
-  ctrl.stop.off();
-  ctrl.loop.off();
-  //ctrl.rail.style.backgroundColor = '#aaa';
-  ctrl.rail.style.borderColor = '#ccc';
-  ctrl.caret.style.backgroundColor = '#aaa';
-  ctrl.caret.style.borderColor = '#ccc';
-};
-Ctrl.prototype.onPlay = function() {
-  if (player) {
-    if (paused) player.resume();
-    else if (!playing) player.play();
-    playing = true;
-    paused = false;
-    ctrl.play.on();
-    ctrl.pause.off();
-  }
-};
-Ctrl.prototype.onPause = function() {
-  if (playing) {
-    ctrl.play.off();
-    ctrl.pause.on();
-    playing = false;
-    paused = true;
-    player.pause();
-  }
-  else if (paused) {
-    ctrl.play.on();
-    ctrl.pause.off();
-    playing = true;
-    player.resume();
-  }
-};
-Ctrl.prototype.onStop = function() {
-  if (player) {
-    if (playing) {
-      player.stop();
-    }
-    playing = false;
-    paused = false;
-    ctrl.play.off();
-    ctrl.pause.off();
-  }
-};
-Ctrl.prototype.onLoop = function() {
-  if (player) {
-    loop = !loop;
-    player.loop(loop);
-    if (loop) ctrl.loop.on();
-    else ctrl.loop.off();
-  }
-};
-Ctrl.prototype.onMore = function() {
-  if (more) return;
-  more = true;
-  ctrl.more.on();
-  ctrl.select.style.display = 'inline-block';
-  JZZ().refresh().and(function() {
-    var outs = this.info().outputs;
-    var i;
-    for (i = 0; i < ctrl.select.options.length; i++) ctrl.select.remove(i);
-    for (i = 0; i < outs.length; i++) ctrl.select[i] = new Option(outs[i].name, outs[i].name);
-    ctrl.select.size = outs.length < 2 ? 2 : outs.length;
-  });
-};
-function changeMidi() {
-  var port = JZZ().openMidiOut(newname).or(function() {
-    newname = undefined;
-    ctrl.more.off();
-    ctrl.select.style.display = 'none';
-    more = false;
-  }).and(function() {
-    midiname = newname;
-    if (player) {
-      player.sndOff();
-      player.disconnect(midiout);
-    }
-    midiout = this;
-    if (player) player.connect(midiout);
-    newname = undefined;
-    ctrl.more.off();
-    ctrl.select.style.display = 'none';
-    more = false;
-  });
-}
-Ctrl.prototype.onSelect = function() {
-  newname = ctrl.select.options[ctrl.select.selectedIndex].value;
-  if (newname == midiname) {
-    newname = undefined;
-    ctrl.more.off();
-    ctrl.select.style.display = 'none';
-    more = false;
-  }
-  else {
-    setTimeout(changeMidi, 0);
-  }
-};
-
-ctrl = new Ctrl();
-document.getElementById('player').appendChild(ctrl.div);
-
 --></script>
 
 </body>
