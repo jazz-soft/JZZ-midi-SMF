@@ -1,6 +1,6 @@
 # JZZ-midi-SMF
 
-MIDI Files: read / write / play
+Standard MIDI Files: read / write / play
 
 ## Install
 
