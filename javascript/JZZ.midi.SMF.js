@@ -41,7 +41,7 @@
     else if (arguments.length) _error('Invalid parameters');
     if (isNaN(type) || type < 0 || type > 2) _error('Invalid parameters');
     this.type = type;
-    if (fps == undefined) {
+    if (typeof fps == 'undefined') {
       if (isNaN(ppqn) || ppqn < 0 || type > 0xffff) _error('Invalid parameters');
       this.ppqn = ppqn;
     }
@@ -183,7 +183,7 @@
 
 
   function MTrk(s) {
-    if(s == undefined) {
+    if(typeof s == 'undefined') {
       this.push(new Event(0, '\xff\x2f', ''));
       return;
     }
@@ -297,9 +297,9 @@
       '\xff\x7f': 17,
       '\xff\x2f': 20
     }[s];
-    if (x != undefined) return x;
+    if (typeof x !== 'undefined') return x;
     x = { 8: 10, 15: 11, 11: 12, 12: 13, 10: 15, 13: 15, 14: 15 }[s.charCodeAt(0) >> 4];
-    if (x != undefined) return x;
+    if (typeof x !== 'undefined') return x;
     if ((s.charCodeAt(0) >> 4) == 9) return d.charCodeAt(1) ? 14 : 10;
     return 18;
   }
@@ -327,7 +327,7 @@
     if (x < 0x80 || x > 0xfe) _error('Invalid MIDI message');
 //!!!!!!!
     var y = JZZ_.Midi.len(x);
-    if (y != undefined && y != msg.length) _error('Invalid MIDI message');
+    if (typeof y !== 'undefined' && y != msg.length) _error('Invalid MIDI message');
     this.addEvent(t, msg.substr(0, 1), msg.substr(1));
   };
   MTrk.prototype.addNote = function(t, ch, note, vel, dur) {
@@ -336,10 +336,10 @@
     if (isNaN(n) || n < 0 || n > 127) _error('Invalid parameter');
     ch = parseInt(ch);
     if (isNaN(ch) || ch < 0 || ch > 15) _error('Invalid parameter');
-    if (dur == undefined) dur = 0;
+    if (typeof dur == 'undefined') dur = 0;
     dur = parseInt(dur);
     if (isNaN(dur) || dur < 0) _error('Invalid parameter');
-    if (vel == undefined) vel = 127;
+    if (typeof vel == 'undefined') vel = 127;
     vel = parseInt(vel);
     if (isNaN(vel) || vel < 0 || vel > 127) _error('Invalid parameter');
     this.addMidi(t, 0x90 + ch, n, vel);
@@ -449,10 +449,11 @@
     else this.mul = this.fps * this.ppf / 1000.0;
     this.event = undefined;
     this.playing = true;
+    this.paused = false;
+    this._ptr = 0;
     this._pos = 0;
-    this.ptr = 0;
-    this.c0 = 0;
-    this.t0 = _now();
+    this._p0 = 0;
+    this._t0 = _now();
     this.tick();
   };
   Player.prototype.stop = function() {
@@ -464,10 +465,10 @@
     this.event = 'pause';
   };
   Player.prototype.resume = function() {
-    if (this.playing || this.paused == undefined) return;
-    var t = _now();
-    this.t0 += _now() - this.paused;
+    if (this.playing || !this.paused) return;
+    this._t0 = _now();
     this.playing = true;
+    this.paused = false;
     this.tick();
   };
   Player.prototype.sndOff = function() {
@@ -483,15 +484,14 @@
     var t = _now();
     var e;
     var evt;
-    this._pos = this.c0 + (t - this.t0) * this.mul;
-    for(; this.ptr < this._data.length; this.ptr++) {
-      e = this._data[this.ptr];
+    this._pos = this._p0 + (t - this._t0) * this.mul;
+    for(; this._ptr < this._data.length; this._ptr++) {
+      e = this._data[this._ptr];
       if (e.time > this._pos) break;
       evt = {};
       if (e.status == '\xff\x51' && this.ppqn) {
         this.mul = this.ppqn * 1000.0 / ((e.data.charCodeAt(0) << 16) + (e.data.charCodeAt(1) << 8) + e.data.charCodeAt(2));
-        this.t0 = t;
-        this.c0 = this._pos;
+        this._p0 = this._pos - (t - this._t0) * this.mul;
       }
       else if (e.status.charCodeAt(0) == 0xf7) { evt.midi = e.data; }
       else if (e.status.charCodeAt(0) != 0xff) { evt.midi = e.status + e.data; }
@@ -508,23 +508,27 @@
         this.onData(e);
       }
     }
-    if (this.ptr >= this._data.length) {
+    if (this._ptr >= this._data.length) {
       if (this.looped) {
-        this.ptr = 0;
-        this.c0 = 0;
-        this.t0 = t;
+        this._ptr = 0;
+        this._p0 = 0;
+        this._t0 = t;
       }
       else this.stop();
       this.onEnd();
     }
     if (this.event == 'stop') {
       this.playing = false;
+      this.paused = false;
+      this._pos = 0;
+      this._ptr = 0;
       this.sndOff();
       this.event = undefined;
     }
     if (this.event == 'pause') {
       this.playing = false;
-      this.paused = t;
+      this.paused = true;
+      this._p0 = this._pos;
       this.sndOff();
       this.event = undefined;
     }
@@ -532,6 +536,27 @@
   };
   Player.prototype.duration = function() { return this._duration; };
   Player.prototype.position = function() { return this._pos; };
-
+  Player.prototype.jump = function(pos) {
+    if (Number.isNaN(Number.parseFloat(pos))) _error('Not a number: ' + pos);
+    if (pos < 0) pos = 0;
+    if (pos > this._duration) pos = this._duration;
+    var from = this._pos;
+    this._pos = pos;
+    this._p0 = pos;
+    this._t0 = _now();
+    if (pos && !this.playing) this.paused = true;
+    this._toPos();
+    if (this.playing) this.sndOff();
+  };
+  Player.prototype._toPos = function() {
+    for(this._ptr = 0; this._ptr < this._data.length; this._ptr++) {
+      e = this._data[this._ptr];
+      if (e.time >= this._pos) break;
+      if (e.status == '\xff\x51' && this.ppqn) {
+        this.mul = this.ppqn * 1000.0 / ((e.data.charCodeAt(0) << 16) + (e.data.charCodeAt(1) << 8) + e.data.charCodeAt(2));
+        this._p0 = this._pos - (_now() - this._t0) * this.mul;
+      }
+    }
+  };
   JZZ.MIDI.SMF = SMF;
 });

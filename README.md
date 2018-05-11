@@ -2,6 +2,13 @@
 
 Standard MIDI Files: read / write / play
 
+![](http://jazz-soft.github.io/img/nodejs.jpg)
+![](http://jazz-soft.github.io/img/firefox.jpg)
+![](http://jazz-soft.github.io/img/chrome.jpg)
+![](http://jazz-soft.github.io/img/opera.jpg)
+![](http://jazz-soft.github.io/img/safari.jpg)
+![](http://jazz-soft.github.io/img/msie.jpg)
+
 ## Install
 
 [**npm install jzz-midi-smf**](https://www.npmjs.com/package/jzz-midi-smf)  
