@@ -2,12 +2,12 @@
 
 Standard MIDI Files: read / write / play
 
-![](http://jazz-soft.github.io/img/nodejs.jpg)
-![](http://jazz-soft.github.io/img/firefox.jpg)
-![](http://jazz-soft.github.io/img/chrome.jpg)
-![](http://jazz-soft.github.io/img/opera.jpg)
-![](http://jazz-soft.github.io/img/safari.jpg)
-![](http://jazz-soft.github.io/img/msie.jpg)
+![Node.js](http://jazz-soft.github.io/img/nodejs.jpg)
+![Firefox](http://jazz-soft.github.io/img/firefox.jpg)
+![Chrome](http://jazz-soft.github.io/img/chrome.jpg)
+![Opera](http://jazz-soft.github.io/img/opera.jpg)
+![Safari](http://jazz-soft.github.io/img/safari.jpg)
+![Internet Explorer](http://jazz-soft.github.io/img/msie.jpg)
 
 ## Install
 
@@ -43,7 +43,7 @@ or get the full development version and minified scripts from [**GitHub**](https
     });
 
 ## MIDI files
-Accepted file formats: `.mid`, `.kar`, `.rmi`
+Supported file formats: `.mid`, `.kar`, `.rmi`
 
 ##### Playing MIDI file
 

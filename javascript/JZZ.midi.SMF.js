@@ -465,11 +465,15 @@
     this.event = 'pause';
   };
   Player.prototype.resume = function() {
-    if (this.playing || !this.paused) return;
-    this._t0 = _now();
-    this.playing = true;
-    this.paused = false;
-    this.tick();
+    if (this.playing) return;
+    if (this.paused) {
+      this.event = undefined;
+      this._t0 = _now();
+      this.playing = true;
+      this.paused = false;
+      this.tick();
+    }
+    else this.play();
   };
   Player.prototype.sndOff = function() {
     for (var c = 0; c < 16; c++) this._emit(JZZ.MIDI.allSoundOff(c));
@@ -528,6 +532,7 @@
     if (this.event == 'pause') {
       this.playing = false;
       this.paused = true;
+      if (this._pos >= this._duration) this._pos = this._duration - 1;
       this._p0 = this._pos;
       this.sndOff();
       this.event = undefined;
@@ -539,12 +544,11 @@
   Player.prototype.jump = function(pos) {
     if (Number.isNaN(Number.parseFloat(pos))) _error('Not a number: ' + pos);
     if (pos < 0) pos = 0;
-    if (pos > this._duration) pos = this._duration;
-    var from = this._pos;
+    if (pos >= this._duration) pos = this._duration - 1;
     this._pos = pos;
     this._p0 = pos;
     this._t0 = _now();
-    if (pos && !this.playing) this.paused = true;
+    if (!this.playing) this.paused = !!pos;
     this._toPos();
     if (this.playing) this.sndOff();
   };
