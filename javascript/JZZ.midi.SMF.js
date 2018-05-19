@@ -432,15 +432,15 @@
   };
 
   function Player() {
-    this.playing = false;
-    this.looped = false;
-    this._data = [];
-    this._pos = 0;
-    this._tick = (function(x) { return function(){ x.tick(); }; })(this);
+    var self = new JZZ.Widget();
+    self.playing = false;
+    self.looped = false;
+    self._data = [];
+    self._pos = 0;
+    self._tick = (function(x) { return function(){ x.tick(); }; })(self);
+    for (var k in Player.prototype) if (Player.prototype.hasOwnProperty(k)) self[k] = Player.prototype[k];
+    return self;
   }
-  Player.prototype = new JZZ.Widget();
-  Player.prototype.constructor = Player;
-
   Player.prototype.onEnd = function() {};
   Player.prototype.onData = function() {};
   Player.prototype.loop = function(b) { this.looped = b ? true : false; };
