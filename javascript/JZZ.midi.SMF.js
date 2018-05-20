@@ -542,7 +542,7 @@
   Player.prototype.duration = function() { return this._duration; };
   Player.prototype.position = function() { return this._pos; };
   Player.prototype.jump = function(pos) {
-    if (Number.isNaN(Number.parseFloat(pos))) _error('Not a number: ' + pos);
+    if (isNaN(parseFloat(pos))) _error('Not a number: ' + pos);
     if (pos < 0) pos = 0;
     if (pos >= this._duration) pos = this._duration - 1;
     this._pos = pos;
