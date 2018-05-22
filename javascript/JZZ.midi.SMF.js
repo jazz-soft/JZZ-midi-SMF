@@ -434,7 +434,7 @@
   function Player() {
     var self = new JZZ.Widget();
     self.playing = false;
-    self.looped = false;
+    self._loop = 0;
     self._data = [];
     self._pos = 0;
     self._tick = (function(x) { return function(){ x.tick(); }; })(self);
@@ -443,7 +443,10 @@
   }
   Player.prototype.onEnd = function() {};
   Player.prototype.onData = function() {};
-  Player.prototype.loop = function(b) { this.looped = b ? true : false; };
+  Player.prototype.loop = function(n) {
+    if (n == parseInt(n) && n > 0) this._loop = n;
+    else this._loop = n ? -1 : 0;
+  };
   Player.prototype.play = function() {
     if (this.ppqn) this.mul = this.ppqn / 500.0;
     else this.mul = this.fps * this.ppf / 1000.0;
@@ -513,7 +516,8 @@
       }
     }
     if (this._ptr >= this._data.length) {
-      if (this.looped) {
+      if (this._loop && this._loop != -1) this._loop--;
+      if (this._loop) {
         this._ptr = 0;
         this._p0 = 0;
         this._t0 = t;

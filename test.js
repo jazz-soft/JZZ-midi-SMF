@@ -8,5 +8,6 @@ console.log(smf);
 var player = smf.player();
 JZZ().or('Cannot start MIDI engine!').openMidiOut().or('Cannot open MIDI Out!').and(function() {
   player.connect(this);
+  player.loop(3);
   player.play();
 });
