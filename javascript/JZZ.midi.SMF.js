@@ -12,6 +12,8 @@
 
   if (JZZ.MIDI.SMF) return;
 
+  var _ver = '0.0.9';
+
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
 
@@ -359,80 +361,11 @@
     this.status = s;
     this.data = d;
   }
-  Event.prototype.toString = function() {
-    var str;
-    var i;
-    var s0 = this.status.charCodeAt(0);
-    if (s0 > 0x7f && s0 != 0xff && s0 != 0xf0 && s0 != 0xf7) return JZZ_.MIDI(this.status + this.data).toString();
-    if (s0 == 0xff) {
-      var s1 = this.status.charCodeAt(1);
-      str = "ff" + (s1 > 15 ? '' : '0') + s1.toString(16) + ' ';
-      if (s1 == 0) {
-        str += 'Sequence number: ' + this.data.charCodeAt(0);
-        return str;
-      }
-      else if (s1 < 10) {
-        str += {
-          1: 'Text',
-          2: 'Copyright',
-          3: 'Track name',
-          4: 'Instrument',
-          5: 'Lyrics',
-          6: 'Marker',
-          7: 'Cue point',
-          8: 'Program name',
-          9: 'Device name'
-        }[s1];
-        str += ': ' + this.data;
-        return str;
-      }
-      else if (s1 == 0x20) str += 'MIDI channel: ';
-      else if (s1 == 0x21) str += 'MIDI port: ';
-      else if (s1 == 0x2f) {
-        str += 'End of track';
-        return str;
-      }
-      else if (s1 == 0x51) {
-        var ms = this.data.charCodeAt(0) * 65536 + this.data.charCodeAt(1) * 256 + this.data.charCodeAt(2);
-        var bpm = Math.round(60000000 * 100 / ms) / 100;
-        str += 'Tempo: ' + bpm + ' bpm';
-        return str;
-      }
-      else if (s1 == 0x54) {
-        str += 'SMPTE offset: ' + (this.data.charCodeAt(0) > 9 ? '' : '0') + this.data.charCodeAt(0).toString();
-        for (i = 1; i < this.data.length; i++) str += ':' + (this.data.charCodeAt(i) > 9 ? '' : '0') + this.data.charCodeAt(i);
-        return str;
-      }
-      else if (s1 == 0x58) {
-        var d = 1 << this.data.charCodeAt(1);
-        str += 'Time signature: ' + this.data.charCodeAt(0) + '/' + d;
-        str += ' ' + this.data.charCodeAt(2) + ' ' + this.data.charCodeAt(3);
-        return str;
-      }
-      else if (s1 == 0x59) {
-        str += 'Key signature: ';
-        var sf = this.data.charCodeAt(0);
-        var mi = this.data.charCodeAt(1);
-        if (sf & 0x80) sf = sf - 0x100;
-        sf += 7;
-        if (sf >= 0 && sf <= 14 && mi >= 0 && mi <= 1) {
-          if (mi) sf += 3;
-          str += ['Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'G#', 'D#', 'A#'][sf];
-          if (mi) str += 'min';
-          return str;
-        }
-      }
-      else if (s1 == 0x7f) str += 'Proprietary event: ';
-    }
-    else if (s0 == 0xf0) str = 'SysEx: f0';
-    else if (s0 == 0xf7) str = 'SysEx cont.:';
-    else str = (s0 > 15 ? '' : '0') + s0.toString(16);
-    for (i = 0; i < this.data.length; i++) str += ' ' + (this.data.charCodeAt(i) > 15 ? '' : '0') + this.data.charCodeAt(i).toString(16);
-    return str;
-  };
-
   function Player() {
     var self = new JZZ.Widget();
+    self._info.name = 'MIDI Player';
+    self._info.manufacturer = 'Jazz-Soft';
+    self._info.version = _ver;
     self.playing = false;
     self._loop = 0;
     self._data = [];
