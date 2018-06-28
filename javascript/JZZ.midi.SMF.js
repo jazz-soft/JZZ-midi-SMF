@@ -18,16 +18,17 @@
   function _error(s) { throw new Error(s); }
 
   function SMF() {
+    var self = this instanceof SMF ? this : self = new SMF();
     var type=1;
     var ppqn=96;
     var fps;
     var ppf;
     if (arguments.length == 1) {
       if (arguments[0] instanceof SMF) {
-        this.dup(arguments[0]); return;
+        self.dup(arguments[0]); return self;
       }
       if (typeof arguments[0] == 'string' && arguments[0] != '0' && arguments[0] !='1' && arguments[0] != '2') {
-        this.load(arguments[0]); return;
+        self.load(arguments[0]); return self;
       }
       type = parseInt(arguments[0]);
     }
@@ -42,17 +43,18 @@
     }
     else if (arguments.length) _error('Invalid parameters');
     if (isNaN(type) || type < 0 || type > 2) _error('Invalid parameters');
-    this.type = type;
+    self.type = type;
     if (typeof fps == 'undefined') {
       if (isNaN(ppqn) || ppqn < 0 || type > 0xffff) _error('Invalid parameters');
-      this.ppqn = ppqn;
+      self.ppqn = ppqn;
     }
     else {
       if (fps != 24 && fps != 25 && fps != 29 && fps != 30) _error('Invalid parameters');
       if (isNaN(ppf) || ppf < 0 || type > 0xff) _error('Invalid parameters');
-      this.fps = fps;
-      this.ppf = ppf;
+      self.fps = fps;
+      self.ppf = ppf;
     }
+    return self;
   }
 
   SMF.prototype = [];
