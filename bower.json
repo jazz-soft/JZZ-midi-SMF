@@ -2,7 +2,7 @@
   "name": "jzz-midi-smf",
   "description": "Standard MIDI Files: read / write / play",
   "authors": [
-    "jazz-soft (http://jazz-soft.net/)"
+    "jazz-soft (https://jazz-soft.net/)"
   ],
   "main": "javascript/JZZ.midi.SMF.js",
   "moduleType": [
