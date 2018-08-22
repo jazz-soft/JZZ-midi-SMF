@@ -7,13 +7,16 @@ Standard MIDI Files: read / write / play
 ![Chrome](https://jazz-soft.github.io/img/chrome.jpg)
 ![Opera](https://jazz-soft.github.io/img/opera.jpg)
 ![Safari](https://jazz-soft.github.io/img/safari.jpg)
-![Internet Explorer](https://jazz-soft.github.io/img/msie.jpg)
+![Internet Explorer](https://jazz-soft.github.io/img/msie.jpg)  
+[![npm](https://img.shields.io/npm/v/jzz-midi-smf.svg)](https://www.npmjs.com/package/jzz-midi-smf)
+[![Build Status](https://travis-ci.org/jazz-soft/JZZ-midi-SMF.svg?branch=master)](https://travis-ci.org/jazz-soft/JZZ-midi-SMF)
+
 
 ## Install
 
-[**npm install jzz-midi-smf**](https://www.npmjs.com/package/jzz-midi-smf)  
-or **bower install jzz-midi-smf**  
-or **yarn add jzz-midi-smf**  
+`npm install jzz-midi-smf --save`  
+or `bower install jzz-midi-smf`  
+or `yarn add jzz-midi-smf`  
 or get the full development version and minified scripts from [**GitHub**](https://github.com/jazz-soft/JZZ-midi-SMF)
 
 ## Usage
