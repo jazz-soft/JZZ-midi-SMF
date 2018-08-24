@@ -1,4 +1,4 @@
-(function(global, factory) {
+s(function(global, factory) {
   if (typeof exports === 'object' && typeof module !== 'undefined') {
     module.exports = factory;
   }
@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '0.1.0';
+  var _ver = '0.1.1';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
