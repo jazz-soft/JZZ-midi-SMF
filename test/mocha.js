@@ -1,5 +1,6 @@
 ﻿var assert = require('assert');
-var JZZ = require('..');
+var JZZ = require('jzz');
+require('..')(JZZ);
 
 function Sample(done, list) {
   this.done = done;
