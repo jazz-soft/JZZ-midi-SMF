@@ -9,6 +9,7 @@ Standard MIDI Files: read / write / play
 ![Safari](https://jazz-soft.github.io/img/safari.jpg)
 ![Internet Explorer](https://jazz-soft.github.io/img/msie.jpg)  
 [![npm](https://img.shields.io/npm/v/jzz-midi-smf.svg)](https://www.npmjs.com/package/jzz-midi-smf)
+[![npm](https://img.shields.io/npm/dt/jzz-midi-smf.svg)](https://www.npmjs.com/package/jzz-midi-smf)
 [![Build Status](https://travis-ci.org/jazz-soft/JZZ-midi-SMF.svg?branch=master)](https://travis-ci.org/jazz-soft/JZZ-midi-SMF)
 
 

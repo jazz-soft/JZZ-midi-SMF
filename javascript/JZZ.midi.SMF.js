@@ -108,7 +108,13 @@
     s = 'MThd\0\0\0\6\0' + String.fromCharCode(this.type) + String.fromCharCode(k >> 8) + String.fromCharCode(k&0xff) + s;
     return s;
   };
-  SMF.prototype.toString = function() { return "Midi File " + this.length; };
+  SMF.prototype.toString = function() {
+    var a = ['SMF:', '  type: ' + this.type, '  ppqn: ' + this.ppqn, '  tracks: ' + this.ntrk];
+    for (var i = 0; i < this.length; i++) {
+      a.push(this[i].toString());
+    }
+    return a.join('\n');
+  };
 
   function _var2num(s) {
     if (s.charCodeAt(0) < 0x80) return s.charCodeAt(0);
@@ -147,7 +153,7 @@
       var b = true;
       var m;
       for (i = 0; i < tt.length; i++) {
-        while (pp[i] < tt[i].length && tt[i][pp[i]].tick == t) {
+        while (pp[i] < tt[i].length && tt[i][pp[i]].tt == t) {
           var obj = tt[i][pp[i]];
           var evt = JZZ.MIDI(obj);
           evt.track = i;
@@ -155,9 +161,9 @@
           pp[i]++;
         }
         if (pp[i] >= tt[i].length) continue;
-        if(b) m = tt[i][pp[i]].tick;
+        if(b) m = tt[i][pp[i]].tt;
         b = false;
-        if(m > tt[i][pp[i]].tick) m = tt[i][pp[i]].tick;
+        if(m > tt[i][pp[i]].tt) m = tt[i][pp[i]].tt;
       }
       t = m;
       if (b) break;
@@ -249,8 +255,8 @@
     var d;
     var len;
     for (var i = 0; i < this.length; i++) {
-      d = this[i].tick - t;
-      t = this[i].tick;
+      d = this[i].tt - t;
+      t = this[i].tt;
       if (d > 0x1fffff) s += String.fromCharCode(((d >> 21) & 0x7f) + 0x80);
       if (d > 0x3fff) s += String.fromCharCode(((d >> 14) & 0x7f) + 0x80);
       if (d > 0x7f) s += String.fromCharCode(((d >> 7) & 0x7f) + 0x80);
@@ -272,15 +278,22 @@
     len = s.length;
     return 'MTrk' + String.fromCharCode((len >> 24) & 255) + String.fromCharCode((len >> 16) & 255) + String.fromCharCode((len >> 8) & 255) + String.fromCharCode(len & 255) + s;
   };
-  MTrk.prototype.getTick = function() { return this[this.length - 1].tick; };
+  MTrk.prototype.toString = function() {
+    var a = ['MTrk:'];
+    for (var i = 0; i < this.length; i++) {
+      a.push(this[i].tt + ': ' + this[i].toString());
+    }
+    return a.join('\n  ');
+  };
+  MTrk.prototype.getTick = function() { return this[this.length - 1].tt; };
   MTrk.prototype.setTick = function(t) {
     t = parseInt(t);
     if (isNaN(t) || t < 0) _error('Invalid parameter');
     var e = this[this.length - 1];
-    if (t < e.tick) {
+    if (t < e.tt) {
       _error("not yet implemented");
     }
-    e.tick = t;
+    e.tt = t;
   };
   function _eventOrder(s, d) {
     var x = {
@@ -315,8 +328,8 @@
     if (this.getTick() < t) this.setTick(t);
     var x = this.eventOrder(s, d);
     for (i = 0; i < this.length; i++) {
-      if (this[i].tick > t) break;
-      if (this[i].tick == t && this.eventOrder(this[i].status, this[i].data) > x) break;
+      if (this[i].tt > t) break;
+      if (this[i].tt == t && this.eventOrder(this[i].status, this[i].data) > x) break;
     }
     this.splice(i, 0, new Event(t, s, d));
   };
@@ -358,7 +371,7 @@
 
 
   function Event(t, s, d) {
-    this.tick = t;
+    this.tt = t;
     this.status = s;
     this.data = d;
     var midi;
@@ -370,7 +383,7 @@
       for (var i = 0; i < d.length; i++) a.push(d.charCodeAt(i));
       midi = JZZ.MIDI(a);
     }
-    midi.tick = t;
+    midi.tt = t;
     return midi;
   }
   function Player() {
@@ -439,7 +452,7 @@
     this._pos = this._p0 + (t - this._t0) * this.mul;
     for(; this._ptr < this._data.length; this._ptr++) {
       e = this._data[this._ptr];
-      if (e.tick > this._pos) break;
+      if (e.tt > this._pos) break;
       if (e.ff == 0x51 && this.ppqn) {
         this.mul = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
         this._p0 = this._pos - (t - this._t0) * this.mul;
@@ -490,7 +503,7 @@
   Player.prototype._toPos = function() {
     for(this._ptr = 0; this._ptr < this._data.length; this._ptr++) {
       e = this._data[this._ptr];
-      if (e.tick >= this._pos) break;
+      if (e.tt >= this._pos) break;
       if (e.status == '\xff\x51' && this.ppqn) {
         this.mul = this.ppqn * 1000.0 / ((e.data.charCodeAt(0) << 16) + (e.data.charCodeAt(1) << 8) + e.data.charCodeAt(2));
         this._p0 = this._pos - (_now() - this._t0) * this.mul;
