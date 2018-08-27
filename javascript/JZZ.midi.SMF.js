@@ -66,6 +66,7 @@
 
   SMF.prototype.load = function(s) {
     if (s.substr(0, 4) == 'RIFF' && s.substr(8, 8) == 'RMIDdata') {
+      this.rmi = true;
       s = s.substr(20, s.charCodeAt(16) + s.charCodeAt(17) * 0x100 + s.charCodeAt(18) * 0x10000 + s.charCodeAt(19) * 0x1000000);
     }
     this.loadSMF(s);
@@ -109,7 +110,10 @@
     return s;
   };
   SMF.prototype.toString = function() {
-    var a = ['SMF:', '  type: ' + this.type, '  ppqn: ' + this.ppqn, '  tracks: ' + this.ntrk];
+    var a = ['SMF:', '  type: ' + this.type];
+    if (this.ppqn) a.push('  ppqn: ' + this.ppqn);
+    else a.push('  fps: ' + this.fps, '  ppf: ' + this.ppf);
+    a.push('  tracks: ' + this.ntrk);
     for (var i = 0; i < this.length; i++) {
       a.push(this[i].toString());
     }
@@ -246,6 +250,13 @@
     }
   }
 
+  function _encodeNumber(n) {
+    var s = '';
+    if (n > 0x1fffff) s += String.fromCharCode(((n >> 21) & 0x7f) + 0x80);
+    if (n > 0x3fff) s += String.fromCharCode(((n >> 14) & 0x7f) + 0x80);
+    if (n > 0x7f) s += String.fromCharCode(((n >> 7) & 0x7f) + 0x80);
+    s += String.fromCharCode(n & 0x7f);
+  }
   MTrk.prototype = [];
   MTrk.prototype.constructor = MTrk;
   MTrk.prototype.dump = function() {
@@ -261,19 +272,33 @@
       if (d > 0x3fff) s += String.fromCharCode(((d >> 14) & 0x7f) + 0x80);
       if (d > 0x7f) s += String.fromCharCode(((d >> 7) & 0x7f) + 0x80);
       s += String.fromCharCode(d & 0x7f);
-      if (this[i].status.charCodeAt(0) == 0xff || this[i].status.charCodeAt(0) == 0xf0 || this[i].status.charCodeAt(0) == 0xf7) {
-        s += this[i].status;
-        len = this[i].data.length;
+//      s += _encodeNumber(d);
+      if (typeof this[i].dd != 'undefined') {
+        s += '\xff';
+        s += String.fromCharCode(this[i].ff);
+        len = this[i].dd.length;
         if (len > 0x1fffff) s += String.fromCharCode(((len >> 21) & 0x7f) + 0x80);
         if (len > 0x3fff) s += String.fromCharCode(((len >> 14) & 0x7f) + 0x80);
         if (len > 0x7f) s += String.fromCharCode(((len >> 7) & 0x7f) + 0x80);
         s += String.fromCharCode(len & 0x7f);
+        s += this[i].dd;
       }
-      else if (this[i].status != m) {
-        m = this[i].status;
-        s += this[i].status;
+      else if (this[i][0] == 0xf0 || this[i][0] == 0xf0) {
+        s += String.fromCharCode(this[i][0]);
+        len = this[i].length - 1;
+        if (len > 0x1fffff) s += String.fromCharCode(((len >> 21) & 0x7f) + 0x80);
+        if (len > 0x3fff) s += String.fromCharCode(((len >> 14) & 0x7f) + 0x80);
+        if (len > 0x7f) s += String.fromCharCode(((len >> 7) & 0x7f) + 0x80);
+        s += String.fromCharCode(len & 0x7f);
+        for (var j = 1; j < this[i].length; j++) s += String.fromCharCode(this[i][j]);
       }
-      s += this[i].data;
+      else {
+        if (this[i][0] != m) {
+          m = this[i][0];
+          s += String.fromCharCode(this[i][0]);
+        }
+        for (var j = 1; j < this[i].length; j++) s += String.fromCharCode(this[i][j]);
+      }
     }
     len = s.length;
     return 'MTrk' + String.fromCharCode((len >> 24) & 255) + String.fromCharCode((len >> 16) & 255) + String.fromCharCode((len >> 8) & 255) + String.fromCharCode(len & 255) + s;
