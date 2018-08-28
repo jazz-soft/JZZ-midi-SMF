@@ -52,11 +52,16 @@ Supported file formats: `.mid`, `.kar`, `.rmi`
 ##### Playing MIDI file
 
     var midiout = JZZ().openMidiOut();
-    var data = ... // load MIDI file as string
+    var data = require('fs').readFileSync('file.mid').toString('binary');
     var smf = new JZZ.MIDI.SMF(data);
     var player = smf.player();
     player.connect(midiout);
     player.play();
+
+
+##### Saving MIDI file
+
+    require('fs').writeFileSync('out.mid', smf.dump(), 'binary');
 
 
 ## More information

@@ -275,8 +275,8 @@
     var m = '';
     var i, j;
     for (i = 0; i < this.length; i++) {
-      t = this[i].tt;
       s += _num(this[i].tt - t);
+      t = this[i].tt;
       if (typeof this[i].dd != 'undefined') {
         s += '\xff';
         s += String.fromCharCode(this[i].ff);
@@ -305,90 +305,6 @@
     }
     return a.join('\n  ');
   };
-  MTrk.prototype.getTick = function() { return this[this.length - 1].tt; };
-  MTrk.prototype.setTick = function(t) {
-    t = parseInt(t);
-    if (isNaN(t) || t < 0) _error('Invalid parameter');
-    var e = this[this.length - 1];
-    if (t < e.tt) {
-      _error("not yet implemented");
-    }
-    e.tt = t;
-  };
-  function _eventOrder(s, d) {
-    var x = {
-      '\xff\x00': 0,
-      '\xff\x03': 1,
-      '\xff\x02': 2,
-      '\xff\x54': 3,
-      '\xff\x51': 4,
-      '\xff\x58': 5,
-      '\xff\x59': 6,
-      '\xff\x20': 7,
-      '\xff\x21': 7,
-      '\xff\x06': 8,
-      '\xff\x04': 9,
-      '\xff\x01': 16,
-      '\xff\x05': 16,
-      '\xff\x7f': 17,
-      '\xff\x2f': 20
-    }[s];
-    if (typeof x !== 'undefined') return x;
-    x = { 8: 10, 15: 11, 11: 12, 12: 13, 10: 15, 13: 15, 14: 15 }[s.charCodeAt(0) >> 4];
-    if (typeof x !== 'undefined') return x;
-    if ((s.charCodeAt(0) >> 4) == 9) return d.charCodeAt(1) ? 14 : 10;
-    return 18;
-  }
-  MTrk.prototype.addEvent = function(t, s, d) {
-    t = parseInt(t);
-    if(isNaN(t) || t < 0) _error('Invalid parameter');
-    s = s.toString();
-    d = d.toString();
-    var i;
-    if (this.getTick() < t) this.setTick(t);
-    var x = this.eventOrder(s, d);
-    for (i = 0; i < this.length; i++) {
-      if (this[i].tt > t) break;
-      if (this[i].tt == t && this.eventOrder(this[i].status, this[i].data) > x) break;
-    }
-    this.splice(i, 0, new Event(t, s, d));
-  };
-  MTrk.prototype.addMidi = function() {
-    var t = arguments[0];
-    var args = [];
-    for (var i = 1; i < arguments.length; i++) args.push(arguments[i]);
-//!!!!!!!
-    var msg = JZZ_.MIDI.apply(undefined, args).data();
-    var x = msg.charCodeAt(0);
-    if (x < 0x80 || x > 0xfe) _error('Invalid MIDI message');
-//!!!!!!!
-    var y = JZZ_.Midi.len(x);
-    if (typeof y !== 'undefined' && y != msg.length) _error('Invalid MIDI message');
-    this.addEvent(t, msg.substr(0, 1), msg.substr(1));
-  };
-  MTrk.prototype.addNote = function(t, ch, note, vel, dur) {
-    var n = parseInt(note);
-    if (isNaN(n)) n = parseInt(JZZ_.Midi[note]);
-    if (isNaN(n) || n < 0 || n > 127) _error('Invalid parameter');
-    ch = parseInt(ch);
-    if (isNaN(ch) || ch < 0 || ch > 15) _error('Invalid parameter');
-    if (typeof dur == 'undefined') dur = 0;
-    dur = parseInt(dur);
-    if (isNaN(dur) || dur < 0) _error('Invalid parameter');
-    if (typeof vel == 'undefined') vel = 127;
-    vel = parseInt(vel);
-    if (isNaN(vel) || vel < 0 || vel > 127) _error('Invalid parameter');
-    this.addMidi(t, 0x90 + ch, n, vel);
-    if(dur) this.addMidi(t + dur, 0x90 + ch, n, 0);
-  }; // need to rewrite!
-  MTrk.prototype.addName = function(t, str) { this.addEvent(t, '\xff\x03', str); };
-  MTrk.prototype.addText = function(t, str) { this.addEvent(t, '\xff\x01', str); };
-  MTrk.prototype.addTempo = function(t, bpm) {
-    var mspq = Math.round(60000000.0 / bpm);
-    var s = String.fromCharCode(0xff & (mspq >> 16)) + String.fromCharCode(0xff & (mspq >> 8)) + String.fromCharCode(0xff & mspq);
-    this.addEvent(t, '\xff\x51', s);
-  };
-
 
   function Event(t, s, d) {
     this.tt = t;
@@ -406,6 +322,7 @@
     midi.tt = t;
     return midi;
   }
+
   function Player() {
     var self = new JZZ.Widget();
     self._info.name = 'MIDI Player';
