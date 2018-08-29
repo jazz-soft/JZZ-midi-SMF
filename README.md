@@ -59,6 +59,22 @@ Supported file formats: `.mid`, `.kar`, `.rmi`
     player.play();
 
 
+##### Transposing MIDI file
+
+    for (var i = 0; i < smf.length; i++) {
+      if (smf[i] instanceof JZZ.MIDI.SMF.MTrk) {
+        for (var j = 0; j < smf[i].length; j++) {
+          var note = smf[i][j].getNote();
+          if (typeof note != 'undefined') {
+            if (smf[i][j].getChannel() != 9) { // don't transpose percussion channel
+              smf[i][j].setNote(note + 12);    // transpose one octave up
+            }
+          }
+        }
+      }
+    }
+
+
 ##### Saving MIDI file
 
     require('fs').writeFileSync('out.mid', smf.dump(), 'binary');

@@ -115,21 +115,24 @@
 
   SMF.prototype.dump = function() {
     var s = '';
-    var k = 0;
+    this.ntrk = 0;
     for (var i = 0; i < this.length; i++) {
-      if (this[i] instanceof MTrk) k++;
+      if (this[i] instanceof MTrk) this.ntrk++;
       s += this[i].dump();
     }
     s = (this.ppqn ? _num2(this.ppqn) : String.fromCharCode(0x100 - this.fps) + String.fromCharCode(this.ppf)) + s;
-    s = 'MThd\0\0\0\6\0' + String.fromCharCode(this.type) + _num2(k) + s;
+    s = 'MThd\0\0\0\6\0' + String.fromCharCode(this.type) + _num2(this.ntrk) + s;
     return s;
   };
   SMF.prototype.toString = function() {
+    var i;
+    this.ntrk = 0;
+    for (i = 0; i < this.length; i++) if (this[i] instanceof MTrk) this.ntrk++;
     var a = ['SMF:', '  type: ' + this.type];
     if (this.ppqn) a.push('  ppqn: ' + this.ppqn);
     else a.push('  fps: ' + this.fps, '  ppf: ' + this.ppf);
     a.push('  tracks: ' + this.ntrk);
-    for (var i = 0; i < this.length; i++) {
+    for (i = 0; i < this.length; i++) {
       a.push(this[i].toString());
     }
     return a.join('\n');
@@ -192,11 +195,16 @@
   };
 
   function Chunk(t, d) {
+    var i;
     if (this.sub[t]) return this.sub[t](t, d);
     if (typeof t != 'string' || t.length != 4) _error("Invalid chunk type: " + t);
+    for (i = 0; i < t.length; i++) if (t.charCodeAt(i) < 0 || t.charCodeAt(i) > 255) _error("Invalid chunk type: " + t);
+    if (typeof d != 'string') _error("Invalid data type: " + d);
+    for (i = 0; i < d.length; i++) if (d.charCodeAt(i) < 0 || d.charCodeAt(i) > 255) _error("Invalid data character: " + d[i]);
     this.type = t;
     this.data = d;
   }
+  SMF.Chunk = Chunk;
   Chunk.prototype = [];
   Chunk.prototype.constructor = Chunk;
 
@@ -266,6 +274,7 @@
       }
     }
   }
+  SMF.MTrk = MTrk;
 
   MTrk.prototype = [];
   MTrk.prototype.constructor = MTrk;
