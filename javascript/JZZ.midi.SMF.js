@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '0.1.2';
+  var _ver = '0.1.4';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -313,6 +313,49 @@
       a.push(this[i].tt + ': ' + this[i].toString());
     }
     return a.join('\n  ');
+  };
+  function _eventOrder(msg) {
+    var x = {
+      0x00: 0,
+      0x03: 1,
+      0x02: 2,
+      0x54: 3,
+      0x51: 4,
+      0x58: 5,
+      0x59: 6,
+      0x20: 7,
+      0x21: 7,
+      0x06: 8,
+      0x04: 9,
+      0x01: 16,
+      0x05: 16,
+      0x7f: 17,
+      0x2f: 20
+    }[msg.ff];
+    if (typeof x !== 'undefined') return x;
+    if (msg.length) {
+      var s = msg[0] >> 4;
+      x = { 8: 10, 15: 11, 11: 12, 12: 13, 10: 15, 13: 15, 14: 15 }[s];
+      if (typeof x !== 'undefined') return x;
+      if (s == 9) return msg[1] ? 14 : 10;
+    }
+    return 18;
+  }
+
+  MTrk.prototype.add = function(t, msg) {
+    t = parseInt(t);
+    if(isNaN(t) || t < 0) _error('Invalid parameter');
+    msg = JZZ.MIDI(msg);
+    msg.tt = t;
+    if (this[this.length - 1].tt < t) this[this.length - 1].tt = t; // end of track
+    if (msg.ff == 0x2f || msg[0] == 0xff) return;
+    var x = _eventOrder(msg);
+    var i;
+    for (i = 0; i < this.length; i++) {
+      if (this[i].tt > t) break;
+      if (this[i].tt == t && _eventOrder(this[i]) > x) break;
+    }
+    this.splice(i, 0, msg);
   };
 
   function Event(t, s, d) {
