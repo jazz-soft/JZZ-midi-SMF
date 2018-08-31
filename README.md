@@ -11,6 +11,7 @@ Standard MIDI Files: read / write / play
 [![npm](https://img.shields.io/npm/v/jzz-midi-smf.svg)](https://www.npmjs.com/package/jzz-midi-smf)
 [![npm](https://img.shields.io/npm/dt/jzz-midi-smf.svg)](https://www.npmjs.com/package/jzz-midi-smf)
 [![Build Status](https://travis-ci.org/jazz-soft/JZZ-midi-SMF.svg?branch=master)](https://travis-ci.org/jazz-soft/JZZ-midi-SMF)
+[![Coverage Status](https://coveralls.io/repos/github/jazz-soft/JZZ-midi-SMF/badge.svg?branch=master)](https://coveralls.io/github/jazz-soft/JZZ-midi-SMF?branch=master)
 
 
 ## Install
@@ -78,12 +79,12 @@ Supported file formats: `.mid`, `.kar`, `.rmi`
 ##### Creating MIDI file from scratch
 
     var smf = new JZZ.MIDI.SMF(0, 96); // type 0, 96 ticks per quarter note
-    var track = new JZZ.MIDI.SMF.MTrk;
-    smf.push(track);
-    track.add(0, JZZ.MIDI.smfSeqName('This is a sequence name'));
-    track.add(96, JZZ.MIDI.noteOn(0, 'C#6', 127));
-    track.add(192, JZZ.MIDI.noteOff(0, 'C#6'));
-    track.add(288, JZZ.MIDI.smfEndOfTrack());
+    var trk = new JZZ.MIDI.SMF.MTrk;
+    smf.push(trk);
+    trk.add(0, JZZ.MIDI.smfSeqName('This is a sequence name'))
+       .add(96, JZZ.MIDI.noteOn(0, 'C#6', 127))
+       .add(192, JZZ.MIDI.noteOff(0, 'C#6'))
+       .add(288, JZZ.MIDI.smfEndOfTrack());
 
 
 ##### Saving MIDI file

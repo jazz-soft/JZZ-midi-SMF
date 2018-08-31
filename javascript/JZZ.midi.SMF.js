@@ -348,7 +348,7 @@
     msg = JZZ.MIDI(msg);
     msg.tt = t;
     if (this[this.length - 1].tt < t) this[this.length - 1].tt = t; // end of track
-    if (msg.ff == 0x2f || msg[0] == 0xff) return;
+    if (msg.ff == 0x2f || msg[0] == 0xff) return this;
     var x = _eventOrder(msg);
     var i;
     for (i = 0; i < this.length; i++) {
@@ -356,6 +356,7 @@
       if (this[i].tt == t && _eventOrder(this[i]) > x) break;
     }
     this.splice(i, 0, msg);
+    return this;
   };
 
   function Event(t, s, d) {

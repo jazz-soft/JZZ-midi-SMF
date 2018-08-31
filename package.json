@@ -17,11 +17,13 @@
     "jzz": "^0.5.4"
   },
   "devDependencies": {
+    "coveralls": "^3.0.2",
     "grunt": "^1.0.3",
     "grunt-contrib-jshint": "^1.1.0",
     "grunt-contrib-uglify": "^3.4.0",
     "jzz-gui-player": "^0.1.0",
     "jzz-synth-osc": "^1.0.5",
+    "istanbul": "^0.4.5",
     "mocha": "^5.2.0"
   },
   "repository": {
