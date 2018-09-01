@@ -82,6 +82,7 @@ Supported file formats: `.mid`, `.kar`, `.rmi`
     var trk = new JZZ.MIDI.SMF.MTrk;
     smf.push(trk);
     trk.add(0, JZZ.MIDI.smfSeqName('This is a sequence name'))
+       .add(0, JZZ.MIDI.smfBPM(90)) // tempo 90 bpm
        .add(96, JZZ.MIDI.noteOn(0, 'C#6', 127))
        .add(192, JZZ.MIDI.noteOff(0, 'C#6'))
        .add(288, JZZ.MIDI.smfEndOfTrack());
