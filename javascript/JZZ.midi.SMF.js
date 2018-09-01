@@ -436,12 +436,6 @@
   Player.prototype.sndOff = function() {
     for (var c = 0; c < 16; c++) this._emit(JZZ.MIDI.allSoundOff(c));
   };
-  function _midi(s) {
-    var m = [];
-    var i;
-    for (i = 0; i < s.length; i++) m.push(s.charCodeAt(i));
-    return JZZ.MIDI(m);
-  }
   Player.prototype.tick = function() {
     var t = _now();
     var e;
@@ -501,8 +495,8 @@
     for(this._ptr = 0; this._ptr < this._data.length; this._ptr++) {
       e = this._data[this._ptr];
       if (e.tt >= this._pos) break;
-      if (e.status == '\xff\x51' && this.ppqn) {
-        this.mul = this.ppqn * 1000.0 / ((e.data.charCodeAt(0) << 16) + (e.data.charCodeAt(1) << 8) + e.data.charCodeAt(2));
+      if (e.ff == 0x51 && this.ppqn) {
+        this.mul = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
         this._p0 = this._pos - (_now() - this._t0) * this.mul;
       }
     }
