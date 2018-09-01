@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '0.1.4';
+  var _ver = '0.1.5';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -25,11 +25,14 @@
     s += String.fromCharCode(n & 0x7f);
     return s;
   }
+  function _num2(n) {
+    return String.fromCharCode(n >> 8) + String.fromCharCode(n & 0xff);
+  }
   function _num4(n) {
     return String.fromCharCode((n >> 24) & 0xff) + String.fromCharCode((n >> 16) & 0xff) + String.fromCharCode((n >> 8) & 0xff) + String.fromCharCode(n & 0xff);
   }
-  function _num2(n) {
-    return String.fromCharCode(n >> 8) + String.fromCharCode(n & 0xff);
+  function _num4le(n) {
+    return String.fromCharCode(n & 0xff) + String.fromCharCode((n >> 8) & 0xff) + String.fromCharCode((n >> 16) & 0xff) + String.fromCharCode((n >> 24) & 0xff);
   }
 
   function SMF() {
@@ -113,8 +116,12 @@
     if (p != s.length || n != this.ntrk) _error("Corrupted MIDI file");
   };
 
-  SMF.prototype.dump = function() {
+  SMF.prototype.dump = function(rmi) {
     var s = '';
+    if (rmi) {
+      s = this.dump();
+      return 'RIFF' + _num4le(s.length + 12) + 'RMIDdata' + _num4le(s.length) + s;
+    }
     this.ntrk = 0;
     for (var i = 0; i < this.length; i++) {
       if (this[i] instanceof MTrk) this.ntrk++;
