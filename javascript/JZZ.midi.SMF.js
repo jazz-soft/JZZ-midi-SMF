@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '0.1.5';
+  var _ver = '0.1.6';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -228,6 +228,8 @@
 
 
   function MTrk(s) {
+    this._orig = this;
+    this._tick = 0;
     if(typeof s == 'undefined') {
       this.push(new Event(0, '\xff\x2f', ''));
       return;
@@ -285,6 +287,20 @@
 
   MTrk.prototype = [];
   MTrk.prototype.constructor = MTrk;
+  JZZ.lib.copyMidiHelpers(MTrk);
+  MTrk.prototype.send = function(msg) { this._orig.add(this._tick, msg); };
+  MTrk.prototype.tick = function(t) {
+    var F = function() {}; F.prototype = this._orig;
+    var ttt = new F();
+    ttt._tick = this._tick + t;
+    return ttt;
+  };
+  MTrk.prototype.note = function(c, n, v, t) {
+    this.noteOn(c, n, v);
+    if (t) this.tick(t).noteOff(c, n);
+    return this;
+  };
+
   MTrk.prototype.dump = function() {
     var s = '';
     var t = 0;
