@@ -67,7 +67,7 @@ Supported file formats: `.mid`, `.kar`, `.rmi`
         for (var j = 0; j < smf[i].length; j++) {
           var note = smf[i][j].getNote();
           if (typeof note != 'undefined') {
-            if (smf[i][j].getChannel() != 9) { // don't transpose the percussion channel
+            if (smf[i][j].getChannel() != 9) { // skip the percussion channel
               smf[i][j].setNote(note + 12);    // transpose one octave up
             }
           }
@@ -81,11 +81,21 @@ Supported file formats: `.mid`, `.kar`, `.rmi`
     var smf = new JZZ.MIDI.SMF(0, 96); // type 0, 96 ticks per quarter note
     var trk = new JZZ.MIDI.SMF.MTrk;
     smf.push(trk);
+    // add contents:
     trk.add(0, JZZ.MIDI.smfSeqName('This is a sequence name'))
        .add(0, JZZ.MIDI.smfBPM(90)) // tempo 90 bpm
-       .add(96, JZZ.MIDI.noteOn(0, 'C#6', 127))
-       .add(192, JZZ.MIDI.noteOff(0, 'C#6'))
+       .add(96, JZZ.MIDI.noteOn(0, 'C6', 127))
+       .add(96, JZZ.MIDI.noteOn(0, 'Eb6', 127))
+       .add(96, JZZ.MIDI.noteOn(0, 'G6', 127))
+       .add(192, JZZ.MIDI.noteOff(0, 'C6'))
+       .add(192, JZZ.MIDI.noteOff(0, 'Eb6'))
+       .add(192, JZZ.MIDI.noteOff(0, 'G6'))
        .add(288, JZZ.MIDI.smfEndOfTrack());
+    // or an alternative way:
+    trk.smfSeqName('This is a sequence name').smfBPM(90)
+       .tick(96).noteOn(0, 'C6', 127).noteOn(0, 'Eb6', 127).noteOn(0, 'G6', 127)
+       .tick(96).noteOff(0, 'C6').noteOff(0, 'Eb6').noteOff(0, 'G6')
+       .tick(96).smfEndOfTrack();
 
 
 ##### Saving MIDI file

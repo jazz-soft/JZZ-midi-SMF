@@ -290,6 +290,8 @@
   JZZ.lib.copyMidiHelpers(MTrk);
   MTrk.prototype.send = function(msg) { this._orig.add(this._tick, msg); };
   MTrk.prototype.tick = function(t) {
+    if (t != parseInt(t) || t < 0) throw RangeError('Bad tick value: ' + t);
+    if (!t) return this;
     var F = function() {}; F.prototype = this._orig;
     var ttt = new F();
     ttt._tick = this._tick + t;
