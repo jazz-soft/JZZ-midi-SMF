@@ -50,6 +50,7 @@ describe('integration', function() {
     var trk = new JZZ.MIDI.SMF.MTrk;
     trk.note(0, 'C5', 127, 10)
        .tick(15).note(0, 'E5', 127, 10)
+       .tick(15).ch(0).note('E5', 127, 10)
        .tick(15).smfEndOfTrack();
     smf = new JZZ.MIDI.SMF(smf.dump(true));
   });

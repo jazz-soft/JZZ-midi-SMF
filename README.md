@@ -92,10 +92,14 @@ Supported file formats: `.mid`, `.kar`, `.rmi`
        .add(192, JZZ.MIDI.noteOff(0, 'G6'))
        .add(288, JZZ.MIDI.smfEndOfTrack());
     // or an alternative way:
-    trk.smfSeqName('This is a sequence name').smfBPM(90)
-       .tick(96).noteOn(0, 'C6', 127).noteOn(0, 'Eb6', 127).noteOn(0, 'G6', 127)
+    trk.smfSeqName('This is a sequence name').smfBPM(90).tick(96)
+       .noteOn(0, 'C6', 127).noteOn(0, 'Eb6', 127).noteOn(0, 'G6', 127)
        .tick(96).noteOff(0, 'C6').noteOff(0, 'Eb6').noteOff(0, 'G6')
        .tick(96).smfEndOfTrack();
+    // or even shorter:
+    trk.smfSeqName('This is a sequence name').smfBPM(90).tick(96)
+       .ch(0).note('C6', 127, 96).note('Eb6', 127, 96).note('G6', 127, 96)
+       .tick(192).smfEndOfTrack();
 
 
 ##### Saving MIDI file

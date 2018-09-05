@@ -287,21 +287,6 @@
 
   MTrk.prototype = [];
   MTrk.prototype.constructor = MTrk;
-  JZZ.lib.copyMidiHelpers(MTrk);
-  MTrk.prototype.send = function(msg) { this._orig.add(this._tick, msg); };
-  MTrk.prototype.tick = function(t) {
-    if (t != parseInt(t) || t < 0) throw RangeError('Bad tick value: ' + t);
-    if (!t) return this;
-    var F = function() {}; F.prototype = this._orig;
-    var ttt = new F();
-    ttt._tick = this._tick + t;
-    return ttt;
-  };
-  MTrk.prototype.note = function(c, n, v, t) {
-    this.noteOn(c, n, v);
-    if (t) this.tick(t).noteOff(c, n);
-    return this;
-  };
 
   MTrk.prototype.dump = function() {
     var s = '';
@@ -383,6 +368,51 @@
     this.splice(i, 0, msg);
     return this;
   };
+
+  MTrk.prototype.send = function(msg) { this._orig.add(this._tick, msg); };
+  MTrk.prototype.tick = function(t) {
+    if (t != parseInt(t) || t < 0) throw RangeError('Bad tick value: ' + t);
+    if (!t) return this;
+    var F = function() {}; F.prototype = this._orig;
+    var ttt = new F();
+    ttt._tick = this._tick + t;
+    return ttt;
+  };
+  MTrk.prototype.note = function(c, n, v, t) {
+    this.noteOn(c, n, v);
+    if (t) this.tick(t).noteOff(c, n);
+    return this;
+  };
+  MTrk.prototype.ch = function(n) {
+    if (typeof n == 'undefined') return this;
+    if (n != parseInt(n) || n < 0 || n > 15) throw RangeError('Bad channel value: ' + n  + ' (must be from 0 to 15)');
+    return new Chan(this._orig, n, this._tick);
+  };
+
+  function Chan(orig, chan, tick) {
+    this._orig = orig;
+    this._chan = chan;
+    this._tick = tick;
+  }
+  Chan.prototype = new MTrk();
+  Chan.prototype.tick = function(t) {
+    if (t != parseInt(t) || t < 0) throw RangeError('Bad tick value: ' + t);
+    if (!t) return this;
+    return new Chan(this._orig, this._chan, this._tick + t);
+  };
+  Chan.prototype.ch = function(n) {
+    if (typeof n == 'undefined') return this._orig.tick(this._tick);
+    if (n != parseInt(n) || n < 0 || n > 15) throw RangeError('Bad channel value: ' + n  + ' (must be from 0 to 15)');
+    if (n == this._chan) return this;
+    return new Chan(this._orig, n, this._tick);
+  };
+  Chan.prototype.note = function(n, v, t) {
+    this.noteOn(n, v);
+    if (t) this.tick(t).noteOff(n);
+    return this;
+  };
+
+  JZZ.lib.copyMidiHelpers(MTrk, Chan);
 
   function Event(t, s, d) {
     this.tt = t;
