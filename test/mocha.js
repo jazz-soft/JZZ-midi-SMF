@@ -20,6 +20,7 @@ describe('integration', function() {
     var trk = new JZZ.MIDI.SMF.MTrk;
     smf.push(trk);
     trk.add(0, JZZ.MIDI.smfBPM(90))
+       .add(0, JZZ.MIDI.program(0, 8))
        .add(10, JZZ.MIDI.noteOn(0, 'C#6', 127))
        .add(20, JZZ.MIDI.noteOff(0, 'C#6'))
        .add(30, JZZ.MIDI.smfEndOfTrack());
@@ -28,11 +29,13 @@ describe('integration', function() {
     console.log(smf.toString());
     // write and read
     smf = new JZZ.MIDI.SMF(smf.dump(true));
+    // copy
+    smf = new JZZ.MIDI.SMF(smf);
     // player
     var player = smf.player();
     var sample = new Sample(done, [
-      [], [0x90, 0x49, 0x7f], [0x80, 0x49, 0x40], [],
-      [], [0x90, 0x49, 0x7f], [0x80, 0x49, 0x40], [],
+      [], [0xc0, 0x08], [0x90, 0x49, 0x7f], [0x80, 0x49, 0x40], [],
+      [], [0xc0, 0x08], [0x90, 0x49, 0x7f], [0x80, 0x49, 0x40], [],
       [0xb0, 0x78, 0x00], [0xb1, 0x78, 0x00], [0xb2, 0x78, 0x00], [0xb3, 0x78, 0x00],
       [0xb4, 0x78, 0x00], [0xb5, 0x78, 0x00], [0xb6, 0x78, 0x00], [0xb7, 0x78, 0x00],
       [0xb8, 0x78, 0x00], [0xb9, 0x78, 0x00], [0xba, 0x78, 0x00], [0xbb, 0x78, 0x00],
@@ -42,17 +45,22 @@ describe('integration', function() {
       //console.log(msg.toString());
       sample.compare(msg);
     });
+    player.loop(true);
+    player.loop(false);
     player.loop(2);
     player.play();
   });
   it('fps/ppf', function() {
     var smf = new JZZ.MIDI.SMF(0, 24, 16);
     var trk = new JZZ.MIDI.SMF.MTrk;
+    smf.push(trk);
+    trk.sxIdRequest(); // insert a sysex
     trk.note(0, 'C5', 127, 10)
        .tick(15).note(0, 'E5', 127, 10)
-       .tick(15).ch(0).note('E5', 127, 10)
+       .tick(15).ch(1).ch(1).ch(0).note('E5', 127, 10).ch()
        .tick(15).smfEndOfTrack();
     smf = new JZZ.MIDI.SMF(smf.dump(true));
+    console.log(smf.toString());
   });
 });
 

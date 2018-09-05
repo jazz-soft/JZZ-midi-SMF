@@ -43,7 +43,7 @@
     var ppf;
     if (arguments.length == 1) {
       if (arguments[0] instanceof SMF) {
-        self.dup(arguments[0]); return self;
+        return arguments[0].copy();
       }
       if (typeof arguments[0] == 'string' && arguments[0] != '0' && arguments[0] != '1' && arguments[0] != '2') {
         self.load(arguments[0]); return self;
@@ -77,9 +77,16 @@
 
   SMF.prototype = [];
   SMF.prototype.constructor = SMF;
-
-  SMF.prototype.dup = function(x) {
-    _error('Copy-constructor not yet implemented');
+  SMF.prototype.copy = function() {
+    var smf = new SMF();
+    smf.type = this.type;
+    smf.ppqn = this.ppqn;
+    smf.fps = this.fps;
+    smf.ppf = this.ppf;
+    smf.rmi = this.rmi;
+    smf.ntrk = this.ntrk;
+    for (var i = 0; i < this.length; i++) smf.push(this[i].copy());
+    return smf;
   };
 
   SMF.prototype.load = function(s) {
@@ -214,6 +221,7 @@
   SMF.Chunk = Chunk;
   Chunk.prototype = [];
   Chunk.prototype.constructor = Chunk;
+  Chunk.prototype.copy = function() { return new Chunk(this.type, this.data); };
 
   Chunk.prototype.sub = {
     'MThd': function() { _error("Illegal chunk type: MThd"); },
@@ -287,6 +295,12 @@
 
   MTrk.prototype = [];
   MTrk.prototype.constructor = MTrk;
+  MTrk.prototype.copy = function() {
+    var trk = new MTrk();
+    trk.length = 0;
+    for (var i = 0; i < this.length; i++) trk.push(new JZZ.MIDI(this[i]));
+    return trk;
+  };
 
   MTrk.prototype.dump = function() {
     var s = '';
@@ -302,7 +316,7 @@
         s += _num(this[i].dd.length);
         s += this[i].dd;
       }
-      else if (this[i][0] == 0xf0 || this[i][0] == 0xf0) {
+      else if (this[i][0] == 0xf0 || this[i][0] == 0xf7) {
         s += String.fromCharCode(this[i][0]);
         s += _num(this[i].length - 1);
         for (j = 1; j < this[i].length; j++) s += String.fromCharCode(this[i][j]);
