@@ -13,10 +13,10 @@ function Sample(done, list) {
   };
 }
 
-describe('integration', function() {
-  it('ppqn', function(done) {
+describe('integration: read / write / play', function() {
+  it('MIDI file type 0; fps/ppf', function(done) {
     // new file
-    var smf = new JZZ.MIDI.SMF(0, 96);
+    var smf = new JZZ.MIDI.SMF(0, 24, 16);
     var trk = new JZZ.MIDI.SMF.MTrk;
     smf.push(trk);
     trk.add(0, JZZ.MIDI.smfBPM(90))
@@ -26,7 +26,8 @@ describe('integration', function() {
        .add(30, JZZ.MIDI.smfEndOfTrack());
     var more = new JZZ.MIDI.SMF.Chunk('More', 'Ignore this...');
     smf.push(more);
-    console.log(smf.toString());
+    smf.toString();
+    //console.log(smf.toString());
     // write and read
     smf = new JZZ.MIDI.SMF(smf.dump(true));
     // copy
@@ -50,17 +51,22 @@ describe('integration', function() {
     player.loop(2);
     player.play();
   });
-  it('fps/ppf', function(done) {
-    var smf = new JZZ.MIDI.SMF(0, 24, 16);
+
+  it('MIDI file type 1; ppqn', function(done) {
+    var smf = new JZZ.MIDI.SMF(1, 96);
     var trk = new JZZ.MIDI.SMF.MTrk;
+    smf.push(trk);
+    trk.smfBPM(90);
+    trk = new JZZ.MIDI.SMF.MTrk;
     smf.push(trk);
     trk.sxIdRequest(); // insert a sysex
     trk.tick(200).note(0, 'C5', 127, 10)
        .tick(20000).note(0, 'E5', 127, 10)
        .tick(3000000).ch(1).ch(1).ch(0).note('E5', 127, 10).ch()
        .tick(200).smfEndOfTrack();
-    smf = new JZZ.MIDI.SMF(smf.dump(true));
-    console.log(smf.toString());
+    smf = new JZZ.MIDI.SMF(smf.dump());
+    smf.toString();
+    //console.log(smf.toString());
     var player = smf.player();
     var sample = new Sample(function() { player.stop(); done(); } , [
       [0xb0, 0x78, 0x00], [0xb1, 0x78, 0x00], [0xb2, 0x78, 0x00], [0xb3, 0x78, 0x00],
@@ -76,6 +82,20 @@ describe('integration', function() {
     player.jump(3020300);
     player.resume();
     player.jump(3020200);
+  });
+
+  it('MIDI file type 2; ppqn', function(done) {
+    var smf = new JZZ.MIDI.SMF(2, 96);
+    var trk = new JZZ.MIDI.SMF.MTrk;
+    smf.push(trk);
+    trk.smfBPM(90).ch(0).note('C#5', 127, 20).clock();
+    trk = new JZZ.MIDI.SMF.MTrk;
+    smf.push(trk);
+    trk.smfBPM(90).ch(0).note('F#5', 127, 20);
+    smf.toString();
+    //console.log(smf.toString());
+    //var player = smf.player();
+done();
   });
 });
 
