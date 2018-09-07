@@ -50,9 +50,8 @@ describe('integration', function() {
     player.loop(2);
     player.play();
   });
-  it.only('fps/ppf', function(done) {
+  it('fps/ppf', function(done) {
     var smf = new JZZ.MIDI.SMF(0, 24, 16);
-//    var smf = new JZZ.MIDI.SMF(0, 96);
     var trk = new JZZ.MIDI.SMF.MTrk;
     smf.push(trk);
     trk.sxIdRequest(); // insert a sysex
