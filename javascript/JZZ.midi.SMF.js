@@ -204,6 +204,8 @@
       t = m;
       if (b) break;
     }
+    if (pl.ppqn) pl.mul = pl.ppqn / 500.0;
+    else pl.mul = pl.fps * pl.ppf / 1000.0;
     pl._duration = t;
     return pl;
   };
@@ -465,8 +467,6 @@
     else this._loop = n ? -1 : 0;
   };
   Player.prototype.play = function() {
-    if (this.ppqn) this.mul = this.ppqn / 500.0;
-    else this.mul = this.fps * this.ppf / 1000.0;
     this.event = undefined;
     this.playing = true;
     this.paused = false;
