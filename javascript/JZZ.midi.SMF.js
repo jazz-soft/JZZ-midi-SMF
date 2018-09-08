@@ -181,18 +181,18 @@
     var i;
     var j;
     var tt = [];
-    var evt;
-    var m;
+    var e;
+    var m = 0;
     var t = 0;
     for (i = 0; i < this.length; i++) if (this[i] instanceof MTrk) tt.push(this[i]);
     if (this.type == 2) {
       for (i = 0; i < tt.length; i++) {
         for (j = 0; j < tt[i].length; j++) {
-          evt = JZZ.MIDI(tt[i][j]);
-          evt.track = i;
-          t = evt.tt + m;
-          evt.tt = t;
-          pl._data.push(evt);
+          e = JZZ.MIDI(tt[i][j]);
+          e.track = i;
+          t = e.tt + m;
+          e.tt = t;
+          pl._data.push(e);
         }
         m = t;
       }
@@ -204,9 +204,9 @@
         var b = true;
         for (i = 0; i < tt.length; i++) {
           while (pp[i] < tt[i].length && tt[i][pp[i]].tt == t) {
-            evt = JZZ.MIDI(tt[i][pp[i]]);
-            evt.track = i;
-            pl._data.push(evt);
+            e = JZZ.MIDI(tt[i][pp[i]]);
+            e.track = i;
+            pl._data.push(e);
             pp[i]++;
           }
           if (pp[i] >= tt[i].length) continue;
