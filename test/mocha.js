@@ -42,10 +42,7 @@ describe('integration: read / write / play', function() {
       [0xb8, 0x78, 0x00], [0xb9, 0x78, 0x00], [0xba, 0x78, 0x00], [0xbb, 0x78, 0x00],
       [0xbc, 0x78, 0x00], [0xbd, 0x78, 0x00], [0xbe, 0x78, 0x00], [0xbf, 0x78, 0x00]
     ]);
-    player.connect(function(msg) {
-      //console.log(msg.toString());
-      sample.compare(msg);
-    });
+    player.connect(function(msg) { sample.compare(msg); });
     player.loop(true);
     player.loop(false);
     player.loop(2);
@@ -75,10 +72,7 @@ describe('integration: read / write / play', function() {
       [0xbc, 0x78, 0x00], [0xbd, 0x78, 0x00], [0xbe, 0x78, 0x00], [0xbf, 0x78, 0x00],
       [0x90, 0x40, 0x7f], [0x80, 0x40, 0x40]
     ]);
-    player.connect(function(msg) {
-      //console.log(msg.toString());
-      sample.compare(msg);
-    });
+    player.connect(function(msg) { sample.compare(msg); });
     player.jump(3020300);
     player.resume();
     player.jump(3020200);
@@ -94,8 +88,13 @@ describe('integration: read / write / play', function() {
     trk.smfBPM(90).ch(0).note('F#5', 127, 20);
     smf.toString();
     //console.log(smf.toString());
-    //var player = smf.player();
-done();
+    var player = smf.player();
+    var sample = new Sample(function() { player.pause(); done(); } , [
+      [], [0xf8], [0x90, 0x3d, 0x7f], [0x80, 0x3d, 0x40], [],
+      [], [0x90, 0x42, 0x7f], [0x80, 0x42, 0x40]
+    ]);
+    player.connect(function(msg) { sample.compare(msg); });
+    player.play();
   });
 });
 

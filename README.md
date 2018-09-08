@@ -59,23 +59,6 @@ Supported file formats: `.mid`, `.kar`, `.rmi`
     player.connect(midiout);
     player.play();
 
-
-##### Transposing MIDI file
-
-    for (var i = 0; i < smf.length; i++) {
-      if (smf[i] instanceof JZZ.MIDI.SMF.MTrk) {
-        for (var j = 0; j < smf[i].length; j++) {
-          var note = smf[i][j].getNote();
-          if (typeof note != 'undefined') {
-            if (smf[i][j].getChannel() != 9) { // skip the percussion channel
-              smf[i][j].setNote(note + 12);    // transpose one octave up
-            }
-          }
-        }
-      }
-    }
-
-
 ##### Creating MIDI file from scratch
 
     var smf = new JZZ.MIDI.SMF(0, 96); // type 0, 96 ticks per quarter note
@@ -101,6 +84,20 @@ Supported file formats: `.mid`, `.kar`, `.rmi`
        .ch(0).note('C6', 127, 96).note('Eb6', 127, 96).note('G6', 127, 96)
        .tick(192).smfEndOfTrack();
 
+##### Transposing MIDI file
+
+    for (var i = 0; i < smf.length; i++) {
+      if (smf[i] instanceof JZZ.MIDI.SMF.MTrk) {
+        for (var j = 0; j < smf[i].length; j++) {
+          var note = smf[i][j].getNote();
+          if (typeof note != 'undefined') {
+            if (smf[i][j].getChannel() != 9) { // skip the percussion channel
+              smf[i][j].setNote(note + 12);    // transpose one octave up
+            }
+          }
+        }
+      }
+    }
 
 ##### Saving MIDI file
 

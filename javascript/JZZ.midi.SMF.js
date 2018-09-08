@@ -179,30 +179,44 @@
     pl.fps = this.fps;
     pl.ppf = this.ppf;
     var i;
+    var j;
     var tt = [];
-    for (i = 0; i < this.length; i++) if (this[i] instanceof MTrk) tt.push(this[i]);
-    if (this.type == 2) _error('Playing MIDI file type 2 not yet implemented');
-    var pp = [];
-    for (i = 0; i < tt.length; i++) pp[i] = 0;
+    var evt;
+    var m;
     var t = 0;
-    while (true) {
-      var b = true;
-      var m;
+    for (i = 0; i < this.length; i++) if (this[i] instanceof MTrk) tt.push(this[i]);
+    if (this.type == 2) {
       for (i = 0; i < tt.length; i++) {
-        while (pp[i] < tt[i].length && tt[i][pp[i]].tt == t) {
-          var obj = tt[i][pp[i]];
-          var evt = JZZ.MIDI(obj);
+        for (j = 0; j < tt[i].length; j++) {
+          evt = JZZ.MIDI(tt[i][j]);
           evt.track = i;
+          t = evt.tt + m;
+          evt.tt = t;
           pl._data.push(evt);
-          pp[i]++;
         }
-        if (pp[i] >= tt[i].length) continue;
-        if(b) m = tt[i][pp[i]].tt;
-        b = false;
-        if(m > tt[i][pp[i]].tt) m = tt[i][pp[i]].tt;
+        m = t;
       }
-      t = m;
-      if (b) break;
+    }
+    else {
+      var pp = [];
+      for (i = 0; i < tt.length; i++) pp[i] = 0;
+      while (true) {
+        var b = true;
+        for (i = 0; i < tt.length; i++) {
+          while (pp[i] < tt[i].length && tt[i][pp[i]].tt == t) {
+            evt = JZZ.MIDI(tt[i][pp[i]]);
+            evt.track = i;
+            pl._data.push(evt);
+            pp[i]++;
+          }
+          if (pp[i] >= tt[i].length) continue;
+          if(b) m = tt[i][pp[i]].tt;
+          b = false;
+          if(m > tt[i][pp[i]].tt) m = tt[i][pp[i]].tt;
+        }
+        t = m;
+        if (b) break;
+      }
     }
     if (pl.ppqn) pl.mul = pl.ppqn / 500.0;
     else pl.mul = pl.fps * pl.ppf / 1000.0;
