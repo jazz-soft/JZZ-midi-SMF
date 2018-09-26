@@ -22,7 +22,7 @@
     "grunt-contrib-jshint": "^2.0.0",
     "grunt-contrib-uglify": "^4.0.0",
     "jzz-gui-player": "^1.0.0",
-    "jzz-synth-osc": "^1.0.5",
+    "jzz-synth-osc": "^1.0.6",
     "istanbul": "^0.4.5",
     "mocha": "^5.2.0"
   },

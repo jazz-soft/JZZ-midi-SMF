@@ -77,6 +77,7 @@
 
   SMF.prototype = [];
   SMF.prototype.constructor = SMF;
+  SMF.version = function() { return _ver; };
   SMF.prototype.copy = function() {
     var smf = new SMF();
     smf.type = this.type;

@@ -13,7 +13,20 @@ module.exports = function(grunt) {
       }
     }
   });
+  grunt.task.registerTask('version', 'Check version consistency', function() {
+    var pkg = grunt.file.readJSON('package.json');
+    var JZZ = require('jzz');
+    require('.')(JZZ);
+    var ver = JZZ.MIDI.SMF.version();
+    if (ver == pkg.version) {
+       grunt.log.ok('Version:', ver);
+    }
+    else {
+      grunt.log.error('Version:', ver, '!=', pkg.version);
+      return false;
+    }
+  });
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.registerTask('default', ['jshint', 'uglify']);
+  grunt.registerTask('default', ['jshint', 'uglify', 'version']);
 };
