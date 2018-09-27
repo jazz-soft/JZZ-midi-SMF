@@ -50,6 +50,8 @@ or get the full development version and minified scripts from [**GitHub**](https
 ## MIDI files
 Supported file formats: `.mid`, `.kar`, `.rmi`
 
+Please check the [**API Reference**](https://jazz-soft.net/doc/JZZ/midifile.html) !
+
 ##### Playing MIDI file
 
     var midiout = JZZ().openMidiOut();

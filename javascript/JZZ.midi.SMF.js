@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.0.2';
+  var _ver = '1.0.3';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -74,10 +74,10 @@
     }
     return self;
   }
+  SMF.version = function() { return _ver; };
 
   SMF.prototype = [];
   SMF.prototype.constructor = SMF;
-  SMF.version = function() { return _ver; };
   SMF.prototype.copy = function() {
     var smf = new SMF();
     smf.type = this.type;
@@ -411,7 +411,7 @@
   };
   MTrk.prototype.note = function(c, n, v, t) {
     this.noteOn(c, n, v);
-    if (t) this.tick(t).noteOff(c, n);
+    if (t > 0) this.tick(t).noteOff(c, n);
     return this;
   };
   MTrk.prototype.ch = function(n) {
