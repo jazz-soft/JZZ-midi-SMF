@@ -1,6 +1,6 @@
 {
   "name": "jzz-midi-smf",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Standard MIDI Files: read / write / play",
   "main": "javascript/JZZ.midi.SMF.js",
   "scripts": {
@@ -21,7 +21,7 @@
     "grunt": "^1.0.3",
     "grunt-contrib-jshint": "^2.0.0",
     "grunt-contrib-uglify": "^4.0.0",
-    "jzz-gui-player": "^1.0.0",
+    "jzz-gui-player": "^1.0.1",
     "jzz-synth-tiny": "^1.0.3",
     "istanbul": "^0.4.5",
     "mocha": "^5.2.0"
