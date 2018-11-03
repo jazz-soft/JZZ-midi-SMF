@@ -3,7 +3,7 @@
 <head>
 <title>JZZ.midi.SMF Test</title>
 <script src="node_modules/jzz/javascript/JZZ.js"></script>
-<script src="node_modules/jzz-synth-osc/javascript/JZZ.synth.OSC.js"></script>
+<script src="node_modules/jzz-synth-tiny/javascript/JZZ.synth.Tiny.js"></script>
 <script src="javascript/JZZ.midi.SMF.js"></script>
 <script src="node_modules/jzz-gui-player/javascript/JZZ.gui.Player.js"></script>
 </head>
@@ -35,7 +35,7 @@ function report(s) { return function() { log.innerHTML = s; }; }
 
 document.getElementById('player').innerHTML = 'Please run <tt style="background-color:#bbf;"><b>npm install</b></tt> to enable this test.';
 
-JZZ.synth.OSC.register('Web Audio');
+JZZ.synth.Tiny.register('Web Audio');
 document.getElementById('player').innerHTML = '';
 document.getElementById('note').style.display = 'block';
 
