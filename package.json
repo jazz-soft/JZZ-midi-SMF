@@ -1,6 +1,6 @@
 {
   "name": "jzz-midi-smf",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Standard MIDI Files: read / write / play",
   "main": "javascript/JZZ.midi.SMF.js",
   "scripts": {
@@ -14,7 +14,7 @@
   ],
   "author": "jazz-soft (https://jazz-soft.net/)",
   "dependencies": {
-    "jzz": "^0.6.0"
+    "jzz": "^0.6.2"
   },
   "devDependencies": {
     "coveralls": "^3.0.2",
