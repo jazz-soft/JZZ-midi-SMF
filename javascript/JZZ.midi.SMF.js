@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.0.6';
+  var _ver = '1.0.7';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -122,7 +122,8 @@
       this.push(new Chunk(type, data));
       p += len;
     }
-    if (p != s.length || n != this.ntrk) _error("Corrupted MIDI file");
+    if (n != this.ntrk) _error("Corrupted MIDI file");
+    if (p > s.length) this.fixed = true;
   };
 
   SMF.prototype.dump = function(rmi) {
@@ -155,6 +156,7 @@
   };
 
   function _var2num(s) {
+    if (!s.length) return 0; // missing last byte
     if (s.charCodeAt(0) < 0x80) return s.charCodeAt(0);
     var x = s.charCodeAt(0) & 0x7f;
     x <<= 7;

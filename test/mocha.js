@@ -62,7 +62,9 @@ describe('integration: read / write / play', function() {
        .tick(20000).note(0, 'E5', 127, 10)
        .tick(3000000).ch(1).ch(1).ch(0).note('E5', 127, 10).ch()
        .tick(200).smfEndOfTrack();
-    smf = new JZZ.MIDI.SMF(smf.dump());
+    var str = smf.dump();
+    str = str.substring(0, str.length - 1); // make a fixable corrupted file
+    smf = new JZZ.MIDI.SMF(str);
     smf.toString();
     //console.log(smf.toString());
     var player = smf.player();
