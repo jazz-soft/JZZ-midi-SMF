@@ -14,16 +14,17 @@
   ],
   "author": "jazz-soft (https://jazz-soft.net/)",
   "dependencies": {
-    "jzz": "^0.6.5"
+    "jzz": "^0.6.6"
   },
   "devDependencies": {
     "coveralls": "^3.0.2",
     "grunt": "^1.0.3",
     "grunt-contrib-jshint": "^2.0.0",
     "grunt-contrib-uglify": "^4.0.0",
-    "jzz-gui-player": "^1.0.2",
-    "jzz-synth-tiny": "^1.0.3",
     "istanbul": "^0.4.5",
+    "jzz-gui-player": "^1.0.2",
+    "jzz-synth-osc": "^1.1.1",
+    "jzz-synth-tiny": "^1.0.3",
     "mocha": "^5.2.0"
   },
   "repository": {

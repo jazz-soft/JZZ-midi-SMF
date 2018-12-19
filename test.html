@@ -4,6 +4,7 @@
 <title>JZZ.midi.SMF Test</title>
 <script src="node_modules/jzz/javascript/JZZ.js"></script>
 <script src="node_modules/jzz-synth-tiny/javascript/JZZ.synth.Tiny.js"></script>
+<script src="node_modules/jzz-synth-osc/javascript/JZZ.synth.OSC.js"></script>
 <script src="javascript/JZZ.midi.SMF.js"></script>
 <script src="node_modules/jzz-gui-player/javascript/JZZ.gui.Player.js"></script>
 </head>
@@ -35,7 +36,8 @@ function report(s) { return function() { log.innerHTML = s; }; }
 
 document.getElementById('player').innerHTML = 'Please run <tt style="background-color:#bbf;"><b>npm install</b></tt> to enable this test.';
 
-JZZ.synth.Tiny.register('Web Audio');
+JZZ.synth.Tiny.register('Web Audio 1');
+JZZ.synth.OSC.register('Web Audio 2');
 document.getElementById('player').innerHTML = '';
 document.getElementById('note').style.display = 'block';
 
@@ -108,15 +110,16 @@ function fromURL() {
 }
 
 var data='\
-TVRoZAAAAAYAAQADAGRNVHJrAAAAGgD/AwtMaXR0bGUgTGFtYgD/UQMKLCsA/y8ATVRyawAAAPEA/wMF\
-V29yZHMA/wEYQFRNYXJ5IEhhZCBBIExpdHRsZSBMYW1iZP8BA1xNYTL/AQNyeSAy/wEEaGFkIDL/AQJh\
-IDL/AQNsaXQy/wEEdGxlIDL/AQVsYW1iLGT/AQQvTGl0Mv8BBHRsZSAy/wEFbGFtYixk/wEEL0xpdDL/\
-AQR0bGUgMv8BBWxhbWIsZP8BAy9NYTL/AQNyeSAy/wEEaGFkIDL/AQJhIDL/AQNsaXQy/wEEdGxlIDL/\
-AQVsYW1iLGT/AQYvQmxhaC0y/wEFYmxhaC0y/wEFYmxhaC0y/wEFYmxhaC0y/wEFYmxhaCEA/y8ATVRy\
-awAAALkA/wMFTXVzaWMAwAtkkEB/MkAAAD5/Mj4AADx/MjwAAD5/Mj4AAEB/MkAAAEB/MkAAAEB/WkAA\
-Cj5/Mj4AAD5/Mj4AAD5/Wj4ACkB/MkAAAEN/MkMAAEN/WkMACkB/MkAAAD5/Mj4AADx/MjwAAD5/Mj4A\
-AEB/MkAAAEB/MkAAAEB/WkAACj5/Mj4AAD5/Mj4AAEB/MkAAAD5/Mj4AADx/ZEBkAENkAEh/WjwAAEAA\
-AEMAAEgACv8vAA==';
+TVRoZAAAAAYAAQADAGRNVHJrAAAAGgD/AwtMaXR0bGUgTGFtZQD/UQMKLCsA/y8ATVRyawAAAPMA/wMG\
+THlyaWNzAP8BGEBUTWFyeSBXYXMgQSBMaXR0bGUgTGFtZWT/AQNcTWFL/wEDcnkgGf8BBHdhcyAy/wEC\
+YSAy/wEDbGl0Mv8BBHRsZSAy/wEFbGFtZSxk/wEEL0xpdDL/AQR0bGUgMv8BBWxhbWUsZP8BBC9MaXQy\
+/wEEdGxlIDL/AQVsYW1lLGT/AQMvTWFL/wEDcnkgGf8BBHdhcyAy/wECYSAy/wEDbGl0Mv8BBHRsZSAy\
+/wEFbGFtZSwy/wEDL0EgMv8BA2xpdDL/AQR0bGUgMv8BBWxhbWUgMv8BBHdhcyAy/wEEc2hlIQD/LwBN\
+VHJrAAAA8gD/AwVNdXNpYwDAC2SQQH9LgEBAAJA+fxmAPkAAkDx/MoA8QACQPn8ygD5AAJBAfzKAQEAA\
+kEB/MoBAQACQQH9agEBACpA+fzKAPkAAkD5/MoA+QACQPn9agD5ACpBAfzKAQEAAkEN/MoBDQACQQ39a\
+gENACpBAf0uAQEAAkD5/GYA+QACQPH8ygDxAAJA+fzKAPkAAkEB/MoBAQACQQH8ygEBAAJBAfzKAQEAZ\
+kEB/GYBAQACQPn8ygD5AAJA+fzKAPkAAkEB/MoBAQACQPn8ygD5AAJA8f2RAZABDZABIf1qAPEAAQEAA\
+Q0AASEAK/y8A';
 
 function fromBase64() {
   clear();
