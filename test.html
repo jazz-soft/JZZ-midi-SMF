@@ -23,7 +23,7 @@ or <a target=_blank href=https://addons.mozilla.org/en-US/firefox/addon/jazz-mid
 <button onclick='fromBase64();'>Load from base64</button>
 </span><span>
 <button onclick="fileClicked();">Load from file</button>
-<input type=file id=file style='display:none;' onchange='fromFile();'>
+<input type=file id=file style='position:absolute;top:-1000px;' onchange='fromFile();'>
 </span><span>
 <button onclick='fromURL();'>Load from URL</button>
 <input type=text id=url value=test.mid onkeydown='if (event.keyCode == 13) fromURL();'>
