@@ -216,17 +216,35 @@
             pp[i]++;
           }
           if (pp[i] >= tt[i].length) continue;
-          if(b) m = tt[i][pp[i]].tt;
+          if (b) m = tt[i][pp[i]].tt;
           b = false;
-          if(m > tt[i][pp[i]].tt) m = tt[i][pp[i]].tt;
+          if (m > tt[i][pp[i]].tt) m = tt[i][pp[i]].tt;
         }
         t = m;
         if (b) break;
       }
     }
-    if (pl.ppqn) pl.mul = pl.ppqn / 500.0;
-    else pl.mul = pl.fps * pl.ppf / 1000.0;
     pl._duration = t;
+    if (pl.ppqn) {
+      pl.mul = pl.ppqn / 500.0; // 120 bpm
+      m = pl.mul;
+      t = 0;
+      pl._durationMS = 0;
+      for (i = 0; i < pl._data.length; i++) {
+        e = pl._data[i];
+        if (e.ff == 0x51) {
+          pl._durationMS += (e.tt - t) / m;
+          t = e.tt;
+          m = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
+        }
+      }
+      pl._durationMS += (pl._duration - t) / m;
+    }
+    else {
+      pl.mul = pl.fps * pl.ppf / 1000.0; // 1s = fps*ppf ticks
+      pl._durationMS = t / pl.mul;
+    }
+    if (!pl._durationMS) pl._durationMS = 1;
     return pl;
   };
 
@@ -476,6 +494,7 @@
     self._loop = 0;
     self._data = [];
     self._pos = 0;
+    self._ms = 0;
     self._tick = (function(x) { return function(){ x.tick(); }; })(self);
     for (var k in Player.prototype) if (Player.prototype.hasOwnProperty(k)) self[k] = Player.prototype[k];
     return self;
@@ -492,12 +511,16 @@
     this.paused = false;
     this._ptr = 0;
     this._pos = 0;
+    this._ms = 0;
     this._p0 = 0;
-    this._t0 = _now();
+    this._st = _now();
+    this._t0 = this._st;
     this.tick();
   };
   Player.prototype.stop = function() {
     this._pos = 0;
+    this._ms = 0;
+    this.playing = false;
     this.event = 'stop';
     this.paused = undefined;
   };
@@ -508,7 +531,8 @@
     if (this.playing) return;
     if (this.paused) {
       this.event = undefined;
-      this._t0 = _now();
+      this._st = _now();
+      this._t0 = this._st;
       this.playing = true;
       this.paused = false;
       this.tick();
@@ -538,6 +562,8 @@
         this._ptr = 0;
         this._p0 = 0;
         this._t0 = t;
+        this._st = t;
+        this._ms = 0;
       }
       else this.stop();
       this.onEnd();
@@ -546,6 +572,7 @@
       this.playing = false;
       this.paused = false;
       this._pos = 0;
+      this._ms = 0;
       this._ptr = 0;
       this.sndOff();
       this.event = undefined;
@@ -553,6 +580,7 @@
     if (this.event == 'pause') {
       this.playing = false;
       this.paused = true;
+      this._ms += _now() - this._st;
       if (this._pos >= this._duration) this._pos = this._duration - 1;
       this._p0 = this._pos;
       this.sndOff();
@@ -561,7 +589,9 @@
     if (this.playing) JZZ.lib.schedule(this._tick);
   };
   Player.prototype.duration = function() { return this._duration; };
+  Player.prototype.durationMS = function() { return this._durationMS; };
   Player.prototype.position = function() { return this._pos; };
+  Player.prototype.positionMS = function() { return this.playing ? this._ms + _now() - this._st : this._ms; };
   Player.prototype.jump = function(pos) {
     if (isNaN(parseFloat(pos))) _error('Not a number: ' + pos);
     if (pos < 0) pos = 0;
