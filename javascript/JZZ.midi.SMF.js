@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.0.9';
+  var _ver = '1.1.0';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -225,25 +225,30 @@
       }
     }
     pl._duration = t;
+    pl._ttt = [];
     if (pl.ppqn) {
       pl.mul = pl.ppqn / 500.0; // 120 bpm
       m = pl.mul;
       t = 0;
       pl._durationMS = 0;
+      pl._ttt.push({ t: 0, m: m, ms: 0 });
       for (i = 0; i < pl._data.length; i++) {
         e = pl._data[i];
         if (e.ff == 0x51) {
           pl._durationMS += (e.tt - t) / m;
           t = e.tt;
           m = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
+          pl._ttt.push({ t: t, m: m, ms: pl._durationMS });
         }
       }
       pl._durationMS += (pl._duration - t) / m;
     }
     else {
       pl.mul = pl.fps * pl.ppf / 1000.0; // 1s = fps*ppf ticks
+      pl._ttt.push({ t: 0, m: pl.mul, ms: 0 });
       pl._durationMS = t / pl.mul;
     }
+    pl._ttt.push({ t: pl._duration, m: 0, ms: pl._durationMS });
     if (!pl._durationMS) pl._durationMS = 1;
     return pl;
   };
@@ -592,14 +597,39 @@
   Player.prototype.durationMS = function() { return this._durationMS; };
   Player.prototype.position = function() { return this._pos; };
   Player.prototype.positionMS = function() { return this.playing ? this._ms + _now() - this._st : this._ms; };
-  Player.prototype.jump = function(pos) {
-    if (isNaN(parseFloat(pos))) _error('Not a number: ' + pos);
-    if (pos < 0) pos = 0;
-    if (pos >= this._duration) pos = this._duration - 1;
-    this._pos = pos;
-    this._p0 = pos;
+  Player.prototype.jump = function(t) {
+    if (isNaN(parseFloat(t))) _error('Not a number: ' + t);
+    if (t < 0) t = 0.0;
+    if (t >= this._duration) t = this._duration - 1;
+    this._goto(t, this._t2ms(t));
+  };
+  Player.prototype.jumpMS = function(ms) {
+    if (isNaN(parseFloat(ms))) _error('Not a number: ' + ms);
+    if (ms < 0) ms = 0.0;
+    if (ms >= this._durationMS) ms = this._durationMS - 1;
+    this._goto(this._ms2t(ms), ms);
+  };
+  Player.prototype._t2ms = function(t) {
+    if (!t) return 0.0;
+    var i;
+    for (i = 0; this._ttt[i].t < t; i++) ;
+    i--;
+    return this._ttt[i].ms + (t - this._ttt[i].t) / this._ttt[i].m;
+  };
+  Player.prototype._ms2t = function(ms) {
+    if (!ms) return 0.0;
+    var i;
+    for (i = 0; this._ttt[i].ms < ms; i++) ;
+    i--;
+    return this._ttt[i].t + (ms - this._ttt[i].ms) * this._ttt[i].m;
+  };
+  Player.prototype._goto = function(t, ms) {
+    this._pos = t;
+    this._ms = ms;
+    this._p0 = t;
     this._t0 = _now();
-    if (!this.playing) this.paused = !!pos;
+    this._st = this._t0;
+    if (!this.playing) this.paused = !!t;
     this._toPos();
     if (this.playing) this.sndOff();
   };
