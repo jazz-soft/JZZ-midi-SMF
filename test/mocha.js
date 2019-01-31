@@ -35,6 +35,17 @@ describe('integration: read / write / play', function() {
     smf = new JZZ.MIDI.SMF(smf);
     // player
     var player = smf.player();
+
+    assert.equal(player.duration(), 30);
+    assert.equal(player.durationMS(), 78.125);
+    assert.equal(player.position(), 0);
+    assert.equal(player.positionMS(), 0);
+    player.jump(20);
+    assert.equal(player.position(), 20);
+    player.jumpMS(50);
+    assert.equal(player.positionMS(), 50);
+    player.jump(0);
+
     var sample = new Sample(done, [
       [], [0xc0, 0x08], [0x90, 0x49, 0x7f], [0x80, 0x49, 0x40], [],
       [], [0xc0, 0x08], [0x90, 0x49, 0x7f], [0x80, 0x49, 0x40], [],
