@@ -13,6 +13,30 @@ function Sample(done, list) {
   };
 }
 
+describe('functions', function() {
+  var smf = new JZZ.MIDI.SMF(1, 100);
+  var trk = new JZZ.MIDI.SMF.MTrk;
+  smf.push(trk);
+  trk.tick(200).smfBPM(60).tick(200).smfEndOfTrack();
+  var player = smf.player();
+
+  it('duration', function() {
+    assert.equal(player.duration(), 400);
+    assert.equal(player.durationMS(), 3000);
+  });
+  it('tick2ms', function() {
+    assert.equal(player.tick2ms(-1), 0);
+    assert.equal(player.tick2ms(100), 500);
+    assert.equal(player.tick2ms(1000), 3000);
+  });
+  it('ms2tick', function() {
+    assert.equal(player.ms2tick(-1), 0);
+    assert.equal(player.ms2tick(500), 100);
+    assert.equal(player.ms2tick(2000), 300);
+    assert.equal(player.ms2tick(5000), 400);
+  });
+});
+
 describe('integration: read / write / play', function() {
   console.log('JZZ.MIDI.SMF v' + JZZ.MIDI.SMF.version());
   it('MIDI file type 0; fps/ppf', function(done) {
@@ -76,6 +100,7 @@ describe('integration: read / write / play', function() {
     var str = smf.dump();
     str = str.substring(0, str.length - 1); // make a fixable corrupted file
     smf = new JZZ.MIDI.SMF(str);
+    smf = new JZZ.MIDI.SMF(smf.dump() + ' ');
     smf.toString();
     //console.log(smf.toString());
     var player = smf.player();

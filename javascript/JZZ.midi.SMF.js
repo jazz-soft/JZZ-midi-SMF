@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.1.0';
+  var _ver = '1.1.1';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -642,6 +642,18 @@
         this._p0 = this._pos - (_now() - this._t0) * this.mul;
       }
     }
+  };
+  Player.prototype.tick2ms = function(t) {
+    if (isNaN(parseFloat(t))) _error('Not a number: ' + t);
+    if (t <= 0) return 0.0;
+    if (t >= this._duration) return this._durationMS;
+    return this._t2ms(t);
+  };
+  Player.prototype.ms2tick = function(t) {
+    if (isNaN(parseFloat(t))) _error('Not a number: ' + t);
+    if (t <= 0) return 0.0;
+    if (t >= this._durationMS) return this._duration;
+    return this._ms2t(t);
   };
   JZZ.MIDI.SMF = SMF;
 });
