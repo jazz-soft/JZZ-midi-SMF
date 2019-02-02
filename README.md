@@ -101,6 +101,16 @@ Please check the [**API Reference**](https://jazz-soft.net/doc/JZZ/midifile.html
       }
     }
 
+##### Getting the info
+
+    var player = smf.player();
+    var dump = smf.dump();
+    console.log('Type:', player.type());
+    console.log('Number of tracks:', player.tracks());
+    console.log('Size:', dump.length, 'bytes');
+    console.log('Duration:', player.duration(), 'ticks');
+    console.log('Total time:', player.durationMS(), 'milliseconds');
+
 ##### Saving MIDI file
 
     require('fs').writeFileSync('out.mid', smf.dump(), 'binary');

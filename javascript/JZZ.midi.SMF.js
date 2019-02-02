@@ -250,6 +250,8 @@
     }
     pl._ttt.push({ t: pl._duration, m: 0, ms: pl._durationMS });
     if (!pl._durationMS) pl._durationMS = 1;
+    pl._type = this.type;
+    pl._tracks = tt.length;
     return pl;
   };
 
@@ -593,6 +595,8 @@
     }
     if (this.playing) JZZ.lib.schedule(this._tick);
   };
+  Player.prototype.type = function() { return this._type; };
+  Player.prototype.tracks = function() { return this._tracks; };
   Player.prototype.duration = function() { return this._duration; };
   Player.prototype.durationMS = function() { return this._durationMS; };
   Player.prototype.position = function() { return this._pos; };

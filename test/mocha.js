@@ -20,6 +20,12 @@ describe('functions', function() {
   trk.tick(200).smfBPM(60).tick(200).smfEndOfTrack();
   var player = smf.player();
 
+  it('type', function() {
+    assert.equal(player.type(), 1);
+  });
+  it('tracks', function() {
+    assert.equal(player.tracks(), 1);
+  });
   it('duration', function() {
     assert.equal(player.duration(), 400);
     assert.equal(player.durationMS(), 3000);
