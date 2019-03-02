@@ -100,6 +100,7 @@
 
   var MThd0006 = 'MThd' + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(6);
   SMF.prototype.loadSMF = function(s) {
+    if (!s.length) _error('Empty file');
     if (s.substr(0, 8) != MThd0006) _error('Not a MIDI file');
     this.type = s.charCodeAt(8) * 16 + s.charCodeAt(9);
     this.ntrk = s.charCodeAt(10) * 16 + s.charCodeAt(11);
@@ -271,7 +272,6 @@
   Chunk.prototype.copy = function() { return new Chunk(this.type, this.data); };
 
   Chunk.prototype.sub = {
-    'MThd': function() { _error("Illegal chunk type: MThd"); },
     'MTrk': function(t, d) { return new MTrk(d); }
   };
   Chunk.prototype.dump = function() {
