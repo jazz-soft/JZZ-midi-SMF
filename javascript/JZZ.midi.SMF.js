@@ -91,15 +91,17 @@
   };
 
   SMF.prototype.load = function(s) {
+    var off = 0;
     if (s.substr(0, 4) == 'RIFF' && s.substr(8, 8) == 'RMIDdata') {
       this.rmi = true;
+      off = 20;
       s = s.substr(20, s.charCodeAt(16) + s.charCodeAt(17) * 0x100 + s.charCodeAt(18) * 0x10000 + s.charCodeAt(19) * 0x1000000);
     }
-    this.loadSMF(s);
+    this.loadSMF(s, off);
   };
 
   var MThd0006 = 'MThd' + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(6);
-  SMF.prototype.loadSMF = function(s) {
+  SMF.prototype.loadSMF = function(s, off) {
     if (!s.length) _error('Empty file');
     if (s.substr(0, 8) != MThd0006) _error('Not a MIDI file');
     this.type = s.charCodeAt(8) * 16 + s.charCodeAt(9);
@@ -116,12 +118,13 @@
     var p = 14;
     this.warn = [];
     while (p < s.length - 8) {
+      var offset = p + off;
       var type = s.substr(p, 4);
       if (type == 'MTrk') n++;
       var len = (s.charCodeAt(p + 4) << 24) + (s.charCodeAt(p + 5) << 16) + (s.charCodeAt(p + 6) << 8) + s.charCodeAt(p + 7);
       p += 8;
       var data = s.substr(p, len);
-      this.push(new Chunk(type, data));
+      this.push(new Chunk(type, data, offset));
       p += len;
     }
     if (n != this.ntrk) _error('Corrupted MIDI file');
@@ -256,15 +259,16 @@
     return pl;
   };
 
-  function Chunk(t, d) {
+  function Chunk(t, d, off) {
     var i;
-    if (this.sub[t]) return this.sub[t](t, d);
+    if (this.sub[t]) return this.sub[t](t, d, off);
     if (typeof t != 'string' || t.length != 4) _error("Invalid chunk type: " + t);
     for (i = 0; i < t.length; i++) if (t.charCodeAt(i) < 0 || t.charCodeAt(i) > 255) _error("Invalid chunk type: " + t);
     if (typeof d != 'string') _error("Invalid data type: " + d);
     for (i = 0; i < d.length; i++) if (d.charCodeAt(i) < 0 || d.charCodeAt(i) > 255) _error("Invalid data character: " + d[i]);
     this.type = t;
     this.data = d;
+    this.offset = off;
   }
   SMF.Chunk = Chunk;
   Chunk.prototype = [];
@@ -272,7 +276,7 @@
   Chunk.prototype.copy = function() { return new Chunk(this.type, this.data); };
 
   Chunk.prototype.sub = {
-    'MTrk': function(t, d) { return new MTrk(d); }
+    'MTrk': function(t, d, off) { return new MTrk(d, off); }
   };
   Chunk.prototype.dump = function() {
     return this.type + _num4(this.data.length) + this.data;
@@ -281,8 +285,7 @@
     return this.type + ': ' + this.data.length + ' bytes';
   };
 
-
-  function MTrk(s) {
+  function MTrk(s, off) {
     this._orig = this;
     this._tick = 0;
     if(typeof s == 'undefined') {
@@ -295,6 +298,10 @@
     var d;
     var st;
     var m;
+    var offset;
+    off = off || 0;
+    this.offset = off;
+    off += 8;
     while (p < s.length) {
       d = _var2num(s.substr(p, 4));
       p++;
@@ -302,6 +309,7 @@
       if (d > 0x3fff) p++;
       if (d > 0x1fffff) p++;
       t += d;
+      offset = p + off;
       if (s.charCodeAt(p) == 0xff) {
         st = s.substr(p, 2);
         p += 2;
@@ -310,7 +318,7 @@
         if (m > 0x7f) p++;
         if (m > 0x3fff) p++;
         if (m > 0x1fffff) p++;
-        this.push (new Event(t, st, s.substr(p, m)));
+        this.push (new Event(t, st, s.substr(p, m), offset));
         p += m;
       }
       else if (s.charCodeAt(p) == 0xf0 || s.charCodeAt(p) == 0xf7) {
@@ -321,19 +329,19 @@
         if (m > 0x7f) p++;
         if (m > 0x3fff) p++;
         if (m > 0x1fffff) p++;
-        this.push(new Event(t, st, s.substr(p, m)));
+        this.push(new Event(t, st, s.substr(p, m), offset));
         p += m;
       }
       else if (s.charCodeAt(p) & 0x80) {
         w = s.substr(p, 1);
         p += 1;
         m = _msglen(w.charCodeAt(0));
-        this.push(new Event(t, w, s.substr(p, m)));
+        this.push(new Event(t, w, s.substr(p, m), offset));
         p += m;
       }
       else if (w.charCodeAt(0) & 0x80) {
         m = _msglen(w.charCodeAt(0));
-        this.push(new Event(t, w, s.substr(p, m)));
+        this.push(new Event(t, w, s.substr(p, m), offset));
         p += m;
       }
     }
@@ -475,10 +483,7 @@
 
   JZZ.lib.copyMidiHelpers(MTrk, Chan);
 
-  function Event(t, s, d) {
-    this.tt = t;
-    this.status = s;
-    this.data = d;
+  function Event(t, s, d, off) {
     var midi;
     if (s.charCodeAt(0) == 0xff) {
       midi = JZZ.MIDI.smf(s.charCodeAt(1), d);
@@ -488,6 +493,7 @@
       for (var i = 0; i < d.length; i++) a.push(d.charCodeAt(i));
       midi = JZZ.MIDI(a);
     }
+    if (typeof off != 'undefined') midi._off = off;
     midi.tt = t;
     return midi;
   }
