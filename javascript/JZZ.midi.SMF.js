@@ -90,6 +90,10 @@
     return smf;
   };
 
+  SMF.prototype._complain = function(off, msg, data) {
+    if (!this._warn) this._warn = [];
+    this._warn.push({ off: off, msg: msg, data: data });
+  };
   SMF.prototype.load = function(s) {
     var off = 0;
     if (s.substr(0, 4) == 'RIFF' && s.substr(8, 8) == 'RMIDdata') {
@@ -103,7 +107,16 @@
   var MThd0006 = 'MThd' + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(6);
   SMF.prototype.loadSMF = function(s, off) {
     if (!s.length) _error('Empty file');
-    if (s.substr(0, 8) != MThd0006) _error('Not a MIDI file');
+    this._off = off;
+    if (s.substr(0, 8) != MThd0006) {
+      var z = s.indexOf(MThd0006);
+      if (z != -1) {
+        s = s.substr(z);
+        this._complain(this._off, 'Extra leading characters', z);
+        this._off += z;
+      }
+      else _error('Not a MIDI file');
+    }
     this.type = s.charCodeAt(8) * 16 + s.charCodeAt(9);
     this.ntrk = s.charCodeAt(10) * 16 + s.charCodeAt(11);
     if (s.charCodeAt(12) > 0x7f) {
@@ -116,22 +129,36 @@
     if (this.type > 2 || (this.type == 0 && this.ntrk > 1) || (!this.ppf && !this.ppqn)) _error('Invalid MIDI header');
     var n = 0;
     var p = 14;
-    this.warn = [];
     while (p < s.length - 8) {
-      var offset = p + off;
+      var offset = p + this._off;
       var type = s.substr(p, 4);
       if (type == 'MTrk') n++;
       var len = (s.charCodeAt(p + 4) << 24) + (s.charCodeAt(p + 5) << 16) + (s.charCodeAt(p + 6) << 8) + s.charCodeAt(p + 7);
       p += 8;
       var data = s.substr(p, len);
       this.push(new Chunk(type, data, offset));
+      if (type == 'MThd') this._complain(offset, 'Unexpected chunk type', 'MThd');
       p += len;
     }
-    if (n != this.ntrk) _error('Corrupted MIDI file');
-    if (p < s.length) this.warn.push(['extra', s.length - p]);
-    if (p > s.length) this.warn.push(['missing', p - s.length]);
+    if (n != this.ntrk) {
+      this._complain(this._off + 10, 'Incorrect number of tracks', this.ntrk);
+      this.ntrk = n;
+    }
+    if (p < s.length) this._complain(this._off + p, 'Extra trailing characters', s.length - p);
+    if (p > s.length) this._complain(this._off + s.length, 'Incomplete data', p - s.length);
   };
 
+  function _copy(obj) {
+    var ret = {};
+    for (var k in obj) if (obj.hasOwnProperty(k)) ret[k] = obj[k];
+    return ret;
+  }
+  SMF.prototype.validate = function() {
+    var i, j, k;
+    var w = [];
+    if (this._warn) for (i = 0; i < this._warn.length; i++) w.push(_copy(this._warn[i]));
+    if (w.length) return w;
+  };
   SMF.prototype.dump = function(rmi) {
     var s = '';
     if (rmi) {
