@@ -106,14 +106,15 @@
 
   var MThd0006 = 'MThd' + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(6);
   SMF.prototype.loadSMF = function(s, off) {
+//this._complain(0, 'Reading MIDI file', s.length);
     if (!s.length) _error('Empty file');
-    this._off = off;
+    off = off;
     if (s.substr(0, 8) != MThd0006) {
       var z = s.indexOf(MThd0006);
       if (z != -1) {
         s = s.substr(z);
-        this._complain(this._off, 'Extra leading characters', z);
-        this._off += z;
+        this._complain(off, 'Extra leading characters', z);
+        off += z;
       }
       else _error('Not a MIDI file');
     }
@@ -130,22 +131,23 @@
     var n = 0;
     var p = 14;
     while (p < s.length - 8) {
-      var offset = p + this._off;
+      var offset = p + off;
       var type = s.substr(p, 4);
       if (type == 'MTrk') n++;
       var len = (s.charCodeAt(p + 4) << 24) + (s.charCodeAt(p + 5) << 16) + (s.charCodeAt(p + 6) << 8) + s.charCodeAt(p + 7);
       p += 8;
       var data = s.substr(p, len);
+//this._complain(offset, 'Reading chunk', type + ' ' + (data.length + 8) + '/' + (len + 8));
       this.push(new Chunk(type, data, offset));
       if (type == 'MThd') this._complain(offset, 'Unexpected chunk type', 'MThd');
       p += len;
     }
     if (n != this.ntrk) {
-      this._complain(this._off + 10, 'Incorrect number of tracks', this.ntrk);
+      this._complain(off + 10, 'Incorrect number of tracks', this.ntrk);
       this.ntrk = n;
     }
-    if (p < s.length) this._complain(this._off + p, 'Extra trailing characters', s.length - p);
-    if (p > s.length) this._complain(this._off + s.length, 'Incomplete data', p - s.length);
+    if (p < s.length) this._complain(off + p, 'Extra trailing characters', s.length - p);
+    if (p > s.length) this._complain(off + s.length, 'Incomplete data', p - s.length);
   };
 
   function _copy(obj) {
@@ -154,9 +156,21 @@
     return ret;
   }
   SMF.prototype.validate = function() {
-    var i, j, k;
+    var i, j, k, z;
     var w = [];
     if (this._warn) for (i = 0; i < this._warn.length; i++) w.push(_copy(this._warn[i]));
+    k = 0;
+    for (i = 0; i < this.length; i++) if (this[i] instanceof MTrk) {
+      k++;
+      if (this[i]._warn) for (j = 0; j < this[i]._warn.length; j++) {
+        z = _copy(this[i]._warn[j]);
+        z.track = k;
+        w.push(z);
+      }
+    }
+    w.sort(function(a, b) {
+      return (a.off || 0) - (b.off || 0) || (a.track || 0) - (b.track || 0) || (a.tick || 0) - (b.tick || 0);
+    });
     if (w.length) return w;
   };
   SMF.prototype.dump = function(rmi) {
@@ -327,7 +341,6 @@
     var m;
     var offset;
     off = off || 0;
-    this.offset = off;
     off += 8;
     while (p < s.length) {
       d = _var2num(s.substr(p, 4));
@@ -339,6 +352,10 @@
       offset = p + off;
       if (s.charCodeAt(p) == 0xff) {
         st = s.substr(p, 2);
+        if (st.length < 2) {
+          this._complain(offset, 'Incomplete track data', 3 - st.length, t);
+          st = '\xff\x2f';
+        }
         p += 2;
         m = _var2num(s.substr(p, 4));
         p++;
@@ -383,7 +400,12 @@
     for (var i = 0; i < this.length; i++) trk.push(new JZZ.MIDI(this[i]));
     return trk;
   };
-
+  MTrk.prototype._complain = function(off, msg, data, tick) {
+    if (!this._warn) this._warn = [];
+    var w = { off: off, msg: msg, data: data };
+    if (typeof tick != 'undefined') w.tick = tick;
+    this._warn.push(w);
+  };
   MTrk.prototype.dump = function() {
     var s = '';
     var t = 0;
