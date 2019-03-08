@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.1.3';
+  var _ver = '1.1.4';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -326,6 +326,19 @@
     return this.type + ': ' + this.data.length + ' bytes';
   };
 
+  function _validate_msg_data(trk, s, p, m, t, off) {
+    var x = s.substr(p, m);
+    if (x.length < m) {
+      trk._complain(off, 'Incomplete track data', m - x.length, t);
+      x = (x + '\x00\x00').substr(0, m);
+    }
+    for (var i = 0; i < m; i++) if (x.charCodeAt(i) > 127) {
+      trk._complain(off, 'Bad MIDI value', x.charCodeAt(i), t);
+      x = x.substr(0, i) + '\x00' + x.substr(i + 1);
+    }
+    return x;
+  }
+
   function MTrk(s, off) {
     this._orig = this;
     this._tick = 0;
@@ -380,12 +393,12 @@
         w = s.substr(p, 1);
         p += 1;
         m = _msglen(w.charCodeAt(0));
-        this.push(new Event(t, w, s.substr(p, m), offset));
+        this.push(new Event(t, w, _validate_msg_data(this, s, p, m, t, offset), offset));
         p += m;
       }
       else if (w.charCodeAt(0) & 0x80) {
         m = _msglen(w.charCodeAt(0));
-        this.push(new Event(t, w, s.substr(p, m), offset));
+        this.push(new Event(t, w, _validate_msg_data(this, s, p, m, t, offset), offset));
         p += m;
       }
     }
