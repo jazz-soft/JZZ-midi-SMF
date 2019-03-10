@@ -215,8 +215,8 @@
     if (s.charCodeAt(2) < 0x80) return x + s.charCodeAt(2);
     x += s.charCodeAt(2) & 0x7f;
     x <<= 7;
-    if (s.charCodeAt(3) < 0x80) return x + s.charCodeAt(3);
-    return -1;
+    x += s.charCodeAt(3) & 0x7f;
+    return s.charCodeAt(3) < 0x80 ? x : -x;
   }
   function _msglen(n) {
     switch (n & 0xf0) {
