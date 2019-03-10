@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.1.4';
+  var _ver = '1.1.5';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -106,7 +106,6 @@
 
   var MThd0006 = 'MThd' + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(6);
   SMF.prototype.loadSMF = function(s, off) {
-//this._complain(0, 'Reading MIDI file', s.length);
     if (!s.length) _error('Empty file');
     off = off;
     if (s.substr(0, 8) != MThd0006) {
@@ -127,7 +126,9 @@
     else{
       this.ppqn = s.charCodeAt(12) * 256 + s.charCodeAt(13);
     }
-    if (this.type > 2 || (this.type == 0 && this.ntrk > 1) || (!this.ppf && !this.ppqn)) _error('Invalid MIDI header');
+    if (this.type > 2) this._complain(8 + off, 'Invalid MIDI file type', this.type);
+    else if (this.type == 0 && this.ntrk > 1) this._complain(10 + off, 'Wrong number of tracks for the type 0 MIDI file', this.ntrk);
+    if (!this.ppf && !this.ppqn) _error('Invalid MIDI header');
     var n = 0;
     var p = 14;
     while (p < s.length - 8) {
@@ -137,7 +138,6 @@
       var len = (s.charCodeAt(p + 4) << 24) + (s.charCodeAt(p + 5) << 16) + (s.charCodeAt(p + 6) << 8) + s.charCodeAt(p + 7);
       p += 8;
       var data = s.substr(p, len);
-//this._complain(offset, 'Reading chunk', type + ' ' + (data.length + 8) + '/' + (len + 8));
       this.push(new Chunk(type, data, offset));
       if (type == 'MThd') this._complain(offset, 'Unexpected chunk type', 'MThd');
       p += len;
@@ -146,6 +146,8 @@
       this._complain(off + 10, 'Incorrect number of tracks', this.ntrk);
       this.ntrk = n;
     }
+    if (!this.ntrk)  _error('No MIDI tracks');
+    if (!this.type && this.ntrk > 1 || this.type > 2)  this.type = 1;
     if (p < s.length) this._complain(off + p, 'Extra trailing characters', s.length - p);
     if (p > s.length) this._complain(off + s.length, 'Incomplete data', p - s.length);
   };
@@ -214,14 +216,18 @@
     x += s.charCodeAt(2) & 0x7f;
     x <<= 7;
     if (s.charCodeAt(3) < 0x80) return x + s.charCodeAt(3);
-    _error("Corrupted MIDI track");
+    return -1;
   }
   function _msglen(n) {
     switch (n & 0xf0) {
       case 0x80: case 0x90: case 0xa0: case 0xb0: case 0xe0: return 2;
       case 0xc0: case 0xD0: return 1;
-      default: _error("Corrupted MIDI track");
     }
+    switch (n) {
+      case 0xf1: case 0xf3: return 1;
+      case 0xf2: return 2;
+    }
+    return 0;
   }
 
   SMF.prototype.player = function() {
@@ -338,6 +344,14 @@
     }
     return x;
   }
+  function _validate_number(trk, s, off, t) {
+    var n = _var2num(s);
+    if (n < 0) {
+      n = -n;
+      trk._complain(off, "Bad byte sequence", s.charCodeAt(0) + '/' + s.charCodeAt(1) + '/' + s.charCodeAt(2) + '/' + s.charCodeAt(3), t);
+    }
+    return n;
+  }
 
   function MTrk(s, off) {
     this._orig = this;
@@ -356,7 +370,7 @@
     off = off || 0;
     off += 8;
     while (p < s.length) {
-      d = _var2num(s.substr(p, 4));
+      d = _validate_number(this, s.substr(p, 4), offset, t + d);
       p++;
       if (d > 0x7f) p++;
       if (d > 0x3fff) p++;
@@ -370,7 +384,7 @@
           st = '\xff\x2f';
         }
         p += 2;
-        m = _var2num(s.substr(p, 4));
+        m = _validate_number(this, s.substr(p, 4), offset + 2, t);
         p++;
         if (m > 0x7f) p++;
         if (m > 0x3fff) p++;
@@ -381,7 +395,7 @@
       else if (s.charCodeAt(p) == 0xf0 || s.charCodeAt(p) == 0xf7) {
         st = s.substr(p, 1);
         p += 1;
-        m = _var2num(s.substr(p, 4));
+        m = _validate_number(this, s.substr(p, 4), offset + 1, t);
         p++;
         if (m > 0x7f) p++;
         if (m > 0x3fff) p++;
@@ -393,11 +407,13 @@
         w = s.substr(p, 1);
         p += 1;
         m = _msglen(w.charCodeAt(0));
+        if (!m) this._complain(offset, 'Unexpected MIDI message', w.charCodeAt(0), t);
         this.push(new Event(t, w, _validate_msg_data(this, s, p, m, t, offset), offset));
         p += m;
       }
       else if (w.charCodeAt(0) & 0x80) {
         m = _msglen(w.charCodeAt(0));
+        if (!m) this._complain(offset, 'Unexpected MIDI message', w.charCodeAt(0), t);
         this.push(new Event(t, w, _validate_msg_data(this, s, p, m, t, offset), offset));
         p += m;
       }
