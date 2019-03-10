@@ -23,8 +23,7 @@
     "grunt-contrib-uglify": "^4.0.0",
     "istanbul": "^0.4.5",
     "jzz-gui-player": "^1.1.7",
-    "jzz-synth-osc": "^1.1.1",
-    "jzz-synth-tiny": "^1.0.5",
+    "jzz-synth-tiny": "^1.0.6",
     "mocha": "^6.0.0"
   },
   "repository": {
