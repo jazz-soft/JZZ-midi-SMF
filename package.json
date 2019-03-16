@@ -22,8 +22,8 @@
     "grunt-contrib-jshint": "^2.0.0",
     "grunt-contrib-uglify": "^4.0.0",
     "istanbul": "^0.4.5",
-    "jzz-gui-player": "^1.1.7",
-    "jzz-synth-tiny": "^1.0.6",
+    "jzz-gui-player": "^1.1.8",
+    "jzz-synth-tiny": "^1.0.8",
     "mocha": "^6.0.0"
   },
   "repository": {

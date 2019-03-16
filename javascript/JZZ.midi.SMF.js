@@ -158,17 +158,13 @@
     return ret;
   }
   SMF.prototype.validate = function() {
-    var i, j, k, z;
+    var i, j, k;
     var w = [];
     if (this._warn) for (i = 0; i < this._warn.length; i++) w.push(_copy(this._warn[i]));
     k = 0;
     for (i = 0; i < this.length; i++) if (this[i] instanceof MTrk) {
       k++;
-      if (this[i]._warn) for (j = 0; j < this[i]._warn.length; j++) {
-        z = _copy(this[i]._warn[j]);
-        z.track = k;
-        w.push(z);
-      }
+      this[i]._validate(w, k);
     }
     w.sort(function(a, b) {
       return (a.off || 0) - (b.off || 0) || (a.track || 0) - (b.track || 0) || (a.tick || 0) - (b.tick || 0);
@@ -428,6 +424,24 @@
     trk.length = 0;
     for (var i = 0; i < this.length; i++) trk.push(new JZZ.MIDI(this[i]));
     return trk;
+  };
+  function _validate_midi(msg) {
+
+  }
+  MTrk.prototype._validate = function(w, k) {
+    var i, z;
+    if (this._warn) for (i = 0; i < this._warn.length; i++) {
+      z = _copy(this._warn[i]);
+      z.track = k;
+      w.push(z);
+    }
+    for (i = 0; i < this.length; i++) {
+      z = _validate_midi(this[i]);
+      if (z) {
+        z.track = k;
+        w.push(z);
+      }
+    }
   };
   MTrk.prototype._complain = function(off, msg, data, tick) {
     if (!this._warn) this._warn = [];
