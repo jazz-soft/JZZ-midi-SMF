@@ -17,14 +17,14 @@
     "jzz": "^0.7.1"
   },
   "devDependencies": {
-    "coveralls": "^3.0.2",
+    "coveralls": "^3.0.3",
     "grunt": "^1.0.3",
     "grunt-contrib-jshint": "^2.0.0",
     "grunt-contrib-uglify": "^4.0.0",
     "istanbul": "^0.4.5",
-    "jzz-gui-player": "^1.1.8",
+    "jzz-gui-player": "^1.2.1",
     "jzz-synth-tiny": "^1.0.8",
-    "mocha": "^6.0.0"
+    "mocha": "^6.0.2"
   },
   "repository": {
     "type": "git",
