@@ -1,4 +1,5 @@
 ﻿var assert = require('assert');
+var fs = require('fs');
 var JZZ = require('jzz');
 require('..')(JZZ);
 
@@ -151,3 +152,11 @@ describe('integration: read / write / play', function() {
   });
 });
 
+describe('MIDI files', function() {
+  function load(fname) {
+    return fs.readFileSync(__dirname + '/midi/' + fname, 'binary');
+  }
+  it('1.mid', function() {
+    var smf = new JZZ.MIDI.SMF(load('1.mid'));
+  });
+});

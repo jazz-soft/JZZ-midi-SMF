@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "coveralls": "^3.0.3",
-    "grunt": "^1.0.3",
+    "grunt": "^1.0.4",
     "grunt-contrib-jshint": "^2.0.0",
     "grunt-contrib-uglify": "^4.0.0",
     "istanbul": "^0.4.5",
