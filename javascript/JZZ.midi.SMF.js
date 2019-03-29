@@ -90,9 +90,14 @@
     return smf;
   };
 
+  function _issue(off, msg, data, tick) {
+    var w = { off: off, msg: msg, data: data };
+    if (typeof tick != 'undefined') w.tick = tick;
+    return w;
+  }
   SMF.prototype._complain = function(off, msg, data) {
     if (!this._warn) this._warn = [];
-    this._warn.push({ off: off, msg: msg, data: data });
+    this._warn.push(_issue(off, msg, data));
   };
   SMF.prototype.load = function(s) {
     var off = 0;
@@ -426,7 +431,11 @@
     return trk;
   };
   function _validate_midi(msg) {
-
+    if (typeof msg.ff != 'undefined') {
+      if (msg.ff > 0x7f) return _issue(msg._off, 'Invalid Meta Event', msg.toString(), msg.tt);
+    }
+    else {
+    }
   }
   MTrk.prototype._validate = function(w, k) {
     var i, z;
@@ -445,9 +454,7 @@
   };
   MTrk.prototype._complain = function(off, msg, data, tick) {
     if (!this._warn) this._warn = [];
-    var w = { off: off, msg: msg, data: data };
-    if (typeof tick != 'undefined') w.tick = tick;
-    this._warn.push(w);
+    this._warn.push(_issue(off, msg, data, tick));
   };
   MTrk.prototype.dump = function() {
     var s = '';
