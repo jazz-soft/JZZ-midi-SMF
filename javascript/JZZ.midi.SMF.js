@@ -430,9 +430,45 @@
     for (var i = 0; i < this.length; i++) trk.push(new JZZ.MIDI(this[i]));
     return trk;
   };
+  function _metaevent_len(msg, name, len) {
+    if (msg.dd.length < len) return _issue(msg._off, 'Invalid ' + name + ' meta event: ' + (msg.dd.length ? 'data too short' : 'no data'), msg.toString(), msg.tt);
+    if (msg.dd.length > len) return _issue(msg._off, 'Invalid ' + name + ' meta event: data too long', msg.toString(), msg.tt);
+  }
   function _validate_midi(msg) {
+    var issue;
     if (typeof msg.ff != 'undefined') {
-      if (msg.ff > 0x7f) return _issue(msg._off, 'Invalid Meta Event', msg.toString(), msg.tt);
+      if (msg.ff > 0x7f) return _issue(msg._off, 'Invalid meta mvent', msg.toString(), msg.tt);
+      else if (msg.ff == 0) {
+        issue = _metaevent_len(msg, 'Sequence Number', 2); if (issue) return issue;
+      }
+      else if (msg.ff < 10) {
+        if (!msg.dd.length) return _issue(msg._off, 'Invalid Text meta event: no data', msg.toString(), msg.tt);
+      }
+      else if (msg.ff == 32) {
+        issue = _metaevent_len(msg, 'Channel Prefix', 1); if (issue) return issue;
+        if (msg.dd.charCodeAt(0) > 15) return _issue(msg._off, 'Invalid Channel Prefix meta event: incorrect data', msg.toString(), msg.tt);
+      }
+      else if (msg.ff == 47) {
+        issue = _metaevent_len(msg, 'End of Track', 0); if (issue) return issue;
+      }
+      else if (msg.ff == 81) {
+        issue = _metaevent_len(msg, 'Tempo', 3); if (issue) return issue;
+      }
+      else if (msg.ff == 84) {
+        issue = _metaevent_len(msg, 'SMPTE', 5); if (issue) return issue;
+      }
+      else if (msg.ff == 88) {
+        issue = _metaevent_len(msg, 'Time Signature', 4); if (issue) return issue;
+      }
+      else if (msg.ff == 89) {
+        issue = _metaevent_len(msg, 'Key Signature', 2); if (issue) return issue;
+      }
+      else if (msg.ff == 127) {
+        // Sequencer Specific meta event
+      }
+      else {
+        return _issue(msg._off, 'Unknown meta event', msg.toString(), msg.tt);
+      }
     }
     else {
     }
