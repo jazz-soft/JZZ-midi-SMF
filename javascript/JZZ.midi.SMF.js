@@ -448,6 +448,9 @@
         issue = _metaevent_len(msg, 'Channel Prefix', 1); if (issue) return issue;
         if (msg.dd.charCodeAt(0) > 15) return _issue(msg._off, 'Invalid Channel Prefix meta event: incorrect data', msg.toString(), msg.tt);
       }
+      else if (msg.ff == 33) {
+        issue = _metaevent_len(msg, 'MIDI Port', 1); if (issue) return issue;
+      }
       else if (msg.ff == 47) {
         issue = _metaevent_len(msg, 'End of Track', 0); if (issue) return issue;
       }
