@@ -158,29 +158,38 @@ describe('MIDI files', function() {
   }
   it('1.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('1.mid'));
+    smf.validate();
   });
   it('2.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('2.mid'));
+    smf.validate();
   });
   it('3.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('3.mid'));
+    smf.validate();
   });
   it('4.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('4.mid'));
+    smf.validate();
   });
   it('5.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('5.mid'));
+    smf.validate();
   });
   it('6.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('6.mid'));
+    smf.validate();
   });
   it('7.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('7.mid'));
+    smf.validate();
   });
   it('8.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('8.mid'));
+    smf.validate();
   });
   it('9.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('9.mid'));
+    smf.validate();
   });
 });
