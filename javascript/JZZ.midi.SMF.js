@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.1.7';
+  var _ver = '1.1.8';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -239,6 +239,7 @@
     pl.ppqn = this.ppqn;
     pl.fps = this.fps;
     pl.ppf = this.ppf;
+    pl.type = this.type;
     var i;
     var j;
     var tt = [];
@@ -289,7 +290,7 @@
       pl._ttt.push({ t: 0, m: m, ms: 0 });
       for (i = 0; i < pl._data.length; i++) {
         e = pl._data[i];
-        if (e.ff == 0x51) {
+        if (e.ff == 0x51 && (this.type != 1 || e.track == 0)) {
           pl._durationMS += (e.tt - t) / m;
           t = e.tt;
           m = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
@@ -708,7 +709,7 @@
     for(; this._ptr < this._data.length; this._ptr++) {
       e = this._data[this._ptr];
       if (e.tt > this._pos) break;
-      if (e.ff == 0x51 && this.ppqn) {
+      if (e.ff == 0x51 && this.ppqn && (this.type != 1 || e.track == 0)) {
         this.mul = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
         this._p0 = this._pos - (t - this._t0) * this.mul;
       }
