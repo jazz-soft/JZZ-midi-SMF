@@ -239,7 +239,6 @@
     pl.ppqn = this.ppqn;
     pl.fps = this.fps;
     pl.ppf = this.ppf;
-    pl.type = this.type;
     var i;
     var j;
     var tt = [];
@@ -709,7 +708,7 @@
     for(; this._ptr < this._data.length; this._ptr++) {
       e = this._data[this._ptr];
       if (e.tt > this._pos) break;
-      if (e.ff == 0x51 && this.ppqn && (this.type != 1 || e.track == 0)) {
+      if (e.ff == 0x51 && this.ppqn && (this._type != 1 || e.track == 0)) {
         this.mul = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
         this._p0 = this._pos - (t - this._t0) * this.mul;
       }
