@@ -27,6 +27,6 @@
     "Gruntfile.js"
   ],
   "dependencies": {
-    "jzz": "^0.7.3"
+    "jzz": "^0.7.4"
   }
 }

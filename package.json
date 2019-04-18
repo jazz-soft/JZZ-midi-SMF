@@ -4,7 +4,8 @@
   "description": "Standard MIDI Files: read / write / play",
   "main": "javascript/JZZ.midi.SMF.js",
   "scripts": {
-    "test": "mocha"
+    "test": "nyc mocha",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "keywords": [
     "MIDI",
@@ -14,17 +15,17 @@
   ],
   "author": "jazz-soft (https://jazz-soft.net/)",
   "dependencies": {
-    "jzz": "^0.7.3"
+    "jzz": "^0.7.4"
   },
   "devDependencies": {
     "coveralls": "^3.0.3",
     "grunt": "^1.0.4",
     "grunt-contrib-jshint": "^2.1.0",
     "grunt-contrib-uglify": "^4.0.1",
-    "istanbul": "^0.4.5",
     "jzz-gui-player": "^1.2.3",
     "jzz-synth-tiny": "^1.0.9",
-    "mocha": "^6.1.3"
+    "mocha": "^6.1.3",
+    "nyc": "^14.0.0"
   },
   "repository": {
     "type": "git",
