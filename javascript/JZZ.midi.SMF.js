@@ -279,34 +279,9 @@
         if (b) break;
       }
     }
-    pl._duration = t;
-    pl._ttt = [];
-    if (pl.ppqn) {
-      pl.mul = pl.ppqn / 500.0; // 120 bpm
-      m = pl.mul;
-      t = 0;
-      pl._durationMS = 0;
-      pl._ttt.push({ t: 0, m: m, ms: 0 });
-      for (i = 0; i < pl._data.length; i++) {
-        e = pl._data[i];
-        if (e.ff == 0x51 && (this.type != 1 || e.track == 0)) {
-          pl._durationMS += (e.tt - t) / m;
-          t = e.tt;
-          m = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
-          pl._ttt.push({ t: t, m: m, ms: pl._durationMS });
-        }
-      }
-      pl._durationMS += (pl._duration - t) / m;
-    }
-    else {
-      pl.mul = pl.fps * pl.ppf / 1000.0; // 1s = fps*ppf ticks
-      pl._ttt.push({ t: 0, m: pl.mul, ms: 0 });
-      pl._durationMS = t / pl.mul;
-    }
-    pl._ttt.push({ t: pl._duration, m: 0, ms: pl._durationMS });
-    if (!pl._durationMS) pl._durationMS = 1;
     pl._type = this.type;
     pl._tracks = tt.length;
+    pl._timing();
     return pl;
   };
 
@@ -747,20 +722,49 @@
     if (this.playing) JZZ.lib.schedule(this._tick);
   };
   Player.prototype.trim = function() {
-    var i, j, m;
+    var i, j, e;
     var data = [];
-    var ttt = [];
     var dt = 0;
     j = 0;
     for (i = 0; i < this._data.length; i++) {
-      m = this._data[i];
-      if (m.length || m.ff == 1 || m.ff == 5) {
-        for (; j <= i; j++) data.push(m);
+      e = this._data[i];
+      if (e.length || e.ff == 1 || e.ff == 5) {
+        for (; j <= i; j++) data.push(e);
       }
     }
     dt += this._data[i - 1].tt - this._data[j - 1].tt;
     this._data = data;
+    this._timing();
     return dt;
+  };
+  Player.prototype._timing = function() {
+    var i, m, t, e;
+    this._duration = this._data[this._data.length - 1].tt;
+    this._ttt = [];
+    if (this.ppqn) {
+      this.mul = this.ppqn / 500.0; // 120 bpm
+      m = this.mul;
+      t = 0;
+      this._durationMS = 0;
+      this._ttt.push({ t: 0, m: m, ms: 0 });
+      for (i = 0; i < this._data.length; i++) {
+        e = this._data[i];
+        if (e.ff == 0x51 && (this.type != 1 || e.track == 0)) {
+          this._durationMS += (e.tt - t) / m;
+          t = e.tt;
+          m = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
+          this._ttt.push({ t: t, m: m, ms: this._durationMS });
+        }
+      }
+      this._durationMS += (this._duration - t) / m;
+    }
+    else {
+      this.mul = this.fps * this.ppf / 1000.0; // 1s = fps*ppf ticks
+      this._ttt.push({ t: 0, m: this.mul, ms: 0 });
+      this._durationMS = t / this.mul;
+    }
+    this._ttt.push({ t: this._duration, m: 0, ms: this._durationMS });
+    if (!this._durationMS) this._durationMS = 1;
   };
   Player.prototype.type = function() { return this._type; };
   Player.prototype.tracks = function() { return this._tracks; };
