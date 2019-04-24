@@ -761,7 +761,7 @@
     else {
       this.mul = this.fps * this.ppf / 1000.0; // 1s = fps*ppf ticks
       this._ttt.push({ t: 0, m: this.mul, ms: 0 });
-      this._durationMS = t / this.mul;
+      this._durationMS = this._duration / this.mul;
     }
     this._ttt.push({ t: this._duration, m: 0, ms: this._durationMS });
     if (!this._durationMS) this._durationMS = 1;

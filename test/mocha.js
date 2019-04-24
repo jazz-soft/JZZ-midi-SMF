@@ -46,7 +46,7 @@ describe('functions', function() {
 
 describe('integration: read / write / play', function() {
   console.log('JZZ.MIDI.SMF v' + JZZ.MIDI.SMF.version());
-  it('MIDI file type 0; fps/ppf', function(done) {
+  it.only('MIDI file type 0; fps/ppf', function(done) {
     // new file
     var smf = new JZZ.MIDI.SMF(0, 24, 16);
     var trk = new JZZ.MIDI.SMF.MTrk;
