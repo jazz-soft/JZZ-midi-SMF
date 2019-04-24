@@ -746,6 +746,22 @@
     }
     if (this.playing) JZZ.lib.schedule(this._tick);
   };
+  Player.prototype.trim = function() {
+    var i, j, m;
+    var data = [];
+    var ttt = [];
+    var dt = 0;
+    j = 0;
+    for (i = 0; i < this._data.length; i++) {
+      m = this._data[i];
+      if (m.length || m.ff == 1 || m.ff == 5) {
+        for (; j <= i; j++) data.push(m);
+      }
+    }
+    dt += this._data[i - 1].tt - this._data[j - 1].tt;
+    this._data = data;
+    return dt;
+  };
   Player.prototype.type = function() { return this._type; };
   Player.prototype.tracks = function() { return this._tracks; };
   Player.prototype.duration = function() { return this._duration; };

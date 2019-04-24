@@ -167,6 +167,7 @@ describe('MIDI files', function() {
   it('3.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('3.mid'));
     smf.validate();
+    smf.player().trim();
   });
   it('4.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('4.mid'));
