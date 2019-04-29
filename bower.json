@@ -12,10 +12,9 @@
   ],
   "license": "MIT",
   "keywords": [
-    "MIDI",
     "midi",
-    "SMF",
-    "Standard MIDI File"
+    "midi-file",
+    "SMF"
   ],
   "homepage": "https://github.com/jazz-soft/JZZ-midi-SMF",
   "ignore": [
