@@ -1,10 +1,11 @@
 {
   "name": "jzz-midi-smf",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Standard MIDI Files: read / write / play",
   "main": "javascript/JZZ.midi.SMF.js",
   "scripts": {
     "test": "nyc mocha",
+    "lint": "eslint javascript test",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "keywords": [
@@ -14,15 +15,16 @@
   ],
   "author": "jazz-soft (https://jazz-soft.net/)",
   "dependencies": {
-    "jzz": "^0.7.4"
+    "jzz": "^0.7.7"
   },
   "devDependencies": {
     "coveralls": "^3.0.3",
+    "eslint": "^5.16.0",
     "grunt": "^1.0.4",
     "grunt-contrib-jshint": "^2.1.0",
     "grunt-contrib-uglify": "^4.0.1",
-    "jzz-gui-player": "^1.2.4",
-    "jzz-synth-tiny": "^1.0.9",
+    "jzz-gui-player": "^1.2.5",
+    "jzz-synth-tiny": "^1.1.0",
     "mocha": "^6.1.4",
     "nyc": "^14.0.0"
   },

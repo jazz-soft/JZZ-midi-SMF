@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.2.0';
+  var _ver = '1.2.1';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -166,7 +166,7 @@
     return ret;
   }
   SMF.prototype.validate = function() {
-    var i, j, k;
+    var i, k;
     var w = [];
     if (this._warn) for (i = 0; i < this._warn.length; i++) w.push(_copy(this._warn[i]));
     k = 0;
@@ -456,6 +456,7 @@
       }
     }
     else {
+      //
     }
   }
   MTrk.prototype._validate = function(w, k) {
@@ -678,7 +679,6 @@
   Player.prototype.tick = function() {
     var t = _now();
     var e;
-    var evt;
     this._pos = this._p0 + (t - this._t0) * this.mul;
     for(; this._ptr < this._data.length; this._ptr++) {
       e = this._data[this._ptr];
@@ -810,7 +810,7 @@
   };
   Player.prototype._toPos = function() {
     for(this._ptr = 0; this._ptr < this._data.length; this._ptr++) {
-      e = this._data[this._ptr];
+      var e = this._data[this._ptr];
       if (e.tt >= this._pos) break;
       if (e.ff == 0x51 && this.ppqn) {
         this.mul = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
