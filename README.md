@@ -65,7 +65,7 @@ Please check the [**API Reference**](https://jazz-soft.net/doc/JZZ/midifile.html
 ##### Creating MIDI file from scratch
 
     var smf = new JZZ.MIDI.SMF(0, 96); // type 0, 96 ticks per quarter note
-    var trk = new JZZ.MIDI.SMF.MTrk;
+    var trk = new JZZ.MIDI.SMF.MTrk();
     smf.push(trk);
     // add contents:
     trk.add(0, JZZ.MIDI.smfSeqName('This is a sequence name'))

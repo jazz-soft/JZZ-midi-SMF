@@ -15,8 +15,8 @@ function Sample(done, list) {
 }
 
 describe('functions', function() {
-  var smf = new JZZ.MIDI.SMF(1, 100);
-  var trk = new JZZ.MIDI.SMF.MTrk;
+  var smf = JZZ.MIDI.SMF(1, 100); // test without the 'new' keyword
+  var trk = JZZ.MIDI.SMF.MTrk(); // test without the 'new' keyword
   smf.push(trk);
   trk.tick(200).smfBPM(60).tick(200).smfEndOfTrack();
   var player = smf.player();
@@ -49,7 +49,7 @@ describe('integration: read / write / play', function() {
   it('MIDI file type 0; fps/ppf', function(done) {
     // new file
     var smf = new JZZ.MIDI.SMF(0, 24, 16);
-    var trk = new JZZ.MIDI.SMF.MTrk;
+    var trk = new JZZ.MIDI.SMF.MTrk();
     smf.push(trk);
     trk.add(0, JZZ.MIDI.smfBPM(90))
        .add(0, JZZ.MIDI.program(0, 8))
@@ -94,7 +94,7 @@ describe('integration: read / write / play', function() {
 
   it('MIDI file type 1; ppqn', function(done) {
     var smf = new JZZ.MIDI.SMF(1, 96);
-    var trk = new JZZ.MIDI.SMF.MTrk;
+    var trk = new JZZ.MIDI.SMF.MTrk();
     smf.push(trk);
     trk.smfBPM(90);
     trk = new JZZ.MIDI.SMF.MTrk;

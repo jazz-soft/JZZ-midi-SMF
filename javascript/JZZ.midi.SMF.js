@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.2.1';
+  var _ver = '1.2.2';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -286,6 +286,7 @@
   };
 
   function Chunk(t, d, off) {
+    if (!(this instanceof Chunk)) return new Chunk(t, d, off);
     var i;
     if (this.sub[t]) return this.sub[t](t, d, off);
     if (typeof t != 'string' || t.length != 4) _error("Invalid chunk type: " + t);
@@ -333,6 +334,7 @@
   }
 
   function MTrk(s, off) {
+    if (!(this instanceof MTrk)) return new MTrk(s, off);
     this._orig = this;
     this._tick = 0;
     if(typeof s == 'undefined') {
