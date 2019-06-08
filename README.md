@@ -62,6 +62,10 @@ Please check the [**API Reference**](https://jazz-soft.net/doc/JZZ/midifile.html
     player.connect(midiout);
     player.play();
 
+##### Viewing the contents of MIDI file
+
+    console.log(smf.toString());
+
 ##### Creating MIDI file from scratch
 
     var smf = new JZZ.MIDI.SMF(0, 96); // type 0, 96 ticks per quarter note
