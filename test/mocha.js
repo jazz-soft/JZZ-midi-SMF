@@ -124,7 +124,7 @@ describe('integration: read / write / play', function() {
     player.jump(3020200);
   });
 
-  it('MIDI file type 2; ppqn', function(done) {
+  it.skip('MIDI file type 2; ppqn', function(done) {
     var smf = new JZZ.MIDI.SMF(2, 96);
     var trk = new JZZ.MIDI.SMF.MTrk;
     smf.push(trk);

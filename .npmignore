@@ -1,7 +1,6 @@
 minified
-test
+test*
 .*
 bower.json
 Gruntfile.js
 *.html
-test.*

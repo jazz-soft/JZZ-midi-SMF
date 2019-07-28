@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.2.4';
+  var _ver = '1.2.5';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -238,6 +238,7 @@
     var pl = new Player();
     pl.ppqn = this.ppqn;
     pl.fps = this.fps;
+    pl.ppf = this.ppf;
     pl.ppf = this.ppf;
     var i;
     var j;
@@ -678,6 +679,21 @@
   Player.prototype.sndOff = function() {
     for (var c = 0; c < 16; c++) this._emit(JZZ.MIDI.allSoundOff(c));
   };
+  function _filter(e) { this._receive(e); }
+  Player.prototype._filter = _filter;
+  Player.prototype.filter = function(f) {
+    this._filter = f instanceof Function ? f : _filter;
+  };
+  function _div(s) { return (s.charCodeAt(0) << 16) + (s.charCodeAt(1) << 8) + s.charCodeAt(2); }
+  Player.prototype._receive = function(e) {
+    if (e.ff == 0x51 && this.ppqn && (this._type != 1 || e.track == 0)) {
+      var t = _now();
+      this._mul = this.ppqn * 1000.0 / _div(e.dd);
+      this.mul = this._mul / this._speed;
+      this._p0 = this._pos - (t - this._t0) * this.mul;
+    }
+    this._emit(e);
+  };
   Player.prototype.tick = function() {
     var t = _now();
     var e;
@@ -685,11 +701,7 @@
     for(; this._ptr < this._data.length; this._ptr++) {
       e = this._data[this._ptr];
       if (e.tt > this._pos) break;
-      if (e.ff == 0x51 && this.ppqn && (this._type != 1 || e.track == 0)) {
-        this.mul = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
-        this._p0 = this._pos - (t - this._t0) * this.mul;
-      }
-      this._emit(e);
+      this._filter(e);
     }
     if (this._ptr >= this._data.length) {
       if (this._loop && this._loop != -1) this._loop--;
@@ -744,8 +756,8 @@
     this._duration = this._data[this._data.length - 1].tt;
     this._ttt = [];
     if (this.ppqn) {
-      this.mul = this.ppqn / 500.0; // 120 bpm
-      m = this.mul;
+      this._mul = this.ppqn / 500.0; // 120 bpm
+      m = this._mul;
       t = 0;
       this._durationMS = 0;
       this._ttt.push({ t: 0, m: m, ms: 0 });
@@ -754,19 +766,27 @@
         if (e.ff == 0x51 && (this.type != 1 || e.track == 0)) {
           this._durationMS += (e.tt - t) / m;
           t = e.tt;
-          m = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
+          m = this.ppqn * 1000.0 / _div(e.dd);
           this._ttt.push({ t: t, m: m, ms: this._durationMS });
         }
       }
       this._durationMS += (this._duration - t) / m;
     }
     else {
-      this.mul = this.fps * this.ppf / 1000.0; // 1s = fps*ppf ticks
-      this._ttt.push({ t: 0, m: this.mul, ms: 0 });
-      this._durationMS = this._duration / this.mul;
+      this._mul = this.fps * this.ppf / 1000.0; // 1s = fps*ppf ticks
+      this._ttt.push({ t: 0, m: this._mul, ms: 0 });
+      this._durationMS = this._duration / this._mul;
     }
+    this._coeff = 1;
+    this.mul = this._mul;
     this._ttt.push({ t: this._duration, m: 0, ms: this._durationMS });
     if (!this._durationMS) this._durationMS = 1;
+  };
+  Player.prototype.speed = function(x) {
+    if (isNaN(parseFloat(x)) || x <= 0) x = 1;
+    this._speed = x;
+    this.mul = this._mul / this._speed;
+    this._p0 = this._pos - (_now() - this._t0) * this.mul;
   };
   Player.prototype.type = function() { return this._type; };
   Player.prototype.tracks = function() { return this._tracks; };
@@ -815,10 +835,12 @@
       var e = this._data[this._ptr];
       if (e.tt >= this._pos) break;
       if (e.ff == 0x51 && this.ppqn) {
-        this.mul = this.ppqn * 1000.0 / ((e.dd.charCodeAt(0) << 16) + (e.dd.charCodeAt(1) << 8) + e.dd.charCodeAt(2));
-        this._p0 = this._pos - (_now() - this._t0) * this.mul;
+        this._mul = this.ppqn * 1000.0 / _div(e.dd);
+        this._p0 = this._pos - (_now() - this._t0) * this._mul;
       }
     }
+//console.log('speed:', this._speed);
+    //this.mul = this._mul / this._speed;
   };
   Player.prototype.tick2ms = function(t) {
     if (isNaN(parseFloat(t))) _error('Not a number: ' + t);

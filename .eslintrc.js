@@ -28,7 +28,8 @@ module.exports = {
       "rules": {
         "no-console" : "off",
         "no-constant-condition" : ["error", { "checkLoops": false }],
-        "no-empty" : ["warn", { "allowEmptyCatch": true }]
+        "no-empty" : ["warn", { "allowEmptyCatch": true }],
+        "no-prototype-builtins" : "off"
       }
     }
   ]
