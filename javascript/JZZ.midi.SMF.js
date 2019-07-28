@@ -783,10 +783,13 @@
     if (!this._durationMS) this._durationMS = 1;
   };
   Player.prototype.speed = function(x) {
-    if (isNaN(parseFloat(x)) || x <= 0) x = 1;
-    this._speed = x;
-    this.mul = this._mul / this._speed;
-    this._p0 = this._pos - (_now() - this._t0) * this.mul;
+    if (typeof x != 'undefined') {
+      if (isNaN(parseFloat(x)) || x <= 0) x = 1;
+      this._speed = x;
+      this.mul = this._mul / this._speed;
+      this._p0 = this._pos - (_now() - this._t0) * this.mul;
+    }
+    return this._speed;
   };
   Player.prototype.type = function() { return this._type; };
   Player.prototype.tracks = function() { return this._tracks; };

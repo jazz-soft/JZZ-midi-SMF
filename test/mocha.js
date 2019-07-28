@@ -71,11 +71,25 @@ describe('integration: read / write / play', function() {
     assert.equal(player.durationMS(), 78.125);
     assert.equal(player.position(), 0);
     assert.equal(player.positionMS(), 0);
+    player.jump(-1);
+    assert.equal(player.position(), 0);
+    player.jump(1000000);
+    assert.equal(player.position(), 29);
     player.jump(20);
     assert.equal(player.position(), 20);
+    player.jumpMS(-1);
+    assert.equal(player.positionMS(), 0);
+    player.jumpMS(1000000);
+    assert.equal(player.positionMS(), 77.125);
     player.jumpMS(50);
     assert.equal(player.positionMS(), 50);
     player.jump(0);
+    player.speed(2);
+    assert.equal(player.speed(), 2);
+    player.speed(-1);
+    assert.equal(player.speed(), 1);
+    player.filter(function() {});
+    player.filter();
 
     var sample = new Sample(done, [
       [], [0xc0, 0x08], [0x90, 0x49, 0x7f], [0x80, 0x49, 0x40], [],
@@ -90,6 +104,7 @@ describe('integration: read / write / play', function() {
     player.loop(false);
     player.loop(2);
     player.play();
+    player.resume();
   });
 
   it('MIDI file type 1; ppqn', function(done) {
