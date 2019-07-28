@@ -777,7 +777,7 @@
       this._ttt.push({ t: 0, m: this._mul, ms: 0 });
       this._durationMS = this._duration / this._mul;
     }
-    this._coeff = 1;
+    this._speed = 1;
     this.mul = this._mul;
     this._ttt.push({ t: this._duration, m: 0, ms: this._durationMS });
     if (!this._durationMS) this._durationMS = 1;
@@ -839,8 +839,7 @@
         this._p0 = this._pos - (_now() - this._t0) * this._mul;
       }
     }
-//console.log('speed:', this._speed);
-    //this.mul = this._mul / this._speed;
+    this.mul = this._mul / this._speed;
   };
   Player.prototype.tick2ms = function(t) {
     if (isNaN(parseFloat(t))) _error('Not a number: ' + t);
