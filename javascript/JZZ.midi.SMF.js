@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.2.5';
+  var _ver = '1.2.6';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -689,7 +689,7 @@
     if (e.ff == 0x51 && this.ppqn && (this._type != 1 || e.track == 0)) {
       var t = _now();
       this._mul = this.ppqn * 1000.0 / _div(e.dd);
-      this.mul = this._mul / this._speed;
+      this.mul = this._mul * this._speed;
       this._p0 = this._pos - (t - this._t0) * this.mul;
     }
     this._emit(e);
@@ -786,7 +786,7 @@
     if (typeof x != 'undefined') {
       if (isNaN(parseFloat(x)) || x <= 0) x = 1;
       this._speed = x;
-      this.mul = this._mul / this._speed;
+      this.mul = this._mul * this._speed;
       this._p0 = this._pos - (_now() - this._t0) * this.mul;
     }
     return this._speed;
@@ -842,7 +842,7 @@
         this._p0 = this._pos - (_now() - this._t0) * this._mul;
       }
     }
-    this.mul = this._mul / this._speed;
+    this.mul = this._mul * this._speed;
   };
   Player.prototype.tick2ms = function(t) {
     if (isNaN(parseFloat(t))) _error('Not a number: ' + t);
