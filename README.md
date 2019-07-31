@@ -61,6 +61,8 @@ Please check the [**API Reference**](https://jazz-soft.net/doc/JZZ/midifile.html
     var player = smf.player();
     player.connect(midiout);
     player.play();
+    //...
+    player.speed(0.5); // play twice slower
 
 ##### Viewing the contents of MIDI file
 

@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.2.6';
+  var _ver = '1.2.7';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -631,7 +631,6 @@
     self._loop = 0;
     self._data = [];
     self._pos = 0;
-    self._ms = 0;
     self._tick = (function(x) { return function(){ x.tick(); }; })(self);
     for (var k in Player.prototype) if (Player.prototype.hasOwnProperty(k)) self[k] = Player.prototype[k];
     return self;
@@ -648,15 +647,12 @@
     this.paused = false;
     this._ptr = 0;
     this._pos = 0;
-    this._ms = 0;
     this._p0 = 0;
-    this._st = _now();
-    this._t0 = this._st;
+    this._t0 = _now();
     this.tick();
   };
   Player.prototype.stop = function() {
     this._pos = 0;
-    this._ms = 0;
     this.playing = false;
     this.event = 'stop';
     this.paused = undefined;
@@ -668,8 +664,7 @@
     if (this.playing) return;
     if (this.paused) {
       this.event = undefined;
-      this._st = _now();
-      this._t0 = this._st;
+      this._t0 = _now();
       this.playing = true;
       this.paused = false;
       this.tick();
@@ -687,10 +682,10 @@
   function _div(s) { return (s.charCodeAt(0) << 16) + (s.charCodeAt(1) << 8) + s.charCodeAt(2); }
   Player.prototype._receive = function(e) {
     if (e.ff == 0x51 && this.ppqn && (this._type != 1 || e.track == 0)) {
-      var t = _now();
       this._mul = this.ppqn * 1000.0 / _div(e.dd);
       this.mul = this._mul * this._speed;
-      this._p0 = this._pos - (t - this._t0) * this.mul;
+      this._t0 = _now();
+      this._p0 = this._pos;
     }
     this._emit(e);
   };
@@ -709,8 +704,6 @@
         this._ptr = 0;
         this._p0 = 0;
         this._t0 = t;
-        this._st = t;
-        this._ms = 0;
       }
       else this.stop();
       this.onEnd();
@@ -719,7 +712,6 @@
       this.playing = false;
       this.paused = false;
       this._pos = 0;
-      this._ms = 0;
       this._ptr = 0;
       this.sndOff();
       this.event = undefined;
@@ -727,7 +719,6 @@
     if (this.event == 'pause') {
       this.playing = false;
       this.paused = true;
-      this._ms += _now() - this._st;
       if (this._pos >= this._duration) this._pos = this._duration - 1;
       this._p0 = this._pos;
       this.sndOff();
@@ -796,18 +787,18 @@
   Player.prototype.duration = function() { return this._duration; };
   Player.prototype.durationMS = function() { return this._durationMS; };
   Player.prototype.position = function() { return this._pos; };
-  Player.prototype.positionMS = function() { return this.playing ? this._ms + _now() - this._st : this._ms; };
+  Player.prototype.positionMS = function() { return this.tick2ms(this._pos); };
   Player.prototype.jump = function(t) {
     if (isNaN(parseFloat(t))) _error('Not a number: ' + t);
     if (t < 0) t = 0.0;
     if (t >= this._duration) t = this._duration - 1;
-    this._goto(t, this._t2ms(t));
+    this._goto(t);
   };
   Player.prototype.jumpMS = function(ms) {
     if (isNaN(parseFloat(ms))) _error('Not a number: ' + ms);
     if (ms < 0) ms = 0.0;
     if (ms >= this._durationMS) ms = this._durationMS - 1;
-    this._goto(this._ms2t(ms), ms);
+    this._goto(this._ms2t(ms));
   };
   Player.prototype._t2ms = function(t) {
     if (!t) return 0.0;
@@ -823,12 +814,8 @@
     i--;
     return this._ttt[i].t + (ms - this._ttt[i].ms) * this._ttt[i].m;
   };
-  Player.prototype._goto = function(t, ms) {
+  Player.prototype._goto = function(t) {
     this._pos = t;
-    this._ms = ms;
-    this._p0 = t;
-    this._t0 = _now();
-    this._st = this._t0;
     if (!this.playing) this.paused = !!t;
     this._toPos();
     if (this.playing) this.sndOff();
@@ -837,12 +824,11 @@
     for(this._ptr = 0; this._ptr < this._data.length; this._ptr++) {
       var e = this._data[this._ptr];
       if (e.tt >= this._pos) break;
-      if (e.ff == 0x51 && this.ppqn) {
-        this._mul = this.ppqn * 1000.0 / _div(e.dd);
-        this._p0 = this._pos - (_now() - this._t0) * this._mul;
-      }
+      if (e.ff == 0x51 && this.ppqn) this._mul = this.ppqn * 1000.0 / _div(e.dd);
     }
     this.mul = this._mul * this._speed;
+    this._t0 = _now();
+    this._p0 = this._pos;
   };
   Player.prototype.tick2ms = function(t) {
     if (isNaN(parseFloat(t))) _error('Not a number: ' + t);
