@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.3.1';
+  var _ver = '1.3.2';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -734,7 +734,7 @@
     for (i = 0; i < this._data.length; i++) {
       e = this._data[i];
       if (e.length || e.ff == 1 || e.ff == 5) {
-        for (; j <= i; j++) data.push(e);
+        for (; j <= i; j++) data.push(this._data[j]);
       }
     }
     dt += this._data[i - 1].tt - this._data[j - 1].tt;
