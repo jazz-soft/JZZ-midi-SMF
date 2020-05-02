@@ -127,7 +127,7 @@ Please check the [**API Reference**](https://jazz-soft.net/doc/JZZ/midifile.html
 One easy thing to remember: `SMF` is an `Array` of `Track`-s and `Track` is an `Array` of MIDI events:
 
     for (var i = 0; i < smf.length; i++) {
-      for (j = 0; j < smf[i].length; j++) {
+      for (var j = 0; j < smf[i].length; j++) {
         console.log('track:', i, 'tick:', smf[i][j].tt, smf[i][j].toString());
         // or do whatever else with the message
       }
