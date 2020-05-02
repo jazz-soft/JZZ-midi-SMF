@@ -129,7 +129,7 @@ One easy thing to remember: `SMF` is an `Array` of `Track`-s and `Track` is an `
     for (var i = 0; i < smf.length; i++) {
       for (j = 0; j < smf[i].length; j++) {
         console.log('track:', i, 'tick:', smf[i][j].tt, smf[i][j].toString());
-        // or do whatever els with the message
+        // or do whatever else with the message
       }
     }
 
