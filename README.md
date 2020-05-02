@@ -122,6 +122,23 @@ Please check the [**API Reference**](https://jazz-soft.net/doc/JZZ/midifile.html
 
     require('fs').writeFileSync('out.mid', smf.dump(), 'binary');
 
+##### Export MIDI file data as JSON or any custom format
+
+One easy thing to remember: `SMF` is an `Array` of `Track`-s and `Track` is an `Array` of MIDI events:
+
+    for (var i = 0; i < smf.length; i++) {
+      for (j = 0; j < smf[i].length; j++) {
+        console.log('track:', i, 'tick:', smf[i][j].tt, smf[i][j].toString());
+        // or do whatever els with the message
+      }
+    }
+
+## Live DEMOs (source code included)
+
+[**Read MIDI file**](https://jazz-soft.net/demo/ReadMidiFile.html) - from file, URL, Base64  
+[**Write MIDI file**](https://jazz-soft.net/demo/WriteMidiFile.html) - create MIDI file from scratch  
+[**MIDI Player**](https://jazz-soft.net/demo/PlayMidiFile.html) - various ways to play MIDI file  
+[**Karaoke**](https://jazz-soft.net/demo/Karaoke.html) - playing MIDI files in *.kar* format
 
 ## More information
 
