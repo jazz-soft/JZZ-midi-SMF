@@ -93,6 +93,17 @@ Please check the [**API Reference**](https://jazz-soft.net/doc/JZZ/midifile.html
        .ch(0).note('C6', 127, 96).note('Eb6', 127, 96).note('G6', 127, 96)
        .tick(192).smfEndOfTrack();
 
+##### Exporting MIDI file data as JSON or any custom format
+
+One easy thing to remember: `SMF` is an `Array` of `Track`s and `Track` is an `Array` of MIDI events:
+
+    for (var i = 0; i < smf.length; i++) {
+      for (var j = 0; j < smf[i].length; j++) {
+        console.log('track:', i, 'tick:', smf[i][j].tt, smf[i][j].toString());
+        // or do whatever else with the message
+      }
+    }
+
 ##### Transposing MIDI file
 
     for (var i = 0; i < smf.length; i++) {
@@ -121,17 +132,6 @@ Please check the [**API Reference**](https://jazz-soft.net/doc/JZZ/midifile.html
 ##### Saving MIDI file
 
     require('fs').writeFileSync('out.mid', smf.dump(), 'binary');
-
-##### Export MIDI file data as JSON or any custom format
-
-One easy thing to remember: `SMF` is an `Array` of `Track`-s and `Track` is an `Array` of MIDI events:
-
-    for (var i = 0; i < smf.length; i++) {
-      for (var j = 0; j < smf[i].length; j++) {
-        console.log('track:', i, 'tick:', smf[i][j].tt, smf[i][j].toString());
-        // or do whatever else with the message
-      }
-    }
 
 ## Live DEMOs (source code included)
 
