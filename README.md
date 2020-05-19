@@ -30,10 +30,16 @@ or get the full development version and minified scripts from [**GitHub**](https
     <script src="JZZ.midi.SMF.js"></script>
     //...
 
-##### CDN (always the latest version!)
+##### CDN (jsdelivr)
 
     <script src="https://cdn.jsdelivr.net/npm/jzz"></script>
     <script src="https://cdn.jsdelivr.net/npm/jzz-midi-smf"></script>
+    //...
+
+##### CDN (unpkg)
+
+    <script src="https://unpkg.com/jzz"></script>
+    <script src="https://unpkg.com/jzz-midi-smf"></script>
     //...
 
 ##### CommonJS (Browserify and Node.js command line applications)
