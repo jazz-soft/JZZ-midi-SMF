@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.3.7';
+  var _ver = '1.3.8';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
