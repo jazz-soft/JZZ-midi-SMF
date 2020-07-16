@@ -19,12 +19,12 @@
   },
   "devDependencies": {
     "coveralls": "^3.1.0",
-    "eslint": "^7.2.0",
-    "grunt": "^1.1.0",
+    "eslint": "^7.4.0",
+    "grunt": "^1.2.1",
     "grunt-contrib-jshint": "^2.1.0",
     "grunt-contrib-uglify": "^4.0.1",
-    "jzz-gui-player": "^1.4.0",
-    "jzz-synth-tiny": "^1.1.6",
+    "jzz-gui-player": "^1.4.3",
+    "jzz-synth-tiny": "^1.1.7",
     "mocha": "^8.0.1",
     "nyc": "^15.1.0"
   },
