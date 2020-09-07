@@ -697,6 +697,7 @@
       e = this._data[this._ptr];
       if (e.tt > this._pos) break;
       this._filter(e);
+      this.onData(e);
     }
     if (this._ptr >= this._data.length) {
       if (this._loop && this._loop != -1) this._loop--;
