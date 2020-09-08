@@ -636,7 +636,6 @@
     return self;
   }
   Player.prototype.onEnd = function() {};
-  Player.prototype.onData = function() {};
   Player.prototype.loop = function(n) {
     if (n == parseInt(n) && n > 0) this._loop = n;
     else this._loop = n ? -1 : 0;
