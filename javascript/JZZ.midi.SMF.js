@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.3.9';
+  var _ver = '1.4.0';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -680,7 +680,7 @@
   };
   function _div(s) { return (s.charCodeAt(0) << 16) + (s.charCodeAt(1) << 8) + s.charCodeAt(2); }
   Player.prototype._receive = function(e) {
-    if (e.ff == 0x51 && this.ppqn && (this._type != 1 || e.track == 0)) {
+    if (e.ff == 0x51 && this.ppqn) {
       this._mul = this.ppqn * 1000.0 / _div(e.dd);
       this.mul = this._mul * this._speed;
       this._t0 = _now();
@@ -753,7 +753,7 @@
       this._ttt.push({ t: 0, m: m, ms: 0 });
       for (i = 0; i < this._data.length; i++) {
         e = this._data[i];
-        if (e.ff == 0x51 && (this.type != 1 || e.track == 0)) {
+        if (e.ff == 0x51) {
           this._durationMS += (e.tt - t) / m;
           t = e.tt;
           m = this.ppqn * 1000.0 / _div(e.dd);
