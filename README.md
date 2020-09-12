@@ -88,6 +88,13 @@ player.speed(0.5); // play twice slower
 console.log(smf.toString());
 ```
 
+##### Validating MIDI file
+
+```js
+var warn = smf.validate();
+if (warn) console.log(warn);
+```
+
 ##### Creating MIDI file from scratch
 
 ```js
