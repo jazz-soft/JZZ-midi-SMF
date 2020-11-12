@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.4.0';
+  var _ver = '1.4.1';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -160,15 +160,22 @@
     if (p > s.length) this._complain(off + s.length, 'Incomplete data', p - s.length);
   };
 
-  function _copy(obj) {
-    var ret = {};
-    for (var k in obj) if (obj.hasOwnProperty(k)) ret[k] = obj[k];
-    return ret;
+  function Warn(obj) {
+    if (!(this instanceof Warn)) return new Warn(obj);
+    for (var k in obj) if (obj.hasOwnProperty(k)) this[k] = obj[k];
   }
+  Warn.prototype.toString = function() {
+    var a = [];
+    if (typeof this.off != 'undefined') a.push('offset ' + this.off);
+    if (typeof this.track != 'undefined') a.push('track ' + this.track);
+    if (typeof this.tick != 'undefined') a.push('tick ' + this.tick);
+    return a.join(' ') + ' -- ' + this.msg + ' (' + this.data + ')';
+  };
+
   SMF.prototype.validate = function() {
     var i, k;
     var w = [];
-    if (this._warn) for (i = 0; i < this._warn.length; i++) w.push(_copy(this._warn[i]));
+    if (this._warn) for (i = 0; i < this._warn.length; i++) w.push(Warn(this._warn[i]));
     k = 0;
     for (i = 0; i < this.length; i++) if (this[i] instanceof MTrk) {
       k++;
@@ -471,7 +478,7 @@
   MTrk.prototype._validate = function(w, k, tr) {
     var i, z;
     if (this._warn) for (i = 0; i < this._warn.length; i++) {
-      z = _copy(this._warn[i]);
+      z = Warn(this._warn[i]);
       z.track = k;
       w.push(z);
     }
@@ -479,7 +486,7 @@
       z = _validate_midi(this[i], tr);
       if (z) {
         z.track = k;
-        w.push(z);
+        w.push(Warn(z));
       }
     }
   };

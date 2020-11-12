@@ -177,7 +177,8 @@ describe('MIDI files', function() {
   });
   it('2.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('2.mid'));
-    smf.validate();
+    var val = smf.validate();
+    for (var i = 0; i < val.length; i++) console.log(val[i].toString());
   });
   it('3.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('3.mid'));
@@ -186,15 +187,18 @@ describe('MIDI files', function() {
   });
   it('4.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('4.mid'));
-    smf.validate();
+    var val = smf.validate();
+    for (var i = 0; i < val.length; i++) console.log(val[i].toString());
   });
   it('5.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('5.mid'));
-    smf.validate();
+    var val = smf.validate();
+    for (var i = 0; i < val.length; i++) console.log(val[i].toString());
   });
   it('6.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('6.mid'));
-    smf.validate();
+    var val = smf.validate();
+    for (var i = 0; i < val.length; i++) console.log(val[i].toString());
   });
   it('7.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('7.mid'));
@@ -202,7 +206,8 @@ describe('MIDI files', function() {
   });
   it('8.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('8.mid'));
-    smf.validate();
+    var val = smf.validate();
+    for (var i = 0; i < val.length; i++) console.log(val[i].toString());
   });
   it('9.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('9.mid'));
