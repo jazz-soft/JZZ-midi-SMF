@@ -143,10 +143,10 @@ describe('integration: read / write / play', function() {
     var smf = new JZZ.MIDI.SMF(2, 96);
     var trk = new JZZ.MIDI.SMF.MTrk;
     smf.push(trk);
-    trk.smfBPM(90).tick(20).ch(0).note('C#5', 127, 20).clock();
+    trk.smfBPM(90).tick(20).ch(0).clock().note('C#5', 127, 20);
     trk = new JZZ.MIDI.SMF.MTrk;
     smf.push(trk);
-    trk.smfBPM(90).ch(0).note('F#5', 127, 20);
+    trk.ch(0).note('F#5', 127, 20);
     smf.toString();
     //console.log(smf.toString());
     var player = smf.player();
@@ -157,7 +157,7 @@ describe('integration: read / write / play', function() {
       [0xb8, 0x78, 0x00], [0xb9, 0x78, 0x00], [0xba, 0x78, 0x00], [0xbb, 0x78, 0x00],
       [0xbc, 0x78, 0x00], [0xbd, 0x78, 0x00], [0xbe, 0x78, 0x00], [0xbf, 0x78, 0x00],
       [0xf8], [0x90, 0x3d, 0x7f], [0x80, 0x3d, 0x40], [],
-      [], [0x90, 0x42, 0x7f], [0x80, 0x42, 0x40]
+      [0x90, 0x42, 0x7f], [0x80, 0x42, 0x40]
     ]);
     player.connect(function(msg) { sample.compare(msg); });
     player.resume();
