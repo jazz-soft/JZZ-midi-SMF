@@ -546,50 +546,52 @@
     return this;
   };
 
+  MTrk.prototype._ch = undefined;
+  MTrk.prototype._sxid = 0x7f;
+  MTrk.prototype._image = function() {
+    var F = function() {}; F.prototype = this._orig;
+    var img = new F();
+    img._ch = this._ch;
+    img._sxid = this._sxid;
+    img._tick = this._tick;
+    return img;
+  };
   MTrk.prototype.send = function(msg) { this._orig.add(this._tick, msg); return this; };
   MTrk.prototype.tick = function(t) {
     if (t != parseInt(t) || t < 0) throw RangeError('Bad tick value: ' + t);
     if (!t) return this;
-    var F = function() {}; F.prototype = this._orig;
-    var ttt = new F();
-    ttt._tick = this._tick + t;
-    return ttt;
+    var img = this._image();
+    img._tick = this._tick + t;
+    return img;
+  };
+  MTrk.prototype.sxId = function(id) {
+    if (typeof id == 'undefined') id = MTrk.prototype._sxid;
+    if (id == this._sxid) return this;
+    if (id != parseInt(id) || id < 0 || id > 0x7f) throw RangeError('Bad MIDI value: ' + id);
+    var img = this._image();
+    img._sxid = id;
+    return img;
+  };
+  MTrk.prototype.ch = function(c) {
+    if (c == this._ch || typeof c == 'undefined' && typeof this._ch == 'undefined') return this;
+    if (typeof c != 'undefined') {
+      if (c != parseInt(c) || c < 0 || c > 15) throw RangeError('Bad channel value: ' + c  + ' (must be from 0 to 15)');
+    }
+    var img = this._image();
+    img._ch = c;
+    return img;
   };
   MTrk.prototype.note = function(c, n, v, t) {
     this.noteOn(c, n, v);
-    if (t > 0) this.tick(t).noteOff(c, n);
+    if (typeof this._ch == 'undefined') {
+      if (t > 0) this.tick(t).noteOff(c, n);
+    }
+    else {
+      if (v > 0) this.tick(v).noteOff(c);
+    }
     return this;
   };
-  MTrk.prototype.ch = function(n) {
-    if (typeof n == 'undefined') return this;
-    if (n != parseInt(n) || n < 0 || n > 15) throw RangeError('Bad channel value: ' + n  + ' (must be from 0 to 15)');
-    return new Chan(this._orig, n, this._tick);
-  };
-
-  function Chan(orig, chan, tick) {
-    this._orig = orig;
-    this._chan = chan;
-    this._tick = tick;
-  }
-  Chan.prototype = new MTrk();
-  Chan.prototype.tick = function(t) {
-    if (t != parseInt(t) || t < 0) throw RangeError('Bad tick value: ' + t);
-    if (!t) return this;
-    return new Chan(this._orig, this._chan, this._tick + t);
-  };
-  Chan.prototype.ch = function(n) {
-    if (typeof n == 'undefined') return this._orig.tick(this._tick);
-    if (n != parseInt(n) || n < 0 || n > 15) throw RangeError('Bad channel value: ' + n  + ' (must be from 0 to 15)');
-    if (n == this._chan) return this;
-    return new Chan(this._orig, n, this._tick);
-  };
-  Chan.prototype.note = function(n, v, t) {
-    this.noteOn(n, v);
-    if (t) this.tick(t).noteOff(n);
-    return this;
-  };
-
-  JZZ.lib.copyMidiHelpers(MTrk, Chan);
+  JZZ.lib.copyMidiHelpers(MTrk);
 
   function Event(t, s, d, off) {
     var midi;
