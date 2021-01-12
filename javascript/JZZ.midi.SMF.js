@@ -12,7 +12,7 @@
 
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.4.3';
+  var _ver = '1.4.4';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -657,7 +657,9 @@
     else this.play();
   };
   Player.prototype.sndOff = function() {
-    for (var c = 0; c < 16; c++) this._emit(JZZ.MIDI.allSoundOff(c));
+    var c;
+    for (c = 0; c < 16; c++) this._emit(JZZ.MIDI.allSoundOff(c));
+    for (c = 0; c < 16; c++) this._emit(JZZ.MIDI.resetAllControllers(c));
   };
   function _filter(e) { this._receive(e); }
   Player.prototype._filter = _filter;
