@@ -18,9 +18,33 @@ describe('functions', function() {
   var smf = JZZ.MIDI.SMF(1, 100); // test without the 'new' keyword
   var trk = JZZ.MIDI.SMF.MTrk(); // test without the 'new' keyword
   smf.push(trk);
-  trk.tick(200).smfBPM(60).tick(200).smfEndOfTrack();
+  trk.tick(0).tick(200).smfBPM(60).tick(200).smfEndOfTrack();
   var player = smf.player();
 
+  it('constructor', function() {
+    JZZ.MIDI.SMF('0');
+    assert.throws(function() {
+      JZZ.MIDI.SMF(0, 24, 16, 0);
+    });
+    assert.throws(function() {
+      JZZ.MIDI.SMF(-1, 24, 16);
+    });
+    assert.throws(function() {
+      JZZ.MIDI.SMF(0, 31, 16);
+    });
+    assert.throws(function() {
+      JZZ.MIDI.SMF(0, 24, 300);
+    });
+    assert.throws(function() {
+      JZZ.MIDI.SMF(0, -1);
+    });
+    assert.throws(function() {
+      JZZ.MIDI.SMF('');
+    });
+    assert.throws(function() {
+      JZZ.MIDI.SMF('not a midi file');
+    });
+  });
   it('type', function() {
     assert.equal(player.type(), 1);
   });
@@ -117,7 +141,7 @@ describe('integration: read / write / play', function() {
     trk.sxIdRequest(); // insert a sysex
     trk.tick(200).note(0, 'C5', 127, 10)
        .tick(20000).note(0, 'E5', 127, 10)
-       .tick(3000000).ch(1).ch(1).ch(0).note('E5', 127, 10).ch()
+       .tick(3000000).ch(1).ch(1).ch(0).note('E5', 127, 10).ch().sxId(1).sxId()
        .tick(200).smfEndOfTrack();
     var str = smf.dump();
     str = str.substring(0, str.length - 1); // make a fixable corrupted file

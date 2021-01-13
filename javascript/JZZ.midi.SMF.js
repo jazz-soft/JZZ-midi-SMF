@@ -1,4 +1,5 @@
 (function(global, factory) {
+  /* istanbul ignore next */
   if (typeof exports === 'object' && typeof module !== 'undefined') {
     module.exports = factory;
   }
@@ -10,6 +11,7 @@
   }
 })(this, function(JZZ) {
 
+  /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
   var _ver = '1.4.4';
@@ -63,12 +65,12 @@
     if (isNaN(type) || type < 0 || type > 2) _error('Invalid parameters');
     self.type = type;
     if (typeof fps == 'undefined') {
-      if (isNaN(ppqn) || ppqn < 0 || type > 0xffff) _error('Invalid parameters');
+      if (isNaN(ppqn) || ppqn < 0 || ppqn > 0xffff) _error('Invalid parameters');
       self.ppqn = ppqn;
     }
     else {
       if (fps != 24 && fps != 25 && fps != 29 && fps != 30) _error('Invalid parameters');
-      if (isNaN(ppf) || ppf < 0 || type > 0xff) _error('Invalid parameters');
+      if (isNaN(ppf) || ppf < 0 || ppf > 0xff) _error('Invalid parameters');
       self.fps = fps;
       self.ppf = ppf;
     }
