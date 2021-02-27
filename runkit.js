@@ -11,5 +11,5 @@ trk.smfBPM(90).ch(0).program(16)
    .tick(192).noteOff('C6').noteOff('Eb6').noteOff('G6')
    .noteOff('C7').tick(96).smfEndOfTrack();
 
-await rkmidi(smf);
+rkmidi(smf);
 // click the [▶run] button... ↓

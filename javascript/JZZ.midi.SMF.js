@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.4.6';
+  var _ver = '1.4.7';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -47,8 +47,16 @@
       if (arguments[0] instanceof SMF) {
         return arguments[0].copy();
       }
+      try {
+        if (arguments[0] instanceof ArrayBuffer || arguments[0] instanceof Buffer) {
+          self.load(arguments[0].toString('binary'));
+          return self;
+        }
+      }
+      catch (err) {/**/}
       if (typeof arguments[0] == 'string' && arguments[0] != '0' && arguments[0] != '1' && arguments[0] != '2') {
-        self.load(arguments[0]); return self;
+        self.load(arguments[0]);
+        return self;
       }
       type = parseInt(arguments[0]);
     }
@@ -414,6 +422,7 @@
 
   MTrk.prototype = [];
   MTrk.prototype.constructor = MTrk;
+  MTrk.prototype.type = 'MTrk';
   MTrk.prototype.copy = function() {
     var trk = new MTrk();
     trk.length = 0;

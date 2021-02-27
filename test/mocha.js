@@ -19,6 +19,7 @@ describe('functions', function() {
   var trk = JZZ.MIDI.SMF.MTrk(); // test without the 'new' keyword
   smf.push(trk);
   trk.tick(0).tick(200).smfBPM(60).tick(200).smfEndOfTrack();
+  var chk = JZZ.MIDI.SMF.Chunk('fake', '');
   var player = smf.player();
 
   it('constructor', function() {
@@ -66,6 +67,10 @@ describe('functions', function() {
     assert.equal(player.ms2tick(2000), 300);
     assert.equal(player.ms2tick(5000), 400);
   });
+  it('type', function() {
+    assert.equal(chk.type, 'fake');
+    assert.equal(trk.type, 'MTrk');
+  });
 });
 
 describe('integration: read / write / play', function() {
@@ -86,6 +91,8 @@ describe('integration: read / write / play', function() {
     //console.log(smf.toString());
     // write and read
     smf = new JZZ.MIDI.SMF(smf.dump(true));
+    // read from buffer
+    smf = new JZZ.MIDI.SMF(Buffer.from(smf.dump(), 'binary'));
     // copy
     smf = new JZZ.MIDI.SMF(smf);
     // player
