@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.4.7';
+  var _ver = '1.4.8';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -48,7 +48,21 @@
         return arguments[0].copy();
       }
       try {
-        if (arguments[0] instanceof ArrayBuffer || arguments[0] instanceof Buffer) {
+        if (arguments[0] instanceof ArrayBuffer) {
+          self.load(String.fromCharCode.apply(null, new Uint8Array(arguments[0])));
+          return self;
+        }
+      }
+      catch (err) {/**/}
+      try {
+        if (arguments[0] instanceof Uint8Array || arguments[0] instanceof Int8Array) {
+          self.load(String.fromCharCode.apply(null, new Uint8Array(arguments[0])));
+          return self;
+        }
+      }
+      catch (err) {/**/}
+      try {
+        if (arguments[0] instanceof Buffer) {
           self.load(arguments[0].toString('binary'));
           return self;
         }
@@ -210,6 +224,22 @@
     s = (this.ppqn ? _num2(this.ppqn) : String.fromCharCode(0x100 - this.fps) + String.fromCharCode(this.ppf)) + s;
     s = MThd0006 + String.fromCharCode(0) + String.fromCharCode(this.type) + _num2(this.ntrk) + s;
     return s;
+  };
+  SMF.prototype.toBuffer = function(rmi) {
+    return Buffer.from(this.dump(rmi), 'binary');
+  };
+  SMF.prototype.toUint8Array = function(rmi) {
+    var str = this.dump(rmi);
+    var buf = new ArrayBuffer(str.length);
+    var arr = new Uint8Array(buf);
+    for (var i = 0; i < str.length; i++) arr[i] = str.charCodeAt(i);
+    return arr;
+  };
+  SMF.prototype.toArrayBuffer = function(rmi) {
+    return this.toUint8Array(rmi).buffer;
+  };
+  SMF.prototype.toInt8Array = function(rmi) {
+    return new Int8Array(this.toArrayBuffer(rmi));
   };
   SMF.prototype.toString = function() {
     var i;

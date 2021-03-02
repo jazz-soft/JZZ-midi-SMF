@@ -74,6 +74,7 @@ Please check the [**API Reference**](https://jazz-soft.net/doc/JZZ/midifile.html
 ```js
 var midiout = JZZ().openMidiOut();
 var data = require('fs').readFileSync('file.mid', 'binary');
+// data can be String, Buffer, ArrayBuffer, Uint8Array or Int8Array
 var smf = new JZZ.MIDI.SMF(data);
 var player = smf.player();
 player.connect(midiout);

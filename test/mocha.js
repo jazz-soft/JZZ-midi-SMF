@@ -91,8 +91,12 @@ describe('integration: read / write / play', function() {
     //console.log(smf.toString());
     // write and read
     smf = new JZZ.MIDI.SMF(smf.dump(true));
-    // read from buffer
-    smf = new JZZ.MIDI.SMF(Buffer.from(smf.dump(), 'binary'));
+    // read from Buffer
+    smf = new JZZ.MIDI.SMF(smf.toBuffer());
+    // read from ArrayBuffer
+    smf = new JZZ.MIDI.SMF(smf.toArrayBuffer());
+    // read from Int8Array
+    smf = new JZZ.MIDI.SMF(smf.toInt8Array());
     // copy
     smf = new JZZ.MIDI.SMF(smf);
     // player
