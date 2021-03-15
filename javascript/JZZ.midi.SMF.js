@@ -257,17 +257,17 @@
 
   function _var2num(s) {
     if (!s.length) return 0; // missing last byte
-    if (s.charCodeAt(0) < 0x80) return s.charCodeAt(0);
+    if (s.charCodeAt(0) < 0x80) return [1, s.charCodeAt(0)];
     var x = s.charCodeAt(0) & 0x7f;
     x <<= 7;
-    if (s.charCodeAt(1) < 0x80) return x + s.charCodeAt(1);
+    if (s.charCodeAt(1) < 0x80) return [2, x + s.charCodeAt(1)];
     x += s.charCodeAt(1) & 0x7f;
     x <<= 7;
-    if (s.charCodeAt(2) < 0x80) return x + s.charCodeAt(2);
+    if (s.charCodeAt(2) < 0x80) return [3, x + s.charCodeAt(2)];
     x += s.charCodeAt(2) & 0x7f;
     x <<= 7;
     x += s.charCodeAt(3) & 0x7f;
-    return s.charCodeAt(3) < 0x80 ? x : -x;
+    return [4, s.charCodeAt(3) < 0x80 ? x : -x];
   }
   function _msglen(n) {
     switch (n & 0xf0) {
@@ -373,12 +373,21 @@
     return x;
   }
   function _validate_number(trk, s, off, t) {
-    var n = _var2num(s);
-    if (n < 0) {
-      n = -n;
+    var nn = _var2num(s);
+    if (nn[1] < 0) {
+      nn[1] = -nn[1];
       trk._complain(off, "Bad byte sequence", s.charCodeAt(0) + '/' + s.charCodeAt(1) + '/' + s.charCodeAt(2) + '/' + s.charCodeAt(3), t);
     }
-    return n;
+    else if (nn[0] == 4 && nn[1] < 0x200000) {
+      trk._complain(off, "Long VLQ value", s.charCodeAt(0) + '/' + s.charCodeAt(1) + '/' + s.charCodeAt(2) + '/' + s.charCodeAt(3), t);
+    }
+    else if (nn[0] == 3 && nn[1] < 0x4000) {
+      trk._complain(off, "Long VLQ value", s.charCodeAt(0) + '/' + s.charCodeAt(1) + '/' + s.charCodeAt(2), t);
+    }
+    else if (nn[0] == 2 && nn[1] < 0x80) {
+      trk._complain(off, "Long VLQ value", s.charCodeAt(0) + '/' + s.charCodeAt(1), t);
+    }
+    return nn;
   }
 
   function MTrk(s, off) {
@@ -392,19 +401,15 @@
     var t = 0;
     var p = 0;
     var w = '';
-    var d;
     var st;
     var m;
     var offset;
     off = off || 0;
     off += 8;
     while (p < s.length) {
-      d = _validate_number(this, s.substr(p, 4), offset, t + d);
-      p++;
-      if (d > 0x7f) p++;
-      if (d > 0x3fff) p++;
-      if (d > 0x1fffff) p++;
-      t += d;
+      m = _validate_number(this, s.substr(p, 4), offset, t);
+      p += m[0];
+      t += m[1];
       offset = p + off;
       if (s.charCodeAt(p) == 0xff) {
         st = s.substr(p, 2);
@@ -414,23 +419,17 @@
         }
         p += 2;
         m = _validate_number(this, s.substr(p, 4), offset + 2, t);
-        p++;
-        if (m > 0x7f) p++;
-        if (m > 0x3fff) p++;
-        if (m > 0x1fffff) p++;
-        this.push (new Event(t, st, s.substr(p, m), offset));
-        p += m;
+        p += m[0];
+        this.push (new Event(t, st, s.substr(p, m[1]), offset));
+        p += m[1];
       }
       else if (s.charCodeAt(p) == 0xf0 || s.charCodeAt(p) == 0xf7) {
         st = s.substr(p, 1);
         p += 1;
         m = _validate_number(this, s.substr(p, 4), offset + 1, t);
-        p++;
-        if (m > 0x7f) p++;
-        if (m > 0x3fff) p++;
-        if (m > 0x1fffff) p++;
-        this.push(new Event(t, st, s.substr(p, m), offset));
-        p += m;
+        p += m[0];
+        this.push(new Event(t, st, s.substr(p, m[1]), offset));
+        p += m[1];
       }
       else if (s.charCodeAt(p) & 0x80) {
         w = s.substr(p, 1);

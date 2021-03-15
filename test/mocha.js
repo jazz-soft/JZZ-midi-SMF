@@ -214,6 +214,11 @@ describe('MIDI files', function() {
   function load(fname) {
     return fs.readFileSync(__dirname + '/midi/' + fname, 'binary');
   }
+  it('0.mid', function() {
+    var smf = new JZZ.MIDI.SMF(load('0.mid'));
+    var val = smf.validate();
+    for (var i = 0; i < val.length; i++) console.log(val[i].toString());
+  });
   it('1.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('1.mid'));
     smf.validate();
@@ -249,8 +254,7 @@ describe('MIDI files', function() {
   });
   it('8.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('8.mid'));
-    var val = smf.validate();
-    for (var i = 0; i < val.length; i++) console.log(val[i].toString());
+    smf.validate();
   });
   it('9.mid', function() {
     var smf = new JZZ.MIDI.SMF(load('9.mid'));
