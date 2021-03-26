@@ -15,7 +15,7 @@
   ],
   "author": "jazz-soft (https://jazz-soft.net/)",
   "dependencies": {
-    "jzz": "^1.2.5"
+    "jzz": "^1.2.6"
   },
   "devDependencies": {
     "coveralls": "^3.1.0",

@@ -181,6 +181,3 @@ require('fs').writeFileSync('out.mid', smf.dump(), 'binary');
 ## More information
 
 Please visit [**https://jazz-soft.net**](https://jazz-soft.net) for more information.  
-Your questions and comments are welcome [**here**](https://jazz-soft.org).
-
-We would really appreciate your [**support**](https://jazz-soft.net/donate)!
