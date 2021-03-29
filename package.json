@@ -34,6 +34,6 @@
     "url": "https://github.com/jazz-soft/JZZ-midi-SMF.git"
   },
   "homepage": "https://jazz-soft.net/doc/JZZ/midifile.html",
-  "bugs": "https://jazz-soft.org",
+  "bugs": "https://github.com/jazz-soft/JZZ-midi-SMF/issues",
   "license": "MIT"
 }
