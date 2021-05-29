@@ -586,7 +586,7 @@
     msg = JZZ.MIDI(msg);
     msg.tt = t;
     if (this[this.length - 1].tt < t) this[this.length - 1].tt = t; // end of track
-    if (msg.ff == 0x2f || msg[0] == 0xff) return this;
+    if (msg.ff == 0x2f || msg[0] > 0xf0 && msg[0] != 0xf7) return this;
     var i;
     for (i = 0; i < this.length - 1; i++) {
       if (this[i].tt > t) break;

@@ -19,10 +19,10 @@
   },
   "devDependencies": {
     "eslint": "^7.27.0",
-    "grunt": "^1.4.0",
+    "grunt": "^1.4.1",
     "grunt-contrib-jshint": "^3.0.0",
     "grunt-contrib-uglify": "^5.0.1",
-    "jzz-gui-player": "^1.4.8",
+    "jzz-gui-player": "^1.4.9",
     "jzz-synth-tiny": "^1.2.6",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0"
