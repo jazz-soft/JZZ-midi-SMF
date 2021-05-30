@@ -879,4 +879,45 @@
     return this._ms2t(t);
   };
   JZZ.MIDI.SMF = SMF;
+
+  function SYX(arg) {
+    var self = this instanceof SMF ? this : self = new SYX();
+    if (typeof arg != 'undefined') {
+      if (arg instanceof SMF) {
+        return arg.copy();
+      }
+      try {
+        if (arg instanceof ArrayBuffer) {
+          arg = String.fromCharCode.apply(null, new Uint8Array(arg));
+        }
+      }
+      catch (err) {/**/}
+      try {
+        if (arg instanceof Uint8Array || arg instanceof Int8Array) {
+          arg = String.fromCharCode.apply(null, new Uint8Array(arg));
+        }
+      }
+      catch (err) {/**/}
+      try {
+        if (arg instanceof Buffer) {
+          arg = arg.toString('binary');
+        }
+      }
+      catch (err) {/**/}
+      if (typeof arg != 'string') {
+        arg = String.fromCharCode.apply(null, arg);
+      }
+      var i = 0;
+      var msg = [];
+      if (arg.charCodeAt(i) != 0xf0) {
+      }
+      return self;
+    }
+    return self;
+  }
+  SYX.version = function() { return _ver; };
+  SYX.prototype = [];
+  SYX.prototype.constructor = SYX;
+
+  JZZ.MIDI.SYX = SYX;
 });
