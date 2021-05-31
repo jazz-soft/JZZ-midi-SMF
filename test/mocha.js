@@ -261,3 +261,26 @@ describe('MIDI files', function() {
     smf.validate();
   });
 });
+
+describe('SYX', function() {
+  it('constructor', function() {
+    var syx = JZZ.MIDI.SYX(JZZ.MIDI.sxIdRequest());
+    assert.equal(syx[0].toString(), 'f0 7e 7f 06 01 f7');
+    syx = JZZ.MIDI.SYX([0xf0, 0x7e, 0x7f, 0x06, 0x01, 0xf7, 0xf0, 0x7e, 0x01, 0x06, 0x01, 0xf7]);
+    assert.equal(syx[0].toString(), 'f0 7e 7f 06 01 f7');
+    assert.equal(syx[1].toString(), 'f0 7e 01 06 01 f7');
+    assert.throws(function() {
+      JZZ.MIDI.SYX([0x7e, 0x7f, 0x06, 0x01, 0xf7]);
+    });
+    assert.throws(function() {
+      JZZ.MIDI.SYX([0xf0, 0x7e, 0x7f, 0x06, 0x01]);
+    });
+    syx = JZZ.MIDI.SYX(syx.dump());
+    syx = JZZ.MIDI.SYX(syx.toBuffer());
+    syx = JZZ.MIDI.SYX(syx.toArrayBuffer());
+    syx = JZZ.MIDI.SYX(syx.toInt8Array());
+    syx = JZZ.MIDI.SYX(syx.toUint8Array());
+    assert.equal(syx[0].toString(), 'f0 7e 7f 06 01 f7');
+    assert.equal(syx[1].toString(), 'f0 7e 01 06 01 f7');
+  });
+});

@@ -880,8 +880,10 @@
   };
   JZZ.MIDI.SMF = SMF;
 
+  function _not_a_syx() { _error('Not a SYX file'); }
+
   function SYX(arg) {
-    var self = this instanceof SMF ? this : self = new SYX();
+    var self = this instanceof SYX ? this : self = new SYX();
     if (typeof arg != 'undefined') {
       if (arg instanceof SMF) {
         return arg.copy();
@@ -907,10 +909,24 @@
       if (typeof arg != 'string') {
         arg = String.fromCharCode.apply(null, arg);
       }
-      var i = 0;
+      var x;
       var msg = [];
-      if (arg.charCodeAt(i) != 0xf0) {
+      var i = 0;
+      while (i < arg.length) {
+        if (arg.charCodeAt(i) != 0xf0) _not_a_syx();
+        while (i < arg.length) {
+          x = arg.charCodeAt(i);
+          msg.push(x);
+          if (x == 0xf7) {
+            self.push(JZZ.MIDI(msg));
+            msg = [];
+            break;
+          }
+          i++;
+        }
+        i++;
       }
+      if (msg.length) _not_a_syx();
       return self;
     }
     return self;
@@ -918,6 +934,36 @@
   SYX.version = function() { return _ver; };
   SYX.prototype = [];
   SYX.prototype.constructor = SYX;
+
+  SYX.prototype.dump = function() {
+    var i, j, s = '';
+    for (i = 0; i < this.length; i++) for (j = 0; j < this[i].length; j++) s += String.fromCharCode(this[i][j]);
+    return s;
+  };
+  SYX.prototype.toBuffer = function() {
+    return Buffer.from(this.dump(), 'binary');
+  };
+  SYX.prototype.toUint8Array = function() {
+    var str = this.dump();
+    var buf = new ArrayBuffer(str.length);
+    var arr = new Uint8Array(buf);
+    for (var i = 0; i < str.length; i++) arr[i] = str.charCodeAt(i);
+    return arr;
+  };
+  SYX.prototype.toArrayBuffer = function() {
+    return this.toUint8Array().buffer;
+  };
+  SYX.prototype.toInt8Array = function() {
+    return new Int8Array(this.toArrayBuffer());
+  };
+  SYX.prototype.toString = function() {
+    var i;
+    var a = ['SYX:'];
+    for (i = 0; i < this.length; i++) {
+      a.push(this[i].toString());
+    }
+    return a.join('\n  ');
+  };
 
   JZZ.MIDI.SYX = SYX;
 });
