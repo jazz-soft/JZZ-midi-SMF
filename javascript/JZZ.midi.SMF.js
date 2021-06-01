@@ -47,6 +47,12 @@
       if (arguments[0] instanceof SMF) {
         return arguments[0].copy();
       }
+      if (arguments[0] instanceof SYX) {
+        self.type = 0;
+        self.push(new MTrk());
+        for (var i = 0; i < arguments[0].length; i++) self[0].add(0, arguments[0][i]);
+        return self;
+      }
       try {
         if (arguments[0] instanceof ArrayBuffer) {
           self.load(String.fromCharCode.apply(null, new Uint8Array(arguments[0])));
@@ -886,7 +892,12 @@
     var self = this instanceof SYX ? this : self = new SYX();
     if (typeof arg != 'undefined') {
       if (arg instanceof SMF) {
-        return arg.copy();
+        self.copy(arg.player()._data);
+        return self;
+      }
+      if (arg instanceof SYX) {
+        self.copy(arg);
+        return self;
       }
       try {
         if (arg instanceof ArrayBuffer) {
@@ -935,6 +946,12 @@
   SYX.prototype = [];
   SYX.prototype.constructor = SYX;
 
+  SYX.prototype.copy = function(data) {
+    for (var i = 0; i < data.length; i++) if (!data[i].isSMF()) {
+      if (data[i].isFullSysEx()) this.push(JZZ.MIDI(data[i]));
+      else _not_a_syx();
+    }
+  };
   SYX.prototype.dump = function() {
     var i, j, s = '';
     for (i = 0; i < this.length; i++) for (j = 0; j < this[i].length; j++) s += String.fromCharCode(this[i][j]);

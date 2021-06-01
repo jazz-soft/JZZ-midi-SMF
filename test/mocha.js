@@ -280,6 +280,8 @@ describe('SYX', function() {
     syx = JZZ.MIDI.SYX(syx.toArrayBuffer());
     syx = JZZ.MIDI.SYX(syx.toInt8Array());
     syx = JZZ.MIDI.SYX(syx.toUint8Array());
+    syx = JZZ.MIDI.SYX(JZZ.MIDI.SMF(syx));
+    syx = JZZ.MIDI.SYX(syx);
     assert.equal(syx[0].toString(), 'f0 7e 7f 06 01 f7');
     assert.equal(syx[1].toString(), 'f0 7e 01 06 01 f7');
   });
