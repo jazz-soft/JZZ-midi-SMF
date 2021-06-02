@@ -285,13 +285,13 @@ describe('SYX', function() {
     assert.equal(syx[0].toString(), 'f0 7e 7f 06 01 f7');
     assert.equal(syx[1].toString(), 'f0 7e 01 06 01 f7');
   });
-  it('player', function() {
+  it('player', function(done) {
     var syx = JZZ.MIDI.SYX(JZZ.MIDI.sxIdRequest());
     var player = syx.player();
-    player.connect(function(msg) {
-console.log('MSG:', msg.toString());
-    });
-    player.sndOff = function() {};
+    var sample = new Sample(done, [
+      [0xf0, 0x7e, 0x7f, 0x06, 0x01, 0xf7]
+    ]);
+    player.connect(function(msg) { sample.compare(msg); });
     player.play();
   });
 });

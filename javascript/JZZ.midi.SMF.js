@@ -992,6 +992,7 @@
     pl._type = 0;
     pl._tracks = 1;
     pl._timing();
+    pl.sndOff = function() {};
     return pl;
   };
 
