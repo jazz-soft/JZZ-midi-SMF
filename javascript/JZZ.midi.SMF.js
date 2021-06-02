@@ -292,7 +292,6 @@
     pl.ppqn = this.ppqn;
     pl.fps = this.fps;
     pl.ppf = this.ppf;
-    pl.ppf = this.ppf;
     var i;
     var j;
     var tt = [];
@@ -980,6 +979,20 @@
       a.push(this[i].toString());
     }
     return a.join('\n  ');
+  };
+  SYX.prototype.player = function() {
+    var pl = new Player();
+    pl.ppqn = 96;
+    var i;
+    for (i = 0; i < this.length; i++) {
+      var e = JZZ.MIDI(this[i]);
+      e.tt = 0;
+      pl._data.push(e);
+    }
+    pl._type = 0;
+    pl._tracks = 1;
+    pl._timing();
+    return pl;
   };
 
   JZZ.MIDI.SYX = SYX;

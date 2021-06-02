@@ -285,4 +285,13 @@ describe('SYX', function() {
     assert.equal(syx[0].toString(), 'f0 7e 7f 06 01 f7');
     assert.equal(syx[1].toString(), 'f0 7e 01 06 01 f7');
   });
+  it('player', function() {
+    var syx = JZZ.MIDI.SYX(JZZ.MIDI.sxIdRequest());
+    var player = syx.player();
+    player.connect(function(msg) {
+console.log('MSG:', msg.toString());
+    });
+    player.sndOff = function() {};
+    player.play();
+  });
 });
