@@ -49,6 +49,7 @@
       }
       if (arguments[0] instanceof SYX) {
         self.type = 0;
+        self.ppqn = ppqn;
         self.push(new MTrk());
         for (var i = 0; i < arguments[0].length; i++) self[0].add(0, arguments[0][i]);
         return self;

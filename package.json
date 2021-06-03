@@ -11,7 +11,8 @@
   "keywords": [
     "midi",
     "midi-file",
-    "SMF"
+    "smf",
+    "syx"
   ],
   "author": "jazz-soft (https://jazz-soft.net/)",
   "dependencies": {

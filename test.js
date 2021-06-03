@@ -4,7 +4,13 @@ require('.')(JZZ);
 var file = process.argv[2];
 if (typeof file == 'undefined') file = 'test.mid';
 var data = require('fs').readFileSync(file, 'binary');
-var smf = new JZZ.MIDI.SMF(data);
+var smf;
+try {
+  smf = new JZZ.MIDI.SYX(data);
+}
+catch (e) {
+  smf = new JZZ.MIDI.SMF(data);
+}
 console.log(smf.toString());
 var player = smf.player();
 var t = Math.round(player.durationMS() / 10);
