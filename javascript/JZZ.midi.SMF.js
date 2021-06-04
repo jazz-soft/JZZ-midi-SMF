@@ -890,6 +890,7 @@
 
   function SYX(arg) {
     var self = this instanceof SYX ? this : self = new SYX();
+    self._orig = self;
     if (typeof arg != 'undefined') {
       if (arg instanceof SMF) {
         self.copy(arg.player()._data);
@@ -996,6 +997,40 @@
     pl.sndOff = function() {};
     return pl;
   };
+
+  SYX.prototype._ch = undefined;
+  SYX.prototype._sxid = 0x7f;
+  SYX.prototype._image = function() {
+    var F = function() {}; F.prototype = this._orig;
+    var img = new F();
+    img._ch = this._ch;
+    img._sxid = this._sxid;
+    return img;
+  };
+  SYX.prototype.add = function(msg) {
+    msg = JZZ.MIDI(msg);
+    if (msg.isFullSysEx()) this._orig.push(msg);
+    return this;
+  };
+  SYX.prototype.send = function(msg) { return this.add(msg); };
+  SYX.prototype.sxId = function(id) {
+    if (typeof id == 'undefined') id = SYX.prototype._sxid;
+    if (id == this._sxid) return this;
+    if (id != parseInt(id) || id < 0 || id > 0x7f) throw RangeError('Bad MIDI value: ' + id);
+    var img = this._image();
+    img._sxid = id;
+    return img;
+  };
+  SYX.prototype.ch = function(c) {
+    if (c == this._ch || typeof c == 'undefined' && typeof this._ch == 'undefined') return this;
+    if (typeof c != 'undefined') {
+      if (c != parseInt(c) || c < 0 || c > 15) throw RangeError('Bad channel value: ' + c  + ' (must be from 0 to 15)');
+    }
+    var img = this._image();
+    img._ch = c;
+    return img;
+  };
+  JZZ.lib.copyMidiHelpers(SYX);
 
   JZZ.MIDI.SYX = SYX;
 });

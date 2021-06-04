@@ -152,7 +152,7 @@ describe('integration: read / write / play', function() {
     trk.sxIdRequest(); // insert a sysex
     trk.tick(200).note(0, 'C5', 127, 10)
        .tick(20000).note(0, 'E5', 127, 10)
-       .tick(3000000).ch(1).ch(1).ch(0).note('E5', 127, 10).ch().sxId(1).sxId()
+       .tick(3000000).ch(1).ch(1).ch(0).note('E5', 127, 10).ch().sxId(1).sxId(1).sxId()
        .tick(200).smfEndOfTrack();
     var str = smf.dump();
     str = str.substring(0, str.length - 1); // make a fixable corrupted file
@@ -264,8 +264,10 @@ describe('MIDI files', function() {
 
 describe('SYX', function() {
   it('constructor', function() {
+    assert.equal(JZZ.MIDI.SMF.version(), JZZ.MIDI.SMF.version());
     var syx = JZZ.MIDI.SYX(JZZ.MIDI.sxIdRequest());
     assert.equal(syx[0].toString(), 'f0 7e 7f 06 01 f7');
+    assert.equal(syx.toString(), 'SYX:\n  f0 7e 7f 06 01 f7');
     syx = JZZ.MIDI.SYX([0xf0, 0x7e, 0x7f, 0x06, 0x01, 0xf7, 0xf0, 0x7e, 0x01, 0x06, 0x01, 0xf7]);
     assert.equal(syx[0].toString(), 'f0 7e 7f 06 01 f7');
     assert.equal(syx[1].toString(), 'f0 7e 01 06 01 f7');
@@ -293,5 +295,15 @@ describe('SYX', function() {
     ]);
     player.connect(function(msg) { sample.compare(msg); });
     player.play();
+  });
+  it('helpers', function() {
+    var syx = new JZZ.MIDI.SYX();
+    syx.send([0xf0, 0xf7])
+      .noteOn(0, 'C7', 127).ch().ch(0).ch(0).noteOff('C7').ch()
+      .sxMasterVolumeF(0).sxId().sxId(5).sxId(5).sxMasterVolumeF(1).add([0xf0, 0xf7]).sxId();
+    assert.equal(syx[0].toString(), 'f0 f7');
+    assert.equal(syx[1].toString(), 'f0 7f 7f 04 01 00 00 f7');
+    assert.equal(syx[2].toString(), 'f0 7f 05 04 01 7f 7f f7');
+    assert.equal(syx[3].toString(), 'f0 f7');
   });
 });
