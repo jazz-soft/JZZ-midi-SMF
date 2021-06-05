@@ -71,6 +71,10 @@ describe('functions', function() {
     assert.equal(chk.type, 'fake');
     assert.equal(trk.type, 'MTrk');
   });
+  it('throw', function() {
+    assert.throws(function() { trk.ch(-1); });
+    assert.throws(function() { trk.sxId(-1); });
+  });
 });
 
 describe('integration: read / write / play', function() {
@@ -153,7 +157,7 @@ describe('integration: read / write / play', function() {
     trk.tick(200).note(0, 'C5', 127, 10)
        .tick(20000).note(0, 'E5', 127, 10)
        .tick(3000000).ch(1).ch(1).ch(0).note('E5', 127, 10).ch().sxId(1).sxId(1).sxId()
-       .tick(200).smfEndOfTrack();
+       .tick(200).smfEndOfTrack().add(0, [0x99, 0x40, 0x7f]);
     var str = smf.dump();
     str = str.substring(0, str.length - 1); // make a fixable corrupted file
     smf = new JZZ.MIDI.SMF(str);
@@ -182,7 +186,7 @@ describe('integration: read / write / play', function() {
     var smf = new JZZ.MIDI.SMF(2, 96);
     var trk = new JZZ.MIDI.SMF.MTrk;
     smf.push(trk);
-    trk.smfBPM(90).tick(20).ch(0).clock().note('C#5', 127, 20);
+    trk.smfBPM(90).tick(20).ch(0).clock().note('C#5', 127, 20).add(0, [0xc0, 0x0c]);
     trk = new JZZ.MIDI.SMF.MTrk;
     smf.push(trk);
     trk.ch(0).note('F#5', 127, 20);
@@ -190,7 +194,7 @@ describe('integration: read / write / play', function() {
     //console.log(smf.toString());
     var player = smf.player();
     var sample = new Sample(done, [
-      [],
+      [], [0xc0, 0x0c],
       [0xb0, 0x78, 0x00], [0xb1, 0x78, 0x00], [0xb2, 0x78, 0x00], [0xb3, 0x78, 0x00],
       [0xb4, 0x78, 0x00], [0xb5, 0x78, 0x00], [0xb6, 0x78, 0x00], [0xb7, 0x78, 0x00],
       [0xb8, 0x78, 0x00], [0xb9, 0x78, 0x00], [0xba, 0x78, 0x00], [0xbb, 0x78, 0x00],
@@ -305,5 +309,7 @@ describe('SYX', function() {
     assert.equal(syx[1].toString(), 'f0 7f 7f 04 01 00 00 f7');
     assert.equal(syx[2].toString(), 'f0 7f 05 04 01 7f 7f f7');
     assert.equal(syx[3].toString(), 'f0 f7');
+    assert.throws(function() { syx.ch(-1); });
+    assert.throws(function() { syx.sxId(-1); });
   });
 });

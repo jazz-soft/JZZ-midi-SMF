@@ -591,13 +591,13 @@
     if(isNaN(t) || t < 0) _error('Invalid parameter');
     msg = JZZ.MIDI(msg);
     msg.tt = t;
-    if (this[this.length - 1].tt < t) this[this.length - 1].tt = t; // end of track
+    if (this[this._orig.length - 1].tt < t) this[this._orig.length - 1].tt = t; // end of track
     if (msg.ff == 0x2f || msg[0] > 0xf0 && msg[0] != 0xf7) return this;
     var i;
-    for (i = 0; i < this.length - 1; i++) {
-      if (this[i].tt > t) break;
+    for (i = 0; i < this._orig.length - 1; i++) {
+      if (this._orig[i].tt > t) break;
     }
-    this.splice(i, 0, msg);
+    this._orig.splice(i, 0, msg);
     return this;
   };
 
