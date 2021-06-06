@@ -171,6 +171,21 @@ console.log('Total time:', player.durationMS(), 'milliseconds');
 require('fs').writeFileSync('out.mid', smf.dump(), 'binary');
 ```
 
+## SYX files
+
+##### All calls are almost identical to those for the SMF files:
+
+```js
+var data = require('fs').readFileSync('file.syx', 'binary');
+var syx = new JZZ.MIDI.SYX(data);
+syx.send([0xf0, 0x7e, 0x7f, 0x06, 0x01, 0xf7]);
+syx.sxMasterVolumeF(0.5);
+var player = syx.player();
+player.connect(midiout);
+player.play();
+require('fs').writeFileSync('out.syx', syx.dump(), 'binary');
+```
+
 ## Live DEMOs (source code included)
 
 [**Read MIDI file**](https://jazz-soft.net/demo/ReadMidiFile.html) - from file, URL, Base64  
