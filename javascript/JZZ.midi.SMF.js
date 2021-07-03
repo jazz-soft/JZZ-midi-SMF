@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.5.3';
+  var _ver = '1.5.4';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -152,14 +152,20 @@
       }
       else _error('Not a MIDI file');
     }
+    this._off = off;
     this.type = s.charCodeAt(8) * 16 + s.charCodeAt(9);
+    this._off_type = off + 8;
     this.ntrk = s.charCodeAt(10) * 16 + s.charCodeAt(11);
+    this._off_ntrk = off + 10;
     if (s.charCodeAt(12) > 0x7f) {
       this.fps = 0x100 - s.charCodeAt(12);
       this.ppf = s.charCodeAt(13);
+      this._off_fps = off + 12;
+      this._off_ppf = off + 13;
     }
     else{
       this.ppqn = s.charCodeAt(12) * 256 + s.charCodeAt(13);
+      this._off_ppqn = off + 12;
     }
     if (this.type > 2) this._complain(8 + off, 'Invalid MIDI file type', this.type);
     else if (this.type == 0 && this.ntrk > 1) this._complain(10 + off, 'Wrong number of tracks for the type 0 MIDI file', this.ntrk);
@@ -349,7 +355,7 @@
     for (i = 0; i < d.length; i++) if (d.charCodeAt(i) < 0 || d.charCodeAt(i) > 255) _error("Invalid data character: " + d[i]);
     this.type = t;
     this.data = d;
-    this.offset = off;
+    this._off = off;
   }
   SMF.Chunk = Chunk;
   Chunk.prototype = [];
@@ -399,6 +405,7 @@
 
   function MTrk(s, off) {
     if (!(this instanceof MTrk)) return new MTrk(s, off);
+    this._off = off;
     this._orig = this;
     this._tick = 0;
     if(typeof s == 'undefined') {
