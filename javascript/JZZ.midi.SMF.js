@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.5.4';
+  var _ver = '1.5.5';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -417,9 +417,9 @@
     var w = '';
     var st;
     var m;
-    var offset;
     off = off || 0;
     off += 8;
+    var offset = p + off;
     while (p < s.length) {
       m = _validate_number(this, s.substr(p, 4), offset, t, true);
       p += m[0];
