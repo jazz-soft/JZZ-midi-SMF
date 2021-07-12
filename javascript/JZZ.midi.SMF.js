@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.5.5';
+  var _ver = '1.5.6';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -449,13 +449,13 @@
         w = s.substr(p, 1);
         p += 1;
         m = _msglen(w.charCodeAt(0));
-        if (!m) this._complain(offset, 'Unexpected MIDI message', w.charCodeAt(0), t);
+        if (w.charCodeAt(0) > 0xf0) this._complain(offset, 'Unexpected MIDI message', w.charCodeAt(0).toString(16), t);
         this.push(new Event(t, w, _validate_msg_data(this, s, p, m, t, offset), offset));
         p += m;
       }
       else if (w.charCodeAt(0) & 0x80) {
         m = _msglen(w.charCodeAt(0));
-        if (!m) this._complain(offset, 'Unexpected MIDI message', w.charCodeAt(0), t);
+        if (w.charCodeAt(0) > 0xf0) this._complain(offset, 'Unexpected MIDI message', w.charCodeAt(0).toString(16), t);
         this.push(new Event(t, w, _validate_msg_data(this, s, p, m, t, offset), offset));
         p += m;
       }
