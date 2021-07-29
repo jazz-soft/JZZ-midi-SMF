@@ -1,4 +1,5 @@
 var JZZ = require('jzz');
+require('jzz-midi-gm')(JZZ);
 require('.')(JZZ);
 
 var file = process.argv[2];
@@ -11,6 +12,7 @@ try {
 catch (e) {
   smf = new JZZ.MIDI.SMF(data);
 }
+smf.annotate();
 console.log(smf.toString());
 var player = smf.player();
 var t = Math.round(player.durationMS() / 10);

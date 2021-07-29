@@ -85,12 +85,14 @@ describe('integration: read / write / play', function() {
     var trk = new JZZ.MIDI.SMF.MTrk();
     smf.push(trk);
     trk.add(0, JZZ.MIDI.smfBPM(90))
-       .add(0, JZZ.MIDI.program(0, 8))
+       .add(0, JZZ.MIDI.program(0, 8).label('dummy'))
        .add(10, JZZ.MIDI.noteOn(0, 'C#6', 127))
        .add(20, JZZ.MIDI.noteOff(0, 'C#6'))
        .add(30, JZZ.MIDI.smfEndOfTrack());
     var more = new JZZ.MIDI.SMF.Chunk('More', 'Ignore this...');
     smf.push(more);
+    smf.annotate();
+    smf.annotate();
     smf.toString();
     //console.log(smf.toString());
     // write and read
@@ -162,6 +164,8 @@ describe('integration: read / write / play', function() {
     str = str.substring(0, str.length - 1); // make a fixable corrupted file
     smf = new JZZ.MIDI.SMF(str);
     smf = new JZZ.MIDI.SMF(smf.dump() + ' ');
+    smf.annotate();
+    smf.annotate();
     smf.toString();
     //console.log(smf.toString());
     var player = smf.player();
@@ -190,6 +194,8 @@ describe('integration: read / write / play', function() {
     trk = new JZZ.MIDI.SMF.MTrk;
     smf.push(trk);
     trk.ch(0).note('F#5', 127, 20);
+    smf.annotate();
+    smf.annotate();
     smf.toString();
     //console.log(smf.toString());
     var player = smf.player();

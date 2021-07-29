@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.5.6';
+  var _ver = '1.5.7';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -293,6 +293,45 @@
     }
     return 0;
   }
+
+  SMF.prototype.annotate = function() {
+    var i, j;
+    var tt = [];
+    var mm = [];
+    for (i = 0; i < this.length; i++) if (this[i] instanceof MTrk) tt.push(this[i]);
+    if (this.type != 1) {
+      for (i = 0; i < tt.length; i++) {
+        if (i) mm.push(JZZ.MIDI(0xff));
+        for (j = 0; j < tt[i].length; j++) mm.push(tt[i][j]);
+      }
+    }
+    else {
+      var t = 0;
+      var pp = [];
+      for (i = 0; i < tt.length; i++) pp[i] = 0;
+      while (true) {
+        var b = true;
+        var m = 0;
+        for (i = 0; i < tt.length; i++) {
+          while (pp[i] < tt[i].length && tt[i][pp[i]].tt == t) {
+            mm.push(tt[i][pp[i]]);
+            pp[i]++;
+          }
+          if (pp[i] >= tt[i].length) continue;
+          if (b) m = tt[i][pp[i]].tt;
+          b = false;
+          if (m > tt[i][pp[i]].tt) m = tt[i][pp[i]].tt;
+        }
+        t = m;
+        if (b) break;
+      }
+    }
+    var ctxt = JZZ.Context();
+    for (i = 0; i < mm.length; i++) {
+      if (mm[i].lbl) mm[i].lbl = undefined;
+      ctxt._read(mm[i]);
+    }
+  };
 
   SMF.prototype.player = function() {
     var pl = new Player();
