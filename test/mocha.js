@@ -92,7 +92,6 @@ describe('integration: read / write / play', function() {
     var more = new JZZ.MIDI.SMF.Chunk('More', 'Ignore this...');
     smf.push(more);
     smf.annotate();
-    smf.annotate();
     smf.toString();
     //console.log(smf.toString());
     // write and read
@@ -164,8 +163,7 @@ describe('integration: read / write / play', function() {
     str = str.substring(0, str.length - 1); // make a fixable corrupted file
     smf = new JZZ.MIDI.SMF(str);
     smf = new JZZ.MIDI.SMF(smf.dump() + ' ');
-    smf.annotate();
-    smf.annotate();
+    smf.annotate().annotate();
     smf.toString();
     //console.log(smf.toString());
     var player = smf.player();
@@ -194,7 +192,6 @@ describe('integration: read / write / play', function() {
     trk = new JZZ.MIDI.SMF.MTrk;
     smf.push(trk);
     trk.ch(0).note('F#5', 127, 20);
-    smf.annotate();
     smf.annotate();
     smf.toString();
     //console.log(smf.toString());
@@ -308,9 +305,9 @@ describe('SYX', function() {
   });
   it('helpers', function() {
     var syx = new JZZ.MIDI.SYX();
-    syx.send([0xf0, 0xf7])
+    syx.send(JZZ.MIDI([0xf0, 0xf7]).label('dummy'))
       .noteOn(0, 'C7', 127).ch().ch(0).ch(0).noteOff('C7').ch()
-      .sxMasterVolumeF(0).sxId().sxId(5).sxId(5).sxMasterVolumeF(1).add([0xf0, 0xf7]).sxId();
+      .sxMasterVolumeF(0).sxId().sxId(5).sxId(5).sxMasterVolumeF(1).add([0xf0, 0xf7]).sxId().annotate();
     assert.equal(syx[0].toString(), 'f0 f7');
     assert.equal(syx[1].toString(), 'f0 7f 7f 04 01 00 00 f7');
     assert.equal(syx[2].toString(), 'f0 7f 05 04 01 7f 7f f7');

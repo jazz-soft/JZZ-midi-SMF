@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.5.7';
+  var _ver = '1.5.8';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -331,6 +331,7 @@
       if (mm[i].lbl) mm[i].lbl = undefined;
       ctxt._read(mm[i]);
     }
+    return this;
   };
 
   SMF.prototype.player = function() {
@@ -1028,6 +1029,14 @@
       a.push(this[i].toString());
     }
     return a.join('\n  ');
+  };
+  SYX.prototype.annotate = function() {
+    var ctxt = JZZ.Context();
+    for (var i = 0; i < this.length; i++) {
+      if (this[i].lbl) this[i].lbl = undefined;
+      ctxt._read(this[i]);
+    }
+    return this;
   };
   SYX.prototype.player = function() {
     var pl = new Player();
