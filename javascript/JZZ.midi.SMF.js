@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.5.8';
+  var _ver = '1.5.9';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -972,17 +972,21 @@
       var x;
       var msg = [];
       var i = 0;
+      var off = 0;
       while (i < arg.length) {
         if (arg.charCodeAt(i) != 0xf0) _not_a_syx();
         while (i < arg.length) {
           x = arg.charCodeAt(i);
           msg.push(x);
           if (x == 0xf7) {
+            msg = JZZ.MIDI(msg);
+            msg._off = off;
             self.push(JZZ.MIDI(msg));
             msg = [];
             break;
           }
           i++;
+          off = i;
         }
         i++;
       }

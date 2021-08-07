@@ -309,8 +309,8 @@ describe('SYX', function() {
       .noteOn(0, 'C7', 127).ch().ch(0).ch(0).noteOff('C7').ch()
       .sxMasterVolumeF(0).sxId().sxId(5).sxId(5).sxMasterVolumeF(1).add([0xf0, 0xf7]).sxId().annotate();
     assert.equal(syx[0].toString(), 'f0 f7');
-    assert.equal(syx[1].toString(), 'f0 7f 7f 04 01 00 00 f7');
-    assert.equal(syx[2].toString(), 'f0 7f 05 04 01 7f 7f f7');
+    assert.equal(syx[1].toString(), 'f0 7f 7f 04 01 00 00 f7 (Master Volume)');
+    assert.equal(syx[2].toString(), 'f0 7f 05 04 01 7f 7f f7 (Master Volume)');
     assert.equal(syx[3].toString(), 'f0 f7');
     assert.throws(function() { syx.ch(-1); });
     assert.throws(function() { syx.sxId(-1); });
