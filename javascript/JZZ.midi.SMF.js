@@ -983,10 +983,10 @@
             msg._off = off;
             self.push(JZZ.MIDI(msg));
             msg = [];
+            off = i + 1;
             break;
           }
           i++;
-          off = i;
         }
         i++;
       }
