@@ -210,13 +210,21 @@
   };
 
   SMF.prototype.validate = function() {
-    var i, k;
+    var i, k, z;
     var w = [];
     if (this._warn) for (i = 0; i < this._warn.length; i++) w.push(Warn(this._warn[i]));
+    var mm = _sort(this);
     k = 0;
     for (i = 0; i < this.length; i++) if (this[i] instanceof MTrk) {
       k++;
       this[i]._validate(w, k, this.type == 1 ? i : 0);
+    }
+    for (i = 0; i < mm.length; i++) {
+      z = _validate_midi(mm[i]);
+      if (z) {
+        w.track = mm[i]._tr;
+        w.push(Warn(z));
+      }
     }
     w.sort(function(a, b) {
       return (a.off || 0) - (b.off || 0) || (a.track || 0) - (b.track || 0) || (a.tick || 0) - (b.tick || 0);
@@ -294,15 +302,18 @@
     return 0;
   }
 
-  SMF.prototype.annotate = function() {
+  function _sort(smf) {
     var i, j;
     var tt = [];
     var mm = [];
-    for (i = 0; i < this.length; i++) if (this[i] instanceof MTrk) tt.push(this[i]);
-    if (this.type != 1) {
+    for (i = 0; i < smf.length; i++) if (smf[i] instanceof MTrk) tt.push(smf[i]);
+    if (smf.type != 1) {
       for (i = 0; i < tt.length; i++) {
         if (i) mm.push(JZZ.MIDI(0xff));
-        for (j = 0; j < tt[i].length; j++) mm.push(tt[i][j]);
+        for (j = 0; j < tt[i].length; j++) {
+          tt[i][j]._tr = i;
+          mm.push(tt[i][j]);
+        }
       }
     }
     else {
@@ -314,6 +325,7 @@
         var m = 0;
         for (i = 0; i < tt.length; i++) {
           while (pp[i] < tt[i].length && tt[i][pp[i]].tt == t) {
+            tt[i][pp[i]]._tr = i;
             mm.push(tt[i][pp[i]]);
             pp[i]++;
           }
@@ -326,8 +338,13 @@
         if (b) break;
       }
     }
+    return mm;    
+  }
+
+  SMF.prototype.annotate = function() {
+    var mm = _sort(this);
     var ctxt = JZZ.Context();
-    for (i = 0; i < mm.length; i++) {
+    for (var i = 0; i < mm.length; i++) {
       if (mm[i].lbl) mm[i].lbl = undefined;
       ctxt._read(mm[i]);
     }
@@ -527,8 +544,9 @@
   function _timing_first_track(msg, name) {
     return _issue(msg._off, name + ' meta events must be in the first track', _shortmsg(msg), msg.tt);
   }
-  function _validate_midi(msg, tr) {
+  function _validate_midi(msg) {
     var issue;
+    var tr = msg._tr;
     if (typeof msg.ff != 'undefined') {
       if (msg.ff > 0x7f) return _issue(msg._off, 'Invalid meta event', _shortmsg(msg), msg.tt);
       else if (msg.ff == 0) {
@@ -584,13 +602,6 @@
       z = Warn(this._warn[i]);
       z.track = k;
       w.push(z);
-    }
-    for (i = 0; i < this.length; i++) {
-      z = _validate_midi(this[i], tr);
-      if (z) {
-        z.track = k;
-        w.push(Warn(z));
-      }
     }
   };
   MTrk.prototype._complain = function(off, msg, data, tick) {

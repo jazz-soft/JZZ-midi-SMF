@@ -75,6 +75,17 @@ describe('functions', function() {
     assert.throws(function() { trk.ch(-1); });
     assert.throws(function() { trk.sxId(-1); });
   });
+  it('validate', function() {
+    var smf = new JZZ.MIDI.SMF(2);
+    var trk = new JZZ.MIDI.SMF.MTrk();
+    smf.push(trk);
+    var trk = new JZZ.MIDI.SMF.MTrk();
+    smf.push(trk);
+    trk.ch(1)
+      .dataMSB(1).dataLSB(2).dataIncr().dataDecr()
+      .rpn(1).nrpn(1);
+    var val = smf.validate();
+  });
 });
 
 describe('integration: read / write / play', function() {
