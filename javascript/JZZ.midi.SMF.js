@@ -209,6 +209,11 @@
     return a.join(' ') + ' -- ' + this.msg + ' (' + this.data + ')';
   };
 
+  SMF.prototype.tracks = function() {
+    var t = 0;
+    for (var i = 0; i < this.length; i++) if (this[i] instanceof MTrk) t++;
+    return t;
+  };
   SMF.prototype.validate = function() {
     var i, k, z;
     var w = [];
@@ -309,7 +314,6 @@
     for (i = 0; i < smf.length; i++) if (smf[i] instanceof MTrk) tt.push(smf[i]);
     if (smf.type != 1) {
       for (i = 0; i < tt.length; i++) {
-        if (i) mm.push(JZZ.MIDI(0xff));
         for (j = 0; j < tt[i].length; j++) {
           tt[i][j]._tr = i;
           mm.push(tt[i][j]);
@@ -338,7 +342,7 @@
         if (b) break;
       }
     }
-    return mm;    
+    return mm;
   }
 
   SMF.prototype.annotate = function() {
@@ -357,47 +361,33 @@
     pl.fps = this.fps;
     pl.ppf = this.ppf;
     var i;
-    var j;
-    var tt = [];
     var e;
-    var m = 0;
-    var t = 0;
-    for (i = 0; i < this.length; i++) if (this[i] instanceof MTrk) tt.push(this[i]);
+    var mm = _sort(this);
     if (this.type == 2) {
-      for (i = 0; i < tt.length; i++) {
-        for (j = 0; j < tt[i].length; j++) {
-          e = JZZ.MIDI(tt[i][j]);
-          e.track = i;
-          t = e.tt + m;
-          e.tt = t;
-          pl._data.push(e);
+      var tr = 0;
+      var m = 0;
+      var t = 0;
+      for (i = 0; i < mm.length; i++) {
+        e = JZZ.MIDI(mm[i]);
+        e.track = mm[i]._tr;
+        if (tr != e.track) {
+          tr = e.track;
+          m = t;
         }
-        m = t;
+        t = e.tt + m;
+        e.tt = t;
+        pl._data.push(e);
       }
     }
     else {
-      var pp = [];
-      for (i = 0; i < tt.length; i++) pp[i] = 0;
-      while (true) {
-        var b = true;
-        for (i = 0; i < tt.length; i++) {
-          while (pp[i] < tt[i].length && tt[i][pp[i]].tt == t) {
-            e = JZZ.MIDI(tt[i][pp[i]]);
-            e.track = i;
-            pl._data.push(e);
-            pp[i]++;
-          }
-          if (pp[i] >= tt[i].length) continue;
-          if (b) m = tt[i][pp[i]].tt;
-          b = false;
-          if (m > tt[i][pp[i]].tt) m = tt[i][pp[i]].tt;
-        }
-        t = m;
-        if (b) break;
+      for (i = 0; i < mm.length; i++) {
+        e = JZZ.MIDI(mm[i]);
+        e.track = mm[i]._tr;
+        pl._data.push(e);
       }
     }
     pl._type = this.type;
-    pl._tracks = tt.length;
+    pl._tracks = this.tracks();
     pl._timing();
     return pl;
   };
@@ -596,7 +586,7 @@
       //
     }
   }
-  MTrk.prototype._validate = function(w, k, tr) {
+  MTrk.prototype._validate = function(w, k) {
     var i, z;
     if (this._warn) for (i = 0; i < this._warn.length; i++) {
       z = Warn(this._warn[i]);

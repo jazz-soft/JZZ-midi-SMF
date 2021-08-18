@@ -79,12 +79,13 @@ describe('functions', function() {
     var smf = new JZZ.MIDI.SMF(2);
     var trk = new JZZ.MIDI.SMF.MTrk();
     smf.push(trk);
-    var trk = new JZZ.MIDI.SMF.MTrk();
+    trk = new JZZ.MIDI.SMF.MTrk();
     smf.push(trk);
     trk.ch(1)
       .dataMSB(1).dataLSB(2).dataIncr().dataDecr()
       .rpn(1).nrpn(1);
-    var val = smf.validate();
+    //var val = 
+    smf.validate();
   });
 });
 
