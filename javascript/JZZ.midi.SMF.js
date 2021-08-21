@@ -225,9 +225,9 @@
       this[i]._validate(w, k, this.type == 1 ? i : 0);
     }
     for (i = 0; i < mm.length; i++) {
-      z = _validate_midi(mm[i]);
+      z = _validate_midi(mm[i], this.type == 1);
       if (z) {
-        w.track = mm[i]._tr;
+        w.track = mm[i].track;
         w.push(Warn(z));
       }
     }
@@ -315,7 +315,7 @@
     if (smf.type != 1) {
       for (i = 0; i < tt.length; i++) {
         for (j = 0; j < tt[i].length; j++) {
-          tt[i][j]._tr = i;
+          tt[i][j].track = i;
           mm.push(tt[i][j]);
         }
       }
@@ -329,7 +329,7 @@
         var m = 0;
         for (i = 0; i < tt.length; i++) {
           while (pp[i] < tt[i].length && tt[i][pp[i]].tt == t) {
-            tt[i][pp[i]]._tr = i;
+            tt[i][pp[i]].track = i;
             mm.push(tt[i][pp[i]]);
             pp[i]++;
           }
@@ -369,7 +369,6 @@
       var t = 0;
       for (i = 0; i < mm.length; i++) {
         e = JZZ.MIDI(mm[i]);
-        e.track = mm[i]._tr;
         if (tr != e.track) {
           tr = e.track;
           m = t;
@@ -382,7 +381,6 @@
     else {
       for (i = 0; i < mm.length; i++) {
         e = JZZ.MIDI(mm[i]);
-        e.track = mm[i]._tr;
         pl._data.push(e);
       }
     }
@@ -534,9 +532,8 @@
   function _timing_first_track(msg, name) {
     return _issue(msg._off, name + ' meta events must be in the first track', _shortmsg(msg), msg.tt);
   }
-  function _validate_midi(msg) {
+  function _validate_midi(msg, t1) {
     var issue;
-    var tr = msg._tr;
     if (typeof msg.ff != 'undefined') {
       if (msg.ff > 0x7f) return _issue(msg._off, 'Invalid meta event', _shortmsg(msg), msg.tt);
       else if (msg.ff == 0) {
@@ -558,18 +555,18 @@
       }
       else if (msg.ff == 81) {
         issue = _metaevent_len(msg, 'Tempo', 3); if (issue) return issue;
-        if (tr) return _timing_first_track(msg, 'Tempo');
+        if (t1 && msg.track) return _timing_first_track(msg, 'Tempo');
       }
       else if (msg.ff == 84) {
         issue = _metaevent_len(msg, 'SMPTE', 5); if (issue) return issue;
         if ((msg.dd.charCodeAt(0) & 0x1f) >= 24 || msg.dd.charCodeAt(1) >= 60 || msg.dd.charCodeAt(2) >= 60 || msg.dd.charCodeAt(3) >= 30 || msg.dd.charCodeAt(4) >= 200 || msg.dd.charCodeAt(4) % 25) return _issue(msg._off, 'Invalid SMPTE meta event: incorrect data', _shortmsg(msg), msg.tt);
         else if ((msg.dd.charCodeAt(0) >> 5) > 3) return _issue(msg._off, 'Invalid SMPTE meta event: incorrect format', msg.dd.charCodeAt(0) >> 5, msg.tt);
-        if (tr) return _timing_first_track(msg, 'SMPTE');
+        if (t1 && msg.track) return _timing_first_track(msg, 'SMPTE');
       }
       else if (msg.ff == 88) {
         issue = _metaevent_len(msg, 'Time Signature', 4); if (issue) return issue;
         if (msg.dd.charCodeAt(1) > 8) return _issue(msg._off, 'Invalid Time Signature meta event: incorrect data', _shortmsg(msg), msg.tt);
-        if (tr) return _timing_first_track(msg, 'Time Signature');
+        if (t1 && msg.track) return _timing_first_track(msg, 'Time Signature');
       }
       else if (msg.ff == 89) {
         issue = _metaevent_len(msg, 'Key Signature', 2); if (issue) return issue;
