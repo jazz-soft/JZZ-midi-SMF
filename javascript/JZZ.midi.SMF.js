@@ -227,7 +227,7 @@
     for (i = 0; i < mm.length; i++) {
       z = _validate_midi(mm[i], this.type == 1);
       if (z) {
-        w.track = mm[i].track;
+        z.track = mm[i].track;
         w.push(Warn(z));
       }
     }
@@ -462,7 +462,6 @@
     var w = '';
     var st;
     var m;
-    off = off || 0;
     off += 8;
     var offset = p + off;
     while (p < s.length) {

@@ -60,32 +60,54 @@ describe('functions', function() {
     assert.equal(player.tick2ms(-1), 0);
     assert.equal(player.tick2ms(100), 500);
     assert.equal(player.tick2ms(1000), 3000);
+    assert.throws(function() { player.tick2ms(); });
   });
   it('ms2tick', function() {
     assert.equal(player.ms2tick(-1), 0);
     assert.equal(player.ms2tick(500), 100);
     assert.equal(player.ms2tick(2000), 300);
     assert.equal(player.ms2tick(5000), 400);
+    assert.throws(function() { player.ms2tick(); });
+  });
+  it('jump', function() {
+    assert.throws(function() { player.jump(); });
+    assert.throws(function() { player.jumpMS(); });
+    assert.equal(player._t2ms(0), 0);
   });
   it('type', function() {
     assert.equal(chk.type, 'fake');
     assert.equal(trk.type, 'MTrk');
   });
   it('throw', function() {
+    assert.throws(function() { trk.add(); });
+    assert.throws(function() { trk.tick(); });
     assert.throws(function() { trk.ch(-1); });
     assert.throws(function() { trk.sxId(-1); });
   });
   it('validate', function() {
-    var smf = new JZZ.MIDI.SMF(2);
+    var smf = new JZZ.MIDI.SMF(1);
     var trk = new JZZ.MIDI.SMF.MTrk();
     smf.push(trk);
+    trk.smfBPM(90).smfTimeSignature('3/4').smfSMPTE(JZZ.SMPTE())
+      .smf(0, 'xx').smf(0, 'xxx').smf(5, '')
+      .smf(32, 'x').smf(32, 'xx').smf(32, '\1')
+      .smf(33, 'x').smf(33, 'xx')
+      .smf(81, '').smf(81, 'x').smf(81, 'xxxx')
+      .smf(84, 'xxxxx').smf(84, 'xxxxxx')
+      .smf(88, 'xxxx').smf(88, 'xxxxx')
+      .smf(89, 'xx').smf(89, 'xxx')
+      .smf(127, '').smf(126, '')
+    ;
+  
     trk = new JZZ.MIDI.SMF.MTrk();
     smf.push(trk);
-    trk.ch(1)
+    trk.smfBPM(90).smfTimeSignature('3/4').smfSMPTE(JZZ.SMPTE())
+      .ch(1)
       .dataMSB(1).dataLSB(2).dataIncr().dataDecr()
       .rpn(1).nrpn(1);
     //var val = 
     smf.validate();
+    //console.log('VAL:', val);
   });
 });
 
@@ -282,6 +304,9 @@ describe('MIDI files', function() {
 });
 
 describe('SYX', function() {
+  it('version', function() {
+    assert.equal(JZZ.MIDI.SYX.version(), JZZ.MIDI.SMF.version());
+  });
   it('constructor', function() {
     assert.equal(JZZ.MIDI.SMF.version(), JZZ.MIDI.SMF.version());
     var syx = JZZ.MIDI.SYX(JZZ.MIDI.sxIdRequest());
