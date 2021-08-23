@@ -321,6 +321,12 @@ describe('SYX', function() {
     assert.throws(function() {
       JZZ.MIDI.SYX([0xf0, 0x7e, 0x7f, 0x06, 0x01]);
     });
+    assert.throws(function() {
+      var smf = JZZ.MIDI.SMF();
+      smf.push(JZZ.MIDI.SMF.MTrk());
+      smf[0].note(0, 60, 127).ch(0).note(60, 27);
+      JZZ.MIDI.SYX(smf);
+    });
     syx = JZZ.MIDI.SYX(syx.dump());
     syx = JZZ.MIDI.SYX(syx.toBuffer());
     syx = JZZ.MIDI.SYX(syx.toArrayBuffer());
