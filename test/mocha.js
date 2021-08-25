@@ -45,6 +45,13 @@ describe('functions', function() {
     assert.throws(function() {
       JZZ.MIDI.SMF('not a midi file');
     });
+    assert.throws(function() { // No MIDI tracks
+      JZZ.MIDI.SMF(JZZ.MIDI.SMF().dump());
+    });
+    assert.throws(function() { // Invalid MIDI header
+      var dump = JZZ.MIDI.SMF(0, 24, 16).dump();
+      JZZ.MIDI.SMF(dump.substr(0, 13) + '\0' + dump.substr(14));
+    });
   });
   it('type', function() {
     assert.equal(player.type(), 1);
@@ -97,8 +104,8 @@ describe('functions', function() {
       .smf(88, 'xxxx').smf(88, 'xxxxx')
       .smf(89, 'xx').smf(89, 'xxx')
       .smf(127, '').smf(126, '')
+      .sxGM().sxGS().send([0xf0, 0x43, 0x10, 0x4c, 0x00, 0x00, 0x7e, 0x00, 0xf7])
     ;
-  
     trk = new JZZ.MIDI.SMF.MTrk();
     smf.push(trk);
     trk.smfBPM(90).smfTimeSignature('3/4').smfSMPTE(JZZ.SMPTE())
@@ -108,6 +115,9 @@ describe('functions', function() {
     //var val = 
     smf.validate();
     //console.log('VAL:', val);
+    //smf = new JZZ.MIDI.SMF();
+    //smf = JZZ.MIDI.SMF(smf.dump());
+    //console.log(smf.validate());
   });
 });
 

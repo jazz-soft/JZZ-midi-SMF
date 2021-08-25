@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.6.0';
+  var _ver = '1.6.1';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -39,6 +39,7 @@
 
   function SMF() {
     var self = this instanceof SMF ? this : self = new SMF();
+    if (self.ppqn) delete self.ppqn;
     var type = 1;
     var ppqn = 96;
     var fps;
@@ -214,6 +215,23 @@
     for (var i = 0; i < this.length; i++) if (this[i] instanceof MTrk) t++;
     return t;
   };
+
+  function _reset_state(w, s) {
+    var i;
+    for (i = 0; i < 16; i++) {
+      if (s[i]) {
+
+      }
+      s[i] = {};
+    }
+  }
+  function _update_state(w, s, msg) {
+    if (!msg.length || msg[0] < 0x80) return;
+    if (msg.isGmReset() || msg.isGsReset() || msg.isXgReset()) {
+      _reset_state(w, s);
+      return;
+    }
+  }
   SMF.prototype.validate = function() {
     var i, k, z;
     var w = [];
@@ -224,13 +242,17 @@
       k++;
       this[i]._validate(w, k, this.type == 1 ? i : 0);
     }
+    var st = {};
+    _reset_state(w, st);
     for (i = 0; i < mm.length; i++) {
       z = _validate_midi(mm[i], this.type == 1);
       if (z) {
         z.track = mm[i].track;
         w.push(Warn(z));
       }
+      _update_state(w, st, mm[i]);
     }
+    _reset_state(w, st);
     w.sort(function(a, b) {
       return (a.off || 0) - (b.off || 0) || (a.track || 0) - (b.track || 0) || (a.tick || 0) - (b.tick || 0);
     });
