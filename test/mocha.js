@@ -52,6 +52,18 @@ describe('functions', function() {
       var dump = JZZ.MIDI.SMF(0, 24, 16).dump();
       JZZ.MIDI.SMF(dump.substr(0, 13) + '\0' + dump.substr(14));
     });
+    assert.throws(function() {
+      JZZ.MIDI.SMF.Chunk();
+    });
+    assert.throws(function() {
+      JZZ.MIDI.SMF.Chunk('xxxЯ');
+    });
+    assert.throws(function() {
+      JZZ.MIDI.SMF.Chunk('xxxx');
+    });
+    assert.throws(function() {
+      JZZ.MIDI.SMF.Chunk('xxxx', 'xxxЯ');
+    });
   });
   it('type', function() {
     assert.equal(player.type(), 1);
@@ -112,11 +124,18 @@ describe('functions', function() {
       .ch(1)
       .dataMSB(1).dataLSB(2).dataIncr().dataDecr()
       .rpn(1).nrpn(1);
-    //var val = 
     smf.validate();
-    //console.log('VAL:', val);
-    //smf = new JZZ.MIDI.SMF();
-    //smf = JZZ.MIDI.SMF(smf.dump());
+    //console.log(smf.validate());
+    smf = new JZZ.MIDI.SMF(0);
+    smf.push(JZZ.MIDI.SMF.MTrk());
+    smf.push(JZZ.MIDI.SMF.MTrk());
+    smf[1].send([0xf0, 0xf7, 0xf7, 0xf7, 0xf7, 0xf7, 0xf7, 0xf7]);
+    var dump = smf.dump();
+    dump = dump.substr(0, 9) + '\3' + dump.substr(10);
+    dump = dump.replace('MTrk', 'MThd')
+    dump = dump.replace('\xf0\7\xf7\xf7\xf7\xf7\xf7\xf7\xf7', '\xf1\0\0\xf3\0\0\xf2\0\0');
+    smf = JZZ.MIDI.SMF(dump);
+    smf.validate();
     //console.log(smf.validate());
   });
 });

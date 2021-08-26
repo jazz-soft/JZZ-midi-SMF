@@ -38,8 +38,11 @@
   }
 
   function SMF() {
-    var self = this instanceof SMF ? this : self = new SMF();
-    if (self.ppqn) delete self.ppqn;
+    var self = this;
+    if (!(self instanceof SMF)) {
+      self = new SMF();
+      delete self.ppqn;
+    }
     var type = 1;
     var ppqn = 96;
     var fps;
@@ -70,6 +73,7 @@
       }
       catch (err) {/**/}
       try {
+        /* istanbul ignore next */
         if (arguments[0] instanceof Buffer) {
           self.load(arguments[0].toString('binary'));
           return self;
@@ -980,6 +984,7 @@
       }
       catch (err) {/**/}
       try {
+        /* istanbul ignore next */
         if (arg instanceof Buffer) {
           arg = arg.toString('binary');
         }
