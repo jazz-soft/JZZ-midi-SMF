@@ -126,9 +126,10 @@
     return smf;
   };
 
-  function _issue(off, msg, data, tick) {
+  function _issue(off, msg, data, tick, track) {
     var w = { off: off, msg: msg, data: data };
     if (typeof tick != 'undefined') w.tick = tick;
+    if (typeof track != 'undefined') w.track = track;
     return w;
   }
   SMF.prototype._complain = function(off, msg, data) {
@@ -224,7 +225,8 @@
     var i;
     for (i = 0; i < 16; i++) {
       if (s[i]) {
-
+        _check_bm(w, s, i);
+        _check_bl(w, s, i);
       }
       s[i] = {};
     }
@@ -235,6 +237,46 @@
       _reset_state(w, s);
       return;
     }
+    var st = msg[0] >> 4;
+    var ch = msg[0] & 15;
+    if (st == 0xb) {
+      switch (msg[1]) {
+        case 0:
+          _check_bm(w, s, ch);
+          s[ch].bm = [msg, false];
+          break;
+        case 0x20:
+          _check_bl(w, s, ch);
+          s[ch].bl = [msg, false];
+          break;
+      }
+      return;
+    }
+    if (st == 0xc) {
+      var m;
+      if (s[ch].bm) s[ch].bm[1] = true;
+      if (s[ch].bl) s[ch].bl[1] = true;
+      if (s[ch].bl && !s[ch].bm) {
+        m = s[ch].bl[0];
+        w.push(_issue(m._off, 'No matching Bank Select MSB', m.toString(), m.tt, m.track));
+      }
+      if (s[ch].bm && !s[ch].bl) {
+        m = s[ch].bm[0];
+        w.push(_issue(m._off, 'No matching Bank Select LSB', m.toString(), m.tt, m.track));
+      }
+    }
+  }
+  function _check_bm(w, s, c) {
+    if (s[c].bm && !s[c].bm[1]) {
+      var m = s[c].bm[0];
+      w.push(_issue(m._off, 'Unused Bank Select', m.toString(), m.tt, m.track));
+    }
+  }
+  function _check_bl(w, s, c) {
+    if (s[c].bl && !s[c].bl[1]) {
+      var m = s[c].bl[0];
+      w.push(_issue(m._off, 'Unused Bank Select', m.toString(), m.tt, m.track));
+    }
   }
   SMF.prototype.validate = function() {
     var i, k, z;
@@ -243,8 +285,8 @@
     var mm = _sort(this);
     k = 0;
     for (i = 0; i < this.length; i++) if (this[i] instanceof MTrk) {
+      this[i]._validate(w, k);
       k++;
-      this[i]._validate(w, k, this.type == 1 ? i : 0);
     }
     var st = {};
     _reset_state(w, st);
@@ -252,7 +294,7 @@
       z = _validate_midi(mm[i], this.type == 1);
       if (z) {
         z.track = mm[i].track;
-        w.push(Warn(z));
+        w.push(z);
       }
       _update_state(w, st, mm[i]);
     }

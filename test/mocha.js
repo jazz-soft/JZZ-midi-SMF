@@ -129,7 +129,10 @@ describe('functions', function() {
     smf = new JZZ.MIDI.SMF(0);
     smf.push(JZZ.MIDI.SMF.MTrk());
     smf.push(JZZ.MIDI.SMF.MTrk());
-    smf[1].send([0xf0, 0xf7, 0xf7, 0xf7, 0xf7, 0xf7, 0xf7, 0xf7]);
+    smf[1].send([0xf0, 0xf7, 0xf7, 0xf7, 0xf7, 0xf7, 0xf7, 0xf7])
+      .bank(0, 0).bank(0, 0).program(0, 0)
+      .bankMSB(1, 0).program(1, 0).bankLSB(2, 0).program(2, 0)
+    ;
     var dump = smf.dump();
     dump = dump.substr(0, 9) + '\3' + dump.substr(10);
     dump = dump.replace('MTrk', 'MThd')
@@ -137,6 +140,7 @@ describe('functions', function() {
     smf = JZZ.MIDI.SMF(dump);
     smf.validate();
     //console.log(smf.validate());
+    //console.log(smf.toString());
   });
 });
 
