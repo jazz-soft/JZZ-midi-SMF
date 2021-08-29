@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.6.1';
+  var _ver = '1.6.2';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -225,6 +225,10 @@
     var i;
     for (i = 0; i < 16; i++) {
       if (s[i]) {
+        if (s[i].rm && s[i].rl && s[i].rm[0][2] == 0x7f && s[i].rl[0][2] == 0x7f) {
+          s[i].rm[1] = true;
+          s[i].rl[1] = true;
+        }
         _check_unused(w, s, i, 'bm');
         _check_unused(w, s, i, 'bl');
         _check_unused(w, s, i, 'nm');
@@ -283,27 +287,34 @@
             s[ch].rm[1] = true;
             s[ch].rl[1] = true;
           }
-          if (s[ch].rm && !s[ch].rl) {
+          if (s[ch].rm && !s[ch].rl && !s[ch].rm[1]) {
             m = s[ch].rm[0];
             w.push(_issue(m._off, 'No matching RPN LSB', m.toString(), m.tt, m.track));
+            s[ch].rm[1] = true;
           }
-          if (!s[ch].rm && s[ch].rl) {
+          if (!s[ch].rm && s[ch].rl && !s[ch].rl[1]) {
             m = s[ch].rl[0];
             w.push(_issue(m._off, 'No matching RPN MSB', m.toString(), m.tt, m.track));
+            s[ch].rl[1] = true;
           }
           if (s[ch].nm && s[ch].nl) {
             s[ch].nm[1] = true;
             s[ch].nl[1] = true;
           }
-          if (s[ch].nm && !s[ch].nl) {
+          if (s[ch].nm && !s[ch].nl && !s[ch].nm[1]) {
             m = s[ch].nm[0];
             w.push(_issue(m._off, 'No matching NRPN LSB', m.toString(), m.tt, m.track));
+            s[ch].nm[1] = true;
           }
-          if (!s[ch].nm && s[ch].nl) {
+          if (!s[ch].nm && s[ch].nl && !s[ch].nl[1]) {
             m = s[ch].nl[0];
             w.push(_issue(m._off, 'No matching NRPN MSB', m.toString(), m.tt, m.track));
+            s[ch].nl[1] = true;
           }
           if (!s[ch].rm && !s[ch].rl && !s[ch].nm && !s[ch].nl) {
+            w.push(_issue(msg._off, 'RPN/NRPN not set', msg.toString(), msg.tt, msg.track));
+          }
+          if (s[ch].rm && s[ch].rl && s[ch].rm[0][2] == 0x7f && s[ch].rl[0][2] == 0x7f) {
             w.push(_issue(msg._off, 'RPN/NRPN not set', msg.toString(), msg.tt, msg.track));
           }
           break;
@@ -327,9 +338,9 @@
     if (s[c][x] && !s[c][x][1]) {
       var str;
       switch (x) {
-        case 'bm': case 'bl': str = 'Unused Bank Select'; break;
-        case 'nm': case 'nl': str = 'Unused NRPN'; break;
-        case 'rm': case 'rl': str = 'Unused RPN'; break;
+        case 'bm': case 'bl': str = 'Obsolete Bank Select'; break;
+        case 'nm': case 'nl': str = 'Obsolete NRPN'; break;
+        case 'rm': case 'rl': str = 'Obsolete RPN'; break;
       }
       var m = s[c][x][0];
       w.push(_issue(m._off, str, m.toString(), m.tt, m.track));
@@ -360,7 +371,10 @@
     w.sort(function(a, b) {
       return (a.off || 0) - (b.off || 0) || (a.track || 0) - (b.track || 0) || (a.tick || 0) - (b.tick || 0);
     });
-    if (w.length) return w;
+    if (w.length) {
+      for (i = 0; i < w.length; i++) w[i] = Warn(w[i]);
+      return w;
+    }
   };
   SMF.prototype.dump = function(rmi) {
     var s = '';

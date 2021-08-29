@@ -1,6 +1,6 @@
 {
   "name": "jzz-midi-smf",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "Standard MIDI Files: read / write / play",
   "main": "javascript/JZZ.midi.SMF.js",
   "scripts": {
@@ -26,7 +26,7 @@
     "jzz-gui-player": "^1.5.2",
     "jzz-midi-gm": "^1.2.3",
     "jzz-synth-tiny": "^1.2.7",
-    "mocha": "^9.1.0",
+    "mocha": "^9.1.1",
     "nyc": "^15.1.0"
   },
   "runkitExampleFilename": "runkit.js",
