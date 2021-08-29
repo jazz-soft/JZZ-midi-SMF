@@ -132,15 +132,20 @@ describe('functions', function() {
     smf[1].send([0xf0, 0xf7, 0xf7, 0xf7, 0xf7, 0xf7, 0xf7, 0xf7])
       .bank(0, 0).bank(0, 0).program(0, 0)
       .bankMSB(1, 0).program(1, 0).bankLSB(2, 0).program(2, 0)
+      .rpn(0, 0).dataIncr(0).rpn(0, 0)
+      .rpnMSB(1, 0).dataMSB(1, 0).rpnLSB(2, 0).dataLSB(2, 0)
+      .nrpn(0, 0).dataDecr(0).nrpn(0, 0)
+      .nrpnMSB(1, 0).dataMSB(1, 0).nrpnLSB(2, 0).dataLSB(2, 0)
+      //.dataIncr(3)
     ;
     var dump = smf.dump();
     dump = dump.substr(0, 9) + '\3' + dump.substr(10);
     dump = dump.replace('MTrk', 'MThd')
     dump = dump.replace('\xf0\7\xf7\xf7\xf7\xf7\xf7\xf7\xf7', '\xf1\0\0\xf3\0\0\xf2\0\0');
     smf = JZZ.MIDI.SMF(dump);
-    smf.validate();
-    //console.log(smf.validate());
-    //console.log(smf.toString());
+    //smf.validate();
+    console.log(smf.validate());
+    console.log(smf.toString());
   });
 });
 

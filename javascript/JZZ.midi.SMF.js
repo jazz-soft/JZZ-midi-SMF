@@ -225,8 +225,12 @@
     var i;
     for (i = 0; i < 16; i++) {
       if (s[i]) {
-        _check_bm(w, s, i);
-        _check_bl(w, s, i);
+        _check_unused(w, s, i, 'bm');
+        _check_unused(w, s, i, 'bl');
+        _check_unused(w, s, i, 'nm');
+        _check_unused(w, s, i, 'nl');
+        _check_unused(w, s, i, 'rm');
+        _check_unused(w, s, i, 'rl');
       }
       s[i] = {};
     }
@@ -239,21 +243,74 @@
     }
     var st = msg[0] >> 4;
     var ch = msg[0] & 15;
+    var m;
     if (st == 0xb) {
       switch (msg[1]) {
         case 0:
-          _check_bm(w, s, ch);
+          _check_unused(w, s, ch, 'bm');
           s[ch].bm = [msg, false];
           break;
         case 0x20:
-          _check_bl(w, s, ch);
+          _check_unused(w, s, ch, 'bl');
           s[ch].bl = [msg, false];
+          break;
+        case 0x62:
+          _check_unused(w, s, ch, 'nl');
+          _check_unused(w, s, ch, 'rm');
+          _check_unused(w, s, ch, 'rl');
+          s[ch].nl = [msg, false];
+          break;
+        case 0x63:
+          _check_unused(w, s, ch, 'nm');
+          _check_unused(w, s, ch, 'rm');
+          _check_unused(w, s, ch, 'rl');
+          s[ch].nm = [msg, false];
+          break;
+        case 0x64:
+          _check_unused(w, s, ch, 'rl');
+          _check_unused(w, s, ch, 'nm');
+          _check_unused(w, s, ch, 'nl');
+          s[ch].rl = [msg, false];
+          break;
+        case 0x65:
+          _check_unused(w, s, ch, 'rm');
+          _check_unused(w, s, ch, 'nm');
+          _check_unused(w, s, ch, 'nl');
+          s[ch].rm = [msg, false];
+          break;
+        case 0x6: case 0x26: case 0x60: case 0x61:
+          if (s[ch].rm && s[ch].rl) {
+            s[ch].rm[1] = true;
+            s[ch].rl[1] = true;
+          }
+          if (s[ch].rm && !s[ch].rl) {
+            m = s[ch].rm[0];
+            w.push(_issue(m._off, 'No matching RPN LSB', m.toString(), m.tt, m.track));
+          }
+          if (!s[ch].rm && s[ch].rl) {
+            m = s[ch].rl[0];
+            w.push(_issue(m._off, 'No matching RPN MSB', m.toString(), m.tt, m.track));
+          }
+          if (s[ch].nm && s[ch].nl) {
+            s[ch].nm[1] = true;
+            s[ch].nl[1] = true;
+          }
+          if (s[ch].nm && !s[ch].nl) {
+            m = s[ch].nm[0];
+            w.push(_issue(m._off, 'No matching NRPN LSB', m.toString(), m.tt, m.track));
+          }
+          if (!s[ch].nm && s[ch].nl) {
+            m = s[ch].nl[0];
+            w.push(_issue(m._off, 'No matching NRPN MSB', m.toString(), m.tt, m.track));
+          }
+          if (!s[ch].rm && !s[ch].rl && !s[ch].nm && !s[ch].nl) {
+            w.push(_issue(msg._off, 'RPN/NRPN not set', msg.toString(), msg.tt, msg.track));
+          }
           break;
       }
       return;
     }
     if (st == 0xc) {
-      var m;
       if (s[ch].bm) s[ch].bm[1] = true;
       if (s[ch].bl) s[ch].bl[1] = true;
       if (s[ch].bl && !s[ch].bm) {
@@ -266,16 +323,17 @@
       }
     }
   }
-  function _check_bm(w, s, c) {
-    if (s[c].bm && !s[c].bm[1]) {
-      var m = s[c].bm[0];
-      w.push(_issue(m._off, 'Unused Bank Select', m.toString(), m.tt, m.track));
-    }
-  }
-  function _check_bl(w, s, c) {
-    if (s[c].bl && !s[c].bl[1]) {
-      var m = s[c].bl[0];
-      w.push(_issue(m._off, 'Unused Bank Select', m.toString(), m.tt, m.track));
+  function _check_unused(w, s, c, x) {
+    if (s[c][x] && !s[c][x][1]) {
+      var str;
+      switch (x) {
+        case 'bm': case 'bl': str = 'Unused Bank Select'; break;
+        case 'nm': case 'nl': str = 'Unused NRPN'; break;
+        case 'rm': case 'rl': str = 'Unused RPN'; break;
+      }
+      var m = s[c][x][0];
+      w.push(_issue(m._off, str, m.toString(), m.tt, m.track));
+      delete s[c][x];
     }
   }
   SMF.prototype.validate = function() {
