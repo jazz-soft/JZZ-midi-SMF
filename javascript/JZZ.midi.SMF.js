@@ -338,9 +338,9 @@
     if (s[c][x] && !s[c][x][1]) {
       var str;
       switch (x) {
-        case 'bm': case 'bl': str = 'Obsolete Bank Select'; break;
-        case 'nm': case 'nl': str = 'Obsolete NRPN'; break;
-        case 'rm': case 'rl': str = 'Obsolete RPN'; break;
+        case 'bm': case 'bl': str = 'Unnecessary Bank Select'; break;
+        case 'nm': case 'nl': str = 'Unnecessary NRPN'; break;
+        case 'rm': case 'rl': str = 'Unnecessary RPN'; break;
       }
       var m = s[c][x][0];
       w.push(_issue(m._off, str, m.toString(), m.tt, m.track));
