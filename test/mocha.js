@@ -336,10 +336,6 @@ describe('MIDI files', function() {
     var smf = new JZZ.MIDI.SMF(load('8.mid'));
     smf.validate();
   });
-  it('9.mid', function() {
-    var smf = new JZZ.MIDI.SMF(load('9.mid'));
-    smf.validate();
-  });
 });
 
 describe('SYX', function() {
