@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.6.3';
+  var _ver = '1.6.4';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -564,7 +564,7 @@
       x = (x + '\x00\x00').substr(0, m);
     }
     for (var i = 0; i < m; i++) if (x.charCodeAt(i) > 127) {
-      trk._complain(off, 'Bad MIDI value', x.charCodeAt(i), t);
+      trk._complain(off + i, 'Bad MIDI value set to 0', x.charCodeAt(i), t);
       x = x.substr(0, i) + '\x00' + x.substr(i + 1);
     }
     return x;
@@ -634,10 +634,10 @@
         p += 1;
         m = _msglen(w.charCodeAt(0));
         if (w.charCodeAt(0) > 0xf0) this._complain(offset, 'Unexpected MIDI message', w.charCodeAt(0).toString(16), t);
-        this.push(new Event(t, w, _validate_msg_data(this, s, p, m, t, offset), offset));
+        this.push(new Event(t, w, _validate_msg_data(this, s, p, m, t, offset + 1), offset));
         p += m;
       }
-      else if (w.charCodeAt(0) & 0x80) {
+      else if (w.charCodeAt(0) & 0x80) { // running status
         m = _msglen(w.charCodeAt(0));
         if (w.charCodeAt(0) > 0xf0) this._complain(offset, 'Unexpected MIDI message', w.charCodeAt(0).toString(16), t);
         this.push(new Event(t, w, _validate_msg_data(this, s, p, m, t, offset), offset));
