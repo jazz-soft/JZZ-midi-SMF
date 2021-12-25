@@ -18,7 +18,6 @@ Standard MIDI Files: read / write / play
 ## Install
 
 `npm install jzz-midi-smf --save`  
-or `bower install jzz-midi-smf`  
 or `yarn add jzz-midi-smf`  
 or get the full development version and minified scripts from [**GitHub**](https://github.com/jazz-soft/JZZ-midi-SMF)
 
