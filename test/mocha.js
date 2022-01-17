@@ -371,6 +371,7 @@ describe('SYX', function() {
     syx = JZZ.MIDI.SYX(syx);
     assert.equal(syx[0].toString(), 'f0 7e 7f 06 01 f7');
     assert.equal(syx[1].toString(), 'f0 7e 01 06 01 f7');
+    syx.validate();
   });
   it('player', function(done) {
     var syx = JZZ.MIDI.SYX(JZZ.MIDI.sxIdRequest());

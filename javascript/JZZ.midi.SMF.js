@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.6.4';
+  var _ver = '1.6.5';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -1143,6 +1143,7 @@
       else _not_a_syx();
     }
   };
+  SYX.prototype.validate = function() { return []; };
   SYX.prototype.dump = function() {
     var i, j, s = '';
     for (i = 0; i < this.length; i++) for (j = 0; j < this[i].length; j++) s += String.fromCharCode(this[i][j]);
