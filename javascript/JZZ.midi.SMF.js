@@ -963,9 +963,10 @@
         for (; j <= i; j++) data.push(this._data[j]);
       }
     }
+    var dt = i ? this._data[i - 1].tt - this._data[j - 1].tt : 0;
     this._data = data;
     this._timing();
-    return i ? this._data[i - 1].tt - this._data[j - 1].tt : 0;
+    return dt;
   };
   Player.prototype._timing = function() {
     var i, m, t, e;
