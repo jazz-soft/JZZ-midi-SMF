@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.6.5';
+  var _ver = '1.6.6';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -956,7 +956,6 @@
   Player.prototype.trim = function() {
     var i, j, e;
     var data = [];
-    var dt = 0;
     j = 0;
     for (i = 0; i < this._data.length; i++) {
       e = this._data[i];
@@ -964,14 +963,13 @@
         for (; j <= i; j++) data.push(this._data[j]);
       }
     }
-    dt += this._data[i - 1].tt - this._data[j - 1].tt;
     this._data = data;
     this._timing();
-    return dt;
+    return i ? this._data[i - 1].tt - this._data[j - 1].tt : 0;
   };
   Player.prototype._timing = function() {
     var i, m, t, e;
-    this._duration = this._data[this._data.length - 1].tt;
+    this._duration = this._data.length ? this._data[this._data.length - 1].tt : 0;
     this._ttt = [];
     if (this.ppqn) {
       this._mul = this.ppqn / 500.0; // 120 bpm

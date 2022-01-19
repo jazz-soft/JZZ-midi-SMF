@@ -148,6 +148,11 @@ describe('functions', function() {
     //console.log(smf.validate());
     //console.log(smf.toString());
   });
+  it('trim', function() {
+    var smf = new JZZ.MIDI.SMF(1);
+    var trk = new JZZ.MIDI.SMF.MTrk();
+    assert.equal(smf.player().trim(), 0);
+  });
 });
 
 describe('integration: read / write / play', function() {
