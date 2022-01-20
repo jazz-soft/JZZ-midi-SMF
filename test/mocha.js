@@ -151,6 +151,11 @@ describe('functions', function() {
   it('trim', function() {
     var smf = new JZZ.MIDI.SMF(1);
     var trk = new JZZ.MIDI.SMF.MTrk();
+    smf.push(trk);
+    assert.equal(smf.player().trim(), 0);
+    trk.tick(100).smfBPM(120);
+    assert.equal(smf.player().trim(), 100);
+    trk.tick(100).smfText('the end');
     assert.equal(smf.player().trim(), 0);
   });
 });

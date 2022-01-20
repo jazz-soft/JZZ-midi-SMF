@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.6.6';
+  var _ver = '1.6.7';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -963,7 +963,7 @@
         for (; j <= i; j++) data.push(this._data[j]);
       }
     }
-    var dt = i ? this._data[i - 1].tt - this._data[j - 1].tt : 0;
+    var dt = (i ? this._data[i - 1].tt : 0) - (j ? this._data[j - 1].tt : 0);
     this._data = data;
     this._timing();
     return dt;
