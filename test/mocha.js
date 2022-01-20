@@ -157,6 +157,8 @@ describe('functions', function() {
     assert.equal(smf.player().trim(), 100);
     trk.tick(100).smfText('the end');
     assert.equal(smf.player().trim(), 0);
+    trk.length = 0;
+    assert.equal(smf.player().trim(), 0);
   });
 });
 
