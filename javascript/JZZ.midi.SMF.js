@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.6.7';
+  var _ver = '1.6.8';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
