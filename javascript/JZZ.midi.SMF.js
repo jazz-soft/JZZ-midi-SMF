@@ -14,7 +14,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.6.8';
+  var _ver = '1.6.9';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -35,6 +35,13 @@
   }
   function _num4le(n) {
     return String.fromCharCode(n & 0xff) + String.fromCharCode((n >> 8) & 0xff) + String.fromCharCode((n >> 16) & 0xff) + String.fromCharCode((n >> 24) & 0xff);
+  }
+  function _u8a2s(u) {
+    var s = '';
+    var len = u.byteLength;
+    // String.fromCharCode.apply(null, u) throws "RangeError: Maximum call stack size exceeded" on large files
+    for (var i = 0; i < len; i++) s += String.fromCharCode(u[i]);
+    return s;
   }
 
   function SMF() {
@@ -58,30 +65,31 @@
         for (var i = 0; i < arguments[0].length; i++) self[0].add(0, arguments[0][i]);
         return self;
       }
+      var data;
       try {
         if (arguments[0] instanceof ArrayBuffer) {
-          self.load(String.fromCharCode.apply(null, new Uint8Array(arguments[0])));
-          return self;
+          data = _u8a2s(new Uint8Array(arguments[0]));
         }
       }
       catch (err) {/**/}
       try {
         if (arguments[0] instanceof Uint8Array || arguments[0] instanceof Int8Array) {
-          self.load(String.fromCharCode.apply(null, new Uint8Array(arguments[0])));
-          return self;
+          data = _u8a2s(new Uint8Array(arguments[0]));
         }
       }
       catch (err) {/**/}
       try {
         /* istanbul ignore next */
         if (arguments[0] instanceof Buffer) {
-          self.load(arguments[0].toString('binary'));
-          return self;
+          data = arguments[0].toString('binary');
         }
       }
       catch (err) {/**/}
       if (typeof arguments[0] == 'string' && arguments[0] != '0' && arguments[0] != '1' && arguments[0] != '2') {
-        self.load(arguments[0]);
+        data = arguments[0];
+      }
+      if (data) {
+        self.load(data);
         return self;
       }
       type = parseInt(arguments[0]);
@@ -1086,13 +1094,13 @@
       }
       try {
         if (arg instanceof ArrayBuffer) {
-          arg = String.fromCharCode.apply(null, new Uint8Array(arg));
+          arg = _u8a2s(new Uint8Array(arg));
         }
       }
       catch (err) {/**/}
       try {
         if (arg instanceof Uint8Array || arg instanceof Int8Array) {
-          arg = String.fromCharCode.apply(null, new Uint8Array(arg));
+          arg = _u8a2s(new Uint8Array(arg));
         }
       }
       catch (err) {/**/}

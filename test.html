@@ -76,14 +76,7 @@ function fromFile() {
   if (window.FileReader) {
     var reader = new FileReader();
     var f = document.getElementById('file').files[0];
-    reader.onload = function(e) {
-      var data = '';
-      var bytes = new Uint8Array(e.target.result);
-      for (var i = 0; i < bytes.length; i++) {
-        data += String.fromCharCode(bytes[i]);
-      }
-      load(data);
-    };
+    reader.onload = function(e) { load(e.target.result); };
     reader.readAsArrayBuffer(f);
   }
   else report('File API is not supported in this browser.')();
