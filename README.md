@@ -192,6 +192,9 @@ require('fs').writeFileSync('out.syx', syx.dump(), 'binary');
 [**MIDI Player**](https://jazz-soft.net/demo/PlayMidiFile.html) - various ways to play MIDI file  
 [**Karaoke**](https://jazz-soft.net/demo/Karaoke.html) - playing MIDI files in *.kar* format
 
+## See also
+[**Test MIDI Files**](https://github.com/jazz-soft/test-midi-files) - these may be useful if you write a MIDI application...  
+
 ## More information
 
 Please visit [**https://jazz-soft.net**](https://jazz-soft.net) for more information.  
