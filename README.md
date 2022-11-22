@@ -192,6 +192,43 @@ require('fs').writeFileSync('out.syx', syx.dump(), 'binary');
 [**MIDI Player**](https://jazz-soft.net/demo/PlayMidiFile.html) - various ways to play MIDI file  
 [**Karaoke**](https://jazz-soft.net/demo/Karaoke.html) - playing MIDI files in *.kar* format
 
+## By popular demand
+##### Boilerplate code for bulk MIDI file editing
+```
+const fs = require('fs');
+const JZZ = require('jzz');
+require('jzz-midi-smf')(JZZ);
+
+if (process.argv.length != 4) {
+  console.log('Usage: node ' + process.argv[1] + ' <input.mid> <output.mid>');
+  process.exit(1);
+}
+
+var old_midi = new JZZ.MIDI.SMF(fs.readFileSync(process.argv[2], 'binary'));
+var new_midi = new JZZ.MIDI.SMF(old_midi); // copy all settings from the old file
+new_midi.length = 0; // remove all tracks
+
+for (var i = 0; i < old_midi.length; i++) {
+  var old_track = old_midi[i];
+  if (!(old_track instanceof JZZ.MIDI.SMF.MTrk)) continue;
+  var new_track = new JZZ.MIDI.SMF.MTrk();
+  new_midi.push(new_track);
+  for (var j = 0; j < old_track.length; j++) {
+    var old_msg = old_track[j];
+    var tick = old_msg.tt; // change it if you like, e.g. tick = old_msg.tt / 2;
+    if (true) { // add your own condition
+      new_track.add(tick, old_msg);
+    }
+    else if (false) { // add new messages or don't add anything
+      var new_msg = JZZ.MIDI.whatever(READ_THE_REFERENCE);
+      new_track.add(tick, new_msg);
+    }
+  }
+}
+
+require('fs').writeFileSync(process.argv[3], new_midi.dump(), 'binary');
+```
+
 ## See also
 [**Test MIDI Files**](https://github.com/jazz-soft/test-midi-files) - these may be useful if you write a MIDI application...  
 

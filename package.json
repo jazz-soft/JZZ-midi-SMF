@@ -19,13 +19,13 @@
     "jzz": "^1.5.5"
   },
   "devDependencies": {
-    "eslint": "^8.27.0",
+    "eslint": "^8.28.0",
     "grunt": "^1.5.3",
     "grunt-contrib-jshint": "^3.2.0",
     "grunt-contrib-uglify": "^5.2.2",
-    "jzz-gui-player": "^1.5.9",
+    "jzz-gui-player": "^1.6.0",
     "jzz-midi-gm": "^1.2.9",
-    "jzz-synth-tiny": "^1.3.2",
+    "jzz-synth-tiny": "^1.3.3",
     "mocha": "^10.1.0",
     "nyc": "^15.1.0"
   },
