@@ -225,8 +225,7 @@ for (var i = 0; i < old_midi.length; i++) {
     }
   }
 }
-
-require('fs').writeFileSync(process.argv[3], new_midi.dump(), 'binary');
+fs.writeFileSync(process.argv[3], new_midi.dump(), 'binary');
 ```
 
 ## See also
