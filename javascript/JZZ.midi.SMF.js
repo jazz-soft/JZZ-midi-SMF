@@ -1,6 +1,7 @@
 (function(global, factory) {
   /* istanbul ignore next */
   if (typeof exports === 'object' && typeof module !== 'undefined') {
+    factory.SMF = factory;
     module.exports = factory;
   }
   else if (typeof define === 'function' && define.amd) {
@@ -14,7 +15,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.7.2';
+  var _ver = '1.7.3';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }

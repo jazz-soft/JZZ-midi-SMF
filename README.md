@@ -47,11 +47,20 @@ or get the full development version and minified scripts from [**GitHub**](https
 //...
 ```
 
-##### CommonJS (Browserify and Node.js command line applications)
+##### CommonJS
 
 ```js
 var JZZ = require('jzz');
 require('jzz-midi-smf')(JZZ);
+//...
+```
+
+##### TypeScript / ES6
+
+```ts
+import { JZZ } from 'jzz';
+import { SMF } from 'jzz-midi-smf';
+SMF(JZZ);
 //...
 ```
 

@@ -1,7 +1,8 @@
-﻿var assert = require('assert');
-var fs = require('fs');
-var JZZ = require('jzz');
+﻿const assert = require('assert');
+const fs = require('fs');
+const JZZ = require('jzz');
 require('..')(JZZ);
+const version = require('../package.json').version;
 
 function Sample(done, list) {
   this.done = done;
@@ -13,6 +14,12 @@ function Sample(done, list) {
     if (this.count == this.list.length) this.done();
   };
 }
+
+describe('Info', function() {
+  it('version ' + version, function() {
+    assert.equal(JZZ.MIDI.SMF.version(), version);
+  });
+});
 
 describe('functions', function() {
   var smf = JZZ.MIDI.SMF(1, 100); // test without the 'new' keyword
@@ -163,7 +170,7 @@ describe('functions', function() {
 });
 
 describe('integration: read / write / play', function() {
-  console.log('JZZ.MIDI.SMF v' + JZZ.MIDI.SMF.version());
+  //console.log('JZZ.MIDI.SMF v' + JZZ.MIDI.SMF.version());
   it('MIDI file type 0; fps/ppf', function(done) {
     // new file
     var smf = new JZZ.MIDI.SMF(0, 24, 16);
