@@ -11,6 +11,9 @@ module.exports = {
   "overrides": [
     {
       "files": ["test/*"],
+      "parserOptions": {
+        "ecmaVersion": 2017
+      },
       "globals": {
         "describe": "readonly",
         "it": "readonly"
