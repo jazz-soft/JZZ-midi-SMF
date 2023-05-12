@@ -245,4 +245,4 @@ fs.writeFileSync(process.argv[3], new_midi.dump(), 'binary');
 Please visit [**https://jazz-soft.net**](https://jazz-soft.net) for more information.  
 
 ## Thanks for your support!
-[![Stargazers repo roster for @jazz-soft/JZZ-midi-SMF](https://reporoster.com/stars/jazz-soft/JZZ-midi-SMF)](https://github.com/jazz-soft/JZZ-midi-SMF/stargazers)
+[![Stargazers for @jazz-soft/JZZ-midi-SMF](https://reporoster.com/stars/jazz-soft/JZZ-midi-SMF)](https://github.com/jazz-soft/JZZ-midi-SMF/stargazers)
