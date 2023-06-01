@@ -167,6 +167,9 @@ describe('functions', function() {
     trk.length = 0;
     assert.equal(smf.player().trim(), 0);
   });
+  it('num4', function() {
+    assert.equal(JZZ.MIDI.SMF.num4(100000000), '\x05\xf5\xe1\x00');
+  });
 });
 
 describe('integration: read / write / play', function() {
