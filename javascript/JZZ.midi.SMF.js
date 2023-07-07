@@ -1241,4 +1241,95 @@
   JZZ.lib.copyMidiHelpers(SYX);
 
   JZZ.MIDI.SYX = SYX;
+
+  function _not_a_clip() { _error('Not a MIDI 2.0 Clip file'); }
+
+  function Clip(arg) {
+    var self = this instanceof Clip ? this : self = new Clip();
+    self._orig = self;
+    if (typeof arg != 'undefined') {
+      //if (arg instanceof SMF) {
+      //  self.copy(arg.player()._data);
+      //  return self;
+      //}
+      if (arg instanceof Clip) {
+        self.copy(arg);
+        return self;
+      }
+      try {
+        if (arg instanceof ArrayBuffer) {
+          arg = _u8a2s(new Uint8Array(arg));
+        }
+      }
+      catch (err) {/**/}
+      try {
+        if (arg instanceof Uint8Array || arg instanceof Int8Array) {
+          arg = _u8a2s(new Uint8Array(arg));
+        }
+      }
+      catch (err) {/**/}
+      try {
+        /* istanbul ignore next */
+        if (arg instanceof Buffer) {
+          arg = arg.toString('binary');
+        }
+      }
+      catch (err) {/**/}
+      if (typeof arg != 'string') {
+        arg = String.fromCharCode.apply(null, arg);
+      }
+      self.load(arg);
+      return self;
+    }
+    if (!self.header) self.header = new ClipHdr();
+    return self;
+  }
+  Clip.version = function() { return _ver; };
+  Clip.prototype = [];
+  Clip.prototype.constructor = Clip;
+
+  function ClipHdr() {}
+  ClipHdr.prototype = [];
+  ClipHdr.prototype.constructor = ClipHdr;
+
+  var SMF2CLIP = 'SMF2CLIP';
+  Clip.prototype.load = function(s) {
+    var off = 0;
+    this.loadClip(s, off);
+  };
+  Clip.prototype.loadClip = function(s, off) {
+    if (!s.length) _error('Empty file');
+    this.header = new ClipHdr();
+    if (s.substr(0, 8) != SMF2CLIP) {
+      var z = s.indexOf(SMF2CLIP);
+      if (z != -1) {
+        s = s.substr(z);
+        this._complain(off, 'Extra leading characters', z);
+        off += z;
+      }
+      else _error('Not a Clip');
+    }
+    off += 8;
+    var a, i, m, t, len;
+    var h = true;
+    while (off < s.length) {
+      t = s.charCodeAt(off) >> 4;
+      len = [4, 4, 4, 8, 8, 16, 4, 4, 8, 8, 8, 12, 12, 16, 16, 16][t];
+      a = [];
+      for (i = 0; i < len; i++) a.push(s.charCodeAt(off + i));
+      m = JZZ.UMP(a);
+      this.push(m);
+      off += len;
+    }
+  };
+
+  Clip.prototype.toString = function() {
+    var i;
+    var a = [SMF2CLIP, 'Header', this.header.toString(), 'Data'];
+    for (i = 0; i < this.length; i++) a.push('  ' + this[i]);
+    return a.join('\n');
+  };
+
+  JZZ.MIDI.Clip = Clip;
+
 });
