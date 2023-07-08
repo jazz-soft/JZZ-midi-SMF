@@ -1318,14 +1318,26 @@
       a = [];
       for (i = 0; i < len; i++) a.push(s.charCodeAt(off + i));
       m = JZZ.UMP(a);
-      this.push(m);
+      if (h && m.isStartClip()) {
+        h = false;
+      }
+      if (h) this.header.push(m);
+      else {
+        this.push(m);
+      }
       off += len;
     }
   };
 
+  ClipHdr.prototype.toString = function() {
+    var i;
+    var a = ['Header'];
+    for (i = 0; i < this.length; i++) a.push('  ' + this[i]);
+    return a.join('\n');
+  };
   Clip.prototype.toString = function() {
     var i;
-    var a = [SMF2CLIP, 'Header', this.header.toString(), 'Data'];
+    var a = [SMF2CLIP, this.header.toString(), 'Data'];
     for (i = 0; i < this.length; i++) a.push('  ' + this[i]);
     return a.join('\n');
   };
