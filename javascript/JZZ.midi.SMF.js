@@ -796,7 +796,6 @@
     return this;
   };
 
-  MTrk.prototype._ch = undefined;
   MTrk.prototype._sxid = 0x7f;
   MTrk.prototype._image = function() {
     var F = function() {}; F.prototype = this._orig;
@@ -1341,6 +1340,9 @@
     for (i = 0; i < this.length; i++) a.push('  ' + this[i]);
     return a.join('\n');
   };
+
+  JZZ.lib.copyMidi2Helpers(Clip);
+  JZZ.lib.copyMidi2Helpers(ClipHdr);
 
   JZZ.MIDI.Clip = Clip;
 

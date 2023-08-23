@@ -17,10 +17,10 @@
   ],
   "author": "jazz-soft (https://jazz-soft.net/)",
   "dependencies": {
-    "jzz": "^1.6.6"
+    "jzz": "^1.6.7"
   },
   "devDependencies": {
-    "eslint": "^8.44.0",
+    "eslint": "^8.47.0",
     "grunt": "^1.6.1",
     "grunt-contrib-jshint": "^3.2.0",
     "grunt-contrib-uglify": "^5.2.2",
