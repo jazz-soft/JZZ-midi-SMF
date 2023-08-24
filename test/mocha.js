@@ -417,3 +417,9 @@ describe('SYX', function() {
     assert.throws(function() { syx.sxId(-1); });
   });
 });
+
+describe.only('SMF2', function() {
+  it('version', function() {
+    assert.equal(JZZ.MIDI.Clip.version(), JZZ.MIDI.SMF.version());
+  });
+});

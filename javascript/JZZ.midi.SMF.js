@@ -1205,7 +1205,6 @@
     return pl;
   };
 
-  SYX.prototype._ch = undefined;
   SYX.prototype._sxid = 0x7f;
   SYX.prototype._image = function() {
     var F = function() {}; F.prototype = this._orig;
@@ -1246,6 +1245,7 @@
   function Clip(arg) {
     var self = this instanceof Clip ? this : self = new Clip();
     self._orig = self;
+    self._tick = 0;
     if (typeof arg != 'undefined') {
       //if (arg instanceof SMF) {
       //  self.copy(arg.player()._data);
@@ -1286,10 +1286,30 @@
   Clip.version = function() { return _ver; };
   Clip.prototype = [];
   Clip.prototype.constructor = Clip;
+  Clip.prototype._sxid = 0x7f;
+  Clip.prototype._image = function() {
+    var F = function() {}; F.prototype = this._orig;
+    var img = new F();
+    img._ch = this._ch;
+    img._sxid = this._sxid;
+    img._tick = this._tick;
+    return img;
+  };
+  Clip.prototype.send = function(msg) { this._orig.add(this._tick, msg); return this; };
+  Clip.prototype.tick = function(t) {
+    if (t != parseInt(t) || t < 0) throw RangeError('Bad tick value: ' + t);
+    if (!t) return this;
+    var img = this._image();
+    img._tick = this._tick + t;
+    return img;
+  };
 
   function ClipHdr() {}
   ClipHdr.prototype = [];
   ClipHdr.prototype.constructor = ClipHdr;
+  ClipHdr.prototype._image = Clip.prototype._image;
+  ClipHdr.prototype.send = Clip.prototype.send;
+  ClipHdr.prototype.tick = Clip.prototype.tick;
 
   var SMF2CLIP = 'SMF2CLIP';
   Clip.prototype.load = function(s) {
