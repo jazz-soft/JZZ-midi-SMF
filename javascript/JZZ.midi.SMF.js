@@ -1303,6 +1303,18 @@
     img._tick = this._tick + t;
     return img;
   };
+  Clip.prototype.add = function(t, msg) {
+    t = parseInt(t);
+    if(isNaN(t) || t < 0) _error('Invalid parameter');
+    msg = JZZ.UMP(msg);
+    msg.tt = t;
+    var i;
+    for (i = 0; i < this._orig.length - 1; i++) {
+      if (this._orig[i].tt > t) break;
+    }
+    this._orig.splice(i, 0, msg);
+    return this;
+  };
 
   function ClipHdr() {}
   ClipHdr.prototype = [];
