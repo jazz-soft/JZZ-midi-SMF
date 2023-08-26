@@ -1309,7 +1309,7 @@
     msg = JZZ.UMP(msg);
     msg.tt = t;
     var i;
-    for (i = 0; i < this._orig.length - 1; i++) {
+    for (i = 0; i < this._orig.length; i++) {
       if (this._orig[i].tt > t) break;
     }
     this._orig.splice(i, 0, msg);
@@ -1322,6 +1322,7 @@
   ClipHdr.prototype._image = Clip.prototype._image;
   ClipHdr.prototype.send = Clip.prototype.send;
   ClipHdr.prototype.tick = Clip.prototype.tick;
+  ClipHdr.prototype.add = Clip.prototype.add;
 
   var SMF2CLIP = 'SMF2CLIP';
   Clip.prototype.load = function(s) {
@@ -1342,34 +1343,48 @@
     }
     off += 8;
     var a, i, m, t, len;
-    var h = true;
+    var tt= 0;
+    var current = this.header;
+    var ended = false;
     while (off < s.length) {
       t = s.charCodeAt(off) >> 4;
       len = [4, 4, 4, 8, 8, 16, 4, 4, 8, 8, 8, 12, 12, 16, 16, 16][t];
       a = [];
       for (i = 0; i < len; i++) a.push(s.charCodeAt(off + i));
       m = JZZ.UMP(a);
-      if (h && m.isStartClip()) {
-        h = false;
+      if (m.isStartClip()) {
+        if (current != this) {
+          current = this;
+          tt = 0;
+        }
+        // else warning
       }
-      if (h) this.header.push(m);
+      else if (m.isEndClip()) {
+        if (current != this) {
+          // warning
+        }
+        if (ended) {
+          // warning
+        }
+        ended = true;
+      }
+      else if (m.isDelta()) {
+        tt += m.getDelta();
+      }
       else {
-        this.push(m);
+        m.tt = tt;
+        current.push(m);
       }
       off += len;
     }
   };
 
-  ClipHdr.prototype.toString = function() {
-    var i;
-    var a = ['Header'];
-    for (i = 0; i < this.length; i++) a.push('  ' + this[i]);
-    return a.join('\n');
-  };
   Clip.prototype.toString = function() {
     var i;
-    var a = [SMF2CLIP, this.header.toString(), 'Data'];
-    for (i = 0; i < this.length; i++) a.push('  ' + this[i]);
+    var a = [SMF2CLIP, 'Header'];
+    for (i = 0; i < this.header.length; i++) a.push('  ' + this.header[i].tt + ': ' + this.header[i]);
+    a.push('Data');
+    for (i = 0; i < this.length; i++) a.push('  ' + this[i].tt + ': ' + this[i]);
     return a.join('\n');
   };
 
