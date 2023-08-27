@@ -1247,10 +1247,6 @@
     self._orig = self;
     self._tick = 0;
     if (typeof arg != 'undefined') {
-      //if (arg instanceof SMF) {
-      //  self.copy(arg.player()._data);
-      //  return self;
-      //}
       if (arg instanceof Clip) {
         self.copy(arg);
         return self;
@@ -1287,6 +1283,20 @@
   Clip.prototype = [];
   Clip.prototype.constructor = Clip;
   Clip.prototype._sxid = 0x7f;
+  Clip.prototype.copy = function(x) {
+    var i, m;
+    this.header = new ClipHdr();
+    for (i = 0; i < x.header.length; i++) {
+      m = new JZZ.MIDI.UMP(x.header[i]);
+      m.tt = x.header[i].tt;
+      this.header.push(m);
+    }
+    for (i = 0; i < x.length; i++) {
+      m = new JZZ.MIDI.UMP(x[i]);
+      m.tt = x[i].tt;
+      this.push(m);
+    }
+  };
   Clip.prototype._image = function() {
     var F = function() {}; F.prototype = this._orig;
     var img = new F();
@@ -1309,9 +1319,7 @@
     msg = JZZ.UMP(msg);
     msg.tt = t;
     var i;
-    for (i = 0; i < this._orig.length; i++) {
-      if (this._orig[i].tt > t) break;
-    }
+    for (i = 0; i < this._orig.length; i++) if (this._orig[i].tt > t) break;
     this._orig.splice(i, 0, msg);
     return this;
   };
