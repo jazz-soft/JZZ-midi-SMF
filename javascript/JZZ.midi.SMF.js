@@ -1297,6 +1297,28 @@
       this.push(m);
     }
   };
+  var SMF2CLIP = 'SMF2CLIP';
+  Clip.prototype.dump = function() {
+    var i, tt;
+    var a = [SMF2CLIP];
+    tt = 0;
+    for (i = 0; i < this.header.length; i++) {
+      a.push(JZZ.UMP.umpDelta(this.header[i].tt - tt).dump());
+      a.push(this.header[i].dump());
+      tt = this.header[i].tt;
+    }
+    a.push(JZZ.UMP.umpDelta(0).dump());
+    a.push(JZZ.UMP.umpStartClip()).dump();
+    tt = 0;
+    for (i = 0; i < this.length; i++) {
+      a.push(JZZ.UMP.umpDelta(this[i].tt - tt).dump());
+      a.push(this[i].dump());
+      tt = this[i].tt;
+    }
+    a.push(JZZ.UMP.umpDelta(0).dump());
+    a.push(JZZ.UMP.umpEndClip().dump());
+    return a.join('');
+  };
   Clip.prototype._image = function() {
     var F = function() {}; F.prototype = this._orig;
     var img = new F();
@@ -1332,7 +1354,6 @@
   ClipHdr.prototype.tick = Clip.prototype.tick;
   ClipHdr.prototype.add = Clip.prototype.add;
 
-  var SMF2CLIP = 'SMF2CLIP';
   Clip.prototype.load = function(s) {
     var off = 0;
     this.loadClip(s, off);
