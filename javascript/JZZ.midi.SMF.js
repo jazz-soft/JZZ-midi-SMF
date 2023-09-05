@@ -1082,7 +1082,7 @@
   function _not_a_syx() { _error('Not a SYX file'); }
 
   function SYX(arg) {
-    var self = this instanceof SYX ? this : self = new SYX();
+    var self = this instanceof SYX ? this : new SYX();
     self._orig = self;
     if (typeof arg != 'undefined') {
       if (arg instanceof SMF) {
@@ -1240,10 +1240,10 @@
 
   JZZ.MIDI.SYX = SYX;
 
-  function _not_a_clip() { _error('Not a MIDI 2.0 Clip file'); }
+  //function _not_a_clip() { _error('Not a MIDI 2.0 Clip file'); }
 
   function Clip(arg) {
-    var self = this instanceof Clip ? this : self = new Clip();
+    var self = this instanceof Clip ? this : new Clip();
     self._orig = self;
     self._tick = 0;
     if (typeof arg != 'undefined') {
@@ -1300,15 +1300,9 @@
   var SMF2CLIP = 'SMF2CLIP';
   Clip.prototype.dump = function() {
     var i, tt;
-    var a = [SMF2CLIP];
-    tt = 0;
-    for (i = 0; i < this.header.length; i++) {
-      a.push(JZZ.UMP.umpDelta(this.header[i].tt - tt).dump());
-      a.push(this.header[i].dump());
-      tt = this.header[i].tt;
-    }
+    var a = [SMF2CLIP, this.header.dump()];
     a.push(JZZ.UMP.umpDelta(0).dump());
-    a.push(JZZ.UMP.umpStartClip()).dump();
+    a.push(JZZ.UMP.umpStartClip().dump());
     tt = 0;
     for (i = 0; i < this.length; i++) {
       a.push(JZZ.UMP.umpDelta(this[i].tt - tt).dump());
@@ -1353,6 +1347,18 @@
   ClipHdr.prototype.send = Clip.prototype.send;
   ClipHdr.prototype.tick = Clip.prototype.tick;
   ClipHdr.prototype.add = Clip.prototype.add;
+  ClipHdr.prototype.dump = function() {
+    var a = [];
+    a.push(JZZ.UMP.umpDelta(this.dc || 0).dump());
+    a.push(JZZ.UMP.umpTicksPQN(this.ppqn || 96).dump());
+    return a.join('');
+  };
+  ClipHdr.prototype.toString = function() {
+    var a = ['Header'];
+    var tt = this.dc || 0;
+    a.push('  ' + tt + ': ' + JZZ.UMP.umpTicksPQN(this.ppqn || 96));
+    return a.join('\n');
+  };
 
   Clip.prototype.load = function(s) {
     var off = 0;
@@ -1410,9 +1416,7 @@
 
   Clip.prototype.toString = function() {
     var i;
-    var a = [SMF2CLIP, 'Header'];
-    for (i = 0; i < this.header.length; i++) a.push('  ' + this.header[i].tt + ': ' + this.header[i]);
-    a.push('Data');
+    var a = [SMF2CLIP, this.header.toString(), 'Data'];
     for (i = 0; i < this.length; i++) a.push('  ' + this[i].tt + ': ' + this[i]);
     return a.join('\n');
   };

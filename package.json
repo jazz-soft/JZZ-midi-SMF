@@ -28,7 +28,8 @@
     "jzz-midi-gm": "^1.3.3",
     "jzz-synth-tiny": "^1.3.6",
     "mocha": "^10.2.0",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "test-midi-files": "^0.0.2"
   },
   "runkitExampleFilename": "runkit.js",
   "repository": {

@@ -2,6 +2,7 @@
 const fs = require('fs');
 const JZZ = require('jzz');
 require('..')(JZZ);
+const RawClip = require('test-midi-files').RawClip; // must be after require('..')...
 const version = require('../package.json').version;
 
 function Sample(done, list) {
@@ -418,8 +419,20 @@ describe('SYX', function() {
   });
 });
 
-describe.only('SMF2', function() {
+describe('SMF2', function() {
   it('version', function() {
     assert.equal(JZZ.MIDI.Clip.version(), JZZ.MIDI.SMF.version());
+  });
+  it('empty', function() {
+    var clip = new RawClip();
+    clip = JZZ.MIDI.Clip(clip.dump());
+    assert.equal(clip.toString(), 'SMF2CLIP\nHeader\n  0: 00300060 -- Ticks Per Quarter Note\nData');
+    clip = RawClip(clip.dump());
+    console.log(clip.toString());
+    assert.equal(clip[0].getDelta(), 0);
+    assert.equal(clip[2].getDelta(), 0);
+    assert.equal(clip[3].isStartClip(), true);
+    assert.equal(clip[4].getDelta(), 0);
+    assert.equal(clip[5].isEndClip(), true);
   });
 });
