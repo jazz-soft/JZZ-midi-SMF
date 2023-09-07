@@ -426,13 +426,18 @@ describe('SMF2', function() {
   it('empty', function() {
     var clip = new RawClip();
     clip = JZZ.MIDI.Clip(clip.dump());
-    assert.equal(clip.toString(), 'SMF2CLIP\nHeader\n  0: 00300060 -- Ticks Per Quarter Note\nData');
+    assert.equal(clip.toString(), 'SMF2CLIP\nHeader\n  0: 00300060 -- Ticks Per Quarter Note\nData\n  0: f0200000 00000000 00000000 00000000 -- Start of Clip\n  0: f0210000 00000000 00000000 00000000 -- End of Clip');
     clip = RawClip(clip.dump());
-    console.log(clip.toString());
     assert.equal(clip[0].getDelta(), 0);
     assert.equal(clip[2].getDelta(), 0);
     assert.equal(clip[3].isStartClip(), true);
     assert.equal(clip[4].getDelta(), 0);
     assert.equal(clip[5].isEndClip(), true);
+  });
+  it('tick', function() {
+    var clip = new JZZ.MIDI.Clip();
+    clip.tick(96).umpDelta(96).tick(96).umpEndClip();
+    console.log(clip.toString());
+    assert.equal(clip[0].tt, 288);
   });
 });

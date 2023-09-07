@@ -1273,10 +1273,15 @@
       if (typeof arg != 'string') {
         arg = String.fromCharCode.apply(null, arg);
       }
-      self.load(arg);
+      _loadClip(self, arg);
       return self;
     }
     if (!self.header) self.header = new ClipHdr();
+    if (!self.length) {
+      var msg = JZZ.UMP.umpEndClip();
+      msg.tt = 0;
+      self.push(msg);
+    }
     return self;
   }
   Clip.version = function() { return _ver; };
@@ -1309,8 +1314,6 @@
       a.push(this[i].dump());
       tt = this[i].tt;
     }
-    a.push(JZZ.UMP.umpDelta(0).dump());
-    a.push(JZZ.UMP.umpEndClip().dump());
     return a.join('');
   };
   Clip.prototype._image = function() {
@@ -1321,7 +1324,7 @@
     img._tick = this._tick;
     return img;
   };
-  Clip.prototype.send = function(msg) { this._orig.add(this._tick, msg); return this; };
+  Clip.prototype.send = function(msg) { return this.add(this._tick, msg); };
   Clip.prototype.tick = function(t) {
     if (t != parseInt(t) || t < 0) throw RangeError('Bad tick value: ' + t);
     if (!t) return this;
@@ -1333,9 +1336,13 @@
     t = parseInt(t);
     if(isNaN(t) || t < 0) _error('Invalid parameter');
     msg = JZZ.UMP(msg);
+    var end = this._orig[this._orig.length - 1];
+    if (end.tt < t) end.tt = t;
+    if (msg.isStartClip() || msg.isEndClip()) return this;
+    if (msg.isDelta()) return this.tick(msg.getDelta());
     msg.tt = t;
     var i;
-    for (i = 0; i < this._orig.length; i++) if (this._orig[i].tt > t) break;
+    for (i = 0; i < this._orig.length - 1; i++) if (this._orig[i].tt > t) break;
     this._orig.splice(i, 0, msg);
     return this;
   };
@@ -1360,18 +1367,13 @@
     return a.join('\n');
   };
 
-  Clip.prototype.load = function(s) {
-    var off = 0;
-    this.loadClip(s, off);
-  };
-  Clip.prototype.loadClip = function(s, off) {
+  function _loadClip(clip, s, off) {
     if (!s.length) _error('Empty file');
-    this.header = new ClipHdr();
     if (s.substr(0, 8) != SMF2CLIP) {
       var z = s.indexOf(SMF2CLIP);
       if (z != -1) {
         s = s.substr(z);
-        this._complain(off, 'Extra leading characters', z);
+        clip._complain(off, 'Extra leading characters', z);
         off += z;
       }
       else _error('Not a Clip');
@@ -1379,7 +1381,7 @@
     off += 8;
     var a, i, m, t, len;
     var tt= 0;
-    var current = this.header;
+    var current = clip.header;
     var ended = false;
     while (off < s.length) {
       t = s.charCodeAt(off) >> 4;
@@ -1388,14 +1390,14 @@
       for (i = 0; i < len; i++) a.push(s.charCodeAt(off + i));
       m = JZZ.UMP(a);
       if (m.isStartClip()) {
-        if (current != this) {
-          current = this;
+        if (current != clip) {
+          current = clip;
           tt = 0;
         }
         // else warning
       }
       else if (m.isEndClip()) {
-        if (current != this) {
+        if (current != clip) {
           // warning
         }
         if (ended) {
@@ -1412,11 +1414,12 @@
       }
       off += len;
     }
-  };
+  }
 
   Clip.prototype.toString = function() {
     var i;
     var a = [SMF2CLIP, this.header.toString(), 'Data'];
+    a.push('  0: ' + JZZ.UMP.umpStartClip());
     for (i = 0; i < this.length; i++) a.push('  ' + this[i].tt + ': ' + this[i]);
     return a.join('\n');
   };
