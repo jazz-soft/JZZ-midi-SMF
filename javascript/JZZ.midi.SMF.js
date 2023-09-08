@@ -15,7 +15,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.7.6';
+  var _ver = '1.7.7';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -1248,7 +1248,7 @@
     self._tick = 0;
     if (typeof arg != 'undefined') {
       if (arg instanceof Clip) {
-        self.copy(arg);
+        _copyClip(self, arg);
         return self;
       }
       try {
@@ -1288,20 +1288,6 @@
   Clip.prototype = [];
   Clip.prototype.constructor = Clip;
   Clip.prototype._sxid = 0x7f;
-  Clip.prototype.copy = function(x) {
-    var i, m;
-    this.header = new ClipHdr();
-    for (i = 0; i < x.header.length; i++) {
-      m = new JZZ.MIDI.UMP(x.header[i]);
-      m.tt = x.header[i].tt;
-      this.header.push(m);
-    }
-    for (i = 0; i < x.length; i++) {
-      m = new JZZ.MIDI.UMP(x[i]);
-      m.tt = x[i].tt;
-      this.push(m);
-    }
-  };
   var SMF2CLIP = 'SMF2CLIP';
   Clip.prototype.dump = function() {
     var i, tt;
@@ -1367,6 +1353,23 @@
     return a.join('\n');
   };
 
+  function _copyClip(clip, x) {
+    var i, m;
+    clip.length = 0;
+    clip.header = new ClipHdr();
+    clip.dc = x.dc;
+    clip.ppqn = x.ppqn;
+    for (i = 0; i < x.header.length; i++) {
+      m = new JZZ.UMP(x.header[i]);
+      m.tt = x.header[i].tt;
+      clip.header.push(m);
+    }
+    for (i = 0; i < x.length; i++) {
+      m = new JZZ.UMP(x[i]);
+      m.tt = x[i].tt;
+      clip.push(m);
+    }
+  }
   function _loadClip(clip, s, off) {
     if (!s.length) _error('Empty file');
     if (s.substr(0, 8) != SMF2CLIP) {
