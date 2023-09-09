@@ -424,6 +424,7 @@ describe('SMF2', function() {
     assert.equal(JZZ.MIDI.Clip.version(), JZZ.MIDI.SMF.version());
   });
   it('empty', function() {
+    assert.throws(function() { new JZZ.MIDI.Clip(''); });
     var clip = new RawClip();
     clip = JZZ.MIDI.Clip(clip.dump());
     clip = JZZ.MIDI.Clip(clip);
@@ -434,6 +435,10 @@ describe('SMF2', function() {
     assert.equal(clip[3].isStartClip(), true);
     assert.equal(clip[4].getDelta(), 0);
     assert.equal(clip[5].isEndClip(), true);
+  });
+  it('errors', function() {
+    assert.throws(function() { new JZZ.MIDI.Clip('dummy'); });
+    var clip = JZZ.MIDI.Clip('xSMF2CLIP');
   });
   it('tick', function() {
     var clip = new JZZ.MIDI.Clip();

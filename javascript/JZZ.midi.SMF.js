@@ -1418,6 +1418,12 @@
       off += len;
     }
   }
+  Clip.prototype._complain = function(off, msg, data, tick) {
+    if (!this._warn) this._warn = [];
+    var w = { off: off, msg: msg, data: data };
+    if (typeof tick != 'undefined') w.tick = tick;
+    this._warn.push(w);
+  };
 
   Clip.prototype.toString = function() {
     var i;
