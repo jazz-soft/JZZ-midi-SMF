@@ -376,6 +376,7 @@ describe('SYX', function() {
     assert.throws(function() {
       JZZ.MIDI.SYX([0x7e, 0x7f, 0x06, 0x01, 0xf7]);
     });
+    assert.throws(function() { JZZ.MIDI.SYX(''); });
     assert.throws(function() {
       JZZ.MIDI.SYX([0xf0, 0x7e, 0x7f, 0x06, 0x01]);
     });

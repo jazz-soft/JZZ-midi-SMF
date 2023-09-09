@@ -89,6 +89,7 @@
       if (typeof arguments[0] == 'string' && arguments[0] != '0' && arguments[0] != '1' && arguments[0] != '2') {
         data = arguments[0];
       }
+      if (data == '') _error('Empty file');
       if (data) {
         self.load(data);
         return self;
@@ -1119,6 +1120,7 @@
       var msg = [];
       var i = 0;
       var off = 0;
+      if (!arg.length) _error('Empty file');
       while (i < arg.length) {
         if (arg.charCodeAt(i) != 0xf0) _not_a_syx();
         while (i < arg.length) {
@@ -1239,8 +1241,6 @@
   JZZ.lib.copyMidiHelpers(SYX);
 
   JZZ.MIDI.SYX = SYX;
-
-  //function _not_a_clip() { _error('Not a MIDI 2.0 Clip file'); }
 
   function Clip(arg) {
     var self = this instanceof Clip ? this : new Clip();
@@ -1371,7 +1371,7 @@
     }
   }
   function _loadClip(clip, s, off) {
-    if (!s.length) _error('Empty file');
+    if (!s.length) _error('Empty clip');
     if (s.substr(0, 8) != SMF2CLIP) {
       var z = s.indexOf(SMF2CLIP);
       if (z != -1) {
@@ -1379,7 +1379,7 @@
         clip._complain(off, 'Extra leading characters', z);
         off += z;
       }
-      else _error('Not a Clip');
+      else _error('Not a clip');
     }
     off += 8;
     var a, i, m, t, len;
