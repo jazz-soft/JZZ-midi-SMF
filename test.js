@@ -7,10 +7,15 @@ if (typeof file == 'undefined') file = 'test.mid';
 var data = require('fs').readFileSync(file, 'binary');
 var smf;
 try {
-  smf = new JZZ.MIDI.SYX(data);
+  smf = new JZZ.MIDI.Clip(data);
 }
 catch (e) {
-  smf = new JZZ.MIDI.SMF(data);
+  try {
+    smf = new JZZ.MIDI.SYX(data);
+  }
+  catch (e) {
+    smf = new JZZ.MIDI.SMF(data);
+  }
 }
 smf.annotate();
 console.log(smf.toString());

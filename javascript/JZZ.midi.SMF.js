@@ -1273,7 +1273,7 @@
       if (typeof arg != 'string') {
         arg = String.fromCharCode.apply(null, arg);
       }
-      _loadClip(self, arg);
+      _loadClip(self, arg, 0);
       return self;
     }
     if (!self.header) self.header = new ClipHdr();
@@ -1384,6 +1384,7 @@
     off += 8;
     var a, i, m, t, len;
     var tt= 0;
+    clip.header = new ClipHdr();
     var current = clip.header;
     var ended = false;
     while (off < s.length) {
@@ -1431,6 +1432,23 @@
     a.push('  0: ' + JZZ.UMP.umpStartClip());
     for (i = 0; i < this.length; i++) a.push('  ' + this[i].tt + ': ' + this[i]);
     return a.join('\n');
+  };
+  Clip.prototype.annotate = function() {
+    return this;
+  };
+  Clip.prototype.player = function() {
+    var pl = new Player();
+    pl.ppqn = 96;
+    var i;
+    for (i = 0; i < this.length; i++) {
+      var e = JZZ.MIDI2(this[i]);
+      pl._data.push(e);
+    }
+    pl._type = 0;
+    pl._tracks = 1;
+    pl._timing();
+    pl.sndOff = function() {};
+    return pl;
   };
 
   JZZ.lib.copyMidi2Helpers(Clip);
