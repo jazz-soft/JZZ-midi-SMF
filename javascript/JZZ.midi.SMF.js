@@ -1289,19 +1289,7 @@
   Clip.prototype.constructor = Clip;
   Clip.prototype._sxid = 0x7f;
   var SMF2CLIP = 'SMF2CLIP';
-  Clip.prototype.dump = function() {
-    var i, tt;
-    var a = [SMF2CLIP, this.header.dump()];
-    a.push(JZZ.UMP.umpDelta(0).dump());
-    a.push(JZZ.UMP.umpStartClip().dump());
-    tt = 0;
-    for (i = 0; i < this.length; i++) {
-      a.push(JZZ.UMP.umpDelta(this[i].tt - tt).dump());
-      a.push(this[i].dump());
-      tt = this[i].tt;
-    }
-    return a.join('');
-  };
+
   Clip.prototype._image = function() {
     var F = function() {}; F.prototype = this._orig;
     var img = new F();
@@ -1340,24 +1328,11 @@
   ClipHdr.prototype.send = Clip.prototype.send;
   ClipHdr.prototype.tick = Clip.prototype.tick;
   ClipHdr.prototype.add = Clip.prototype.add;
-  ClipHdr.prototype.dump = function() {
-    var a = [];
-    a.push(JZZ.UMP.umpDelta(this.dc || 0).dump());
-    a.push(JZZ.UMP.umpTicksPQN(this.ppqn || 96).dump());
-    return a.join('');
-  };
-  ClipHdr.prototype.toString = function() {
-    var a = ['Header'];
-    var tt = this.dc || 0;
-    a.push('  ' + tt + ': ' + JZZ.UMP.umpTicksPQN(this.ppqn || 96));
-    return a.join('\n');
-  };
 
   function _copyClip(clip, x) {
     var i, m;
     clip.length = 0;
     clip.header = new ClipHdr();
-    clip.dc = x.dc;
     clip.ppqn = x.ppqn;
     for (i = 0; i < x.header.length; i++) {
       m = new JZZ.UMP(x.header[i]);
@@ -1382,41 +1357,54 @@
       else _error('Not a clip');
     }
     off += 8;
-    var a, i, m, t, len;
-    var tt= 0;
+    var a, i, m, t, len, prev;
     clip.header = new ClipHdr();
-    var current = clip.header;
+    clip.ppqn = -1;
+    var inHdr = true;
     var ended = false;
+    var tt = 0;
     while (off < s.length) {
       t = s.charCodeAt(off) >> 4;
       len = [4, 4, 4, 8, 8, 16, 4, 4, 8, 8, 8, 12, 12, 16, 16, 16][t];
       a = [];
       for (i = 0; i < len; i++) a.push(s.charCodeAt(off + i));
+      prev = m;
       m = JZZ.UMP(a);
-      if (m.isStartClip()) {
-        if (current != clip) {
-          current = clip;
-          tt = 0;
-        }
-        // else warning
-      }
-      else if (m.isEndClip()) {
-        if (current != clip) {
-          // warning
-        }
-        if (ended) {
-          // warning
-        }
-        ended = true;
-      }
-      else if (m.isDelta()) {
+      if (m.isDelta()) {
+        if (prev && prev.isDelta())  clip._complain(off, 'Consequential Delta Ticks message');
         tt += m.getDelta();
       }
       else {
         m.tt = tt;
-        current.push(m);
+        if (inHdr) {
+          if (m.isStartClip()) {
+            tt = 0;
+            inHdr = false;
+          }
+          else if (m.isTicksPQN()) {
+            if (clip.ppqn != -1) clip._complain(off, 'Multiple Ticks PQN message');
+            clip.ppqn = m.getTicksPQN();
+          }
+          else if (m.isEndClip()) {
+            clip._complain(off, 'Unexpected End of Clip message');
+          }
+          else clip.header.push(m);
+        }
+        else {
+          if (m.isStartClip()) {
+            clip._complain(off, 'Repeated Start of Clip message');
+          }
+          else if (m.isEndClip()) {
+            if (ended) clip._complain(off, 'Repeated End of Clip message');
+            ended = true;
+          }
+          else clip.push(m);
+        }
       }
       off += len;
+    }
+    if (clip.ppqn == -1) {
+      clip.ppqn = 96;
     }
   }
   Clip.prototype._complain = function(off, msg, data, tick) {
@@ -1426,10 +1414,27 @@
     this._warn.push(w);
   };
 
+  Clip.prototype.dump = function() {
+    var i, tt;
+    var a = [SMF2CLIP];
+    a.push(JZZ.UMP.umpDelta(0).dump());
+    a.push(JZZ.UMP.umpTicksPQN(this.ppqn).dump());
+    a.push(JZZ.UMP.umpDelta(0).dump());
+    a.push(JZZ.UMP.umpStartClip().dump());
+    tt = 0;
+    for (i = 0; i < this.length; i++) {
+      a.push(JZZ.UMP.umpDelta(this[i].tt - tt).dump());
+      a.push(this[i].dump());
+      tt = this[i].tt;
+    }
+    return a.join('');
+  };
   Clip.prototype.toString = function() {
     var i;
-    var a = [SMF2CLIP, this.header.toString(), 'Data'];
-    a.push('  0: ' + JZZ.UMP.umpStartClip());
+    var a = [SMF2CLIP, 'Header'];
+    a.push('  0: ' + JZZ.UMP.umpTicksPQN(this.ppqn));
+    for (i = 0; i < this.header.length; i++) a.push('  ' + this.header[i].tt + ': ' + this.header[i]);
+    a.push('Data', '  0: ' + JZZ.UMP.umpStartClip());
     for (i = 0; i < this.length; i++) a.push('  ' + this[i].tt + ': ' + this[i]);
     return a.join('\n');
   };
