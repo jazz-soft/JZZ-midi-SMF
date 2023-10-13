@@ -1358,6 +1358,7 @@
     }
     off += 8;
     var a, i, m, t, len, prev;
+    clip.length = 0;
     clip.header = new ClipHdr();
     clip.ppqn = -1;
     var inHdr = true;
@@ -1384,6 +1385,10 @@
           else if (m.isTicksPQN()) {
             if (clip.ppqn != -1) clip._complain(off, 'Multiple Ticks PQN message');
             clip.ppqn = m.getTicksPQN();
+            if (!clip.ppqn) {
+              clip._complain(off, 'Bad Ticks PQN value: 0');
+              clip.ppqn = 96;
+            }
           }
           else if (m.isEndClip()) {
             clip._complain(off, 'Unexpected End of Clip message');
@@ -1403,7 +1408,11 @@
       }
       off += len;
     }
+    m = JZZ.UMP.umpEndClip();
+    m.tt = tt;
+    clip.push(m);
     if (clip.ppqn == -1) {
+      clip._complain(off, 'Missing Ticks PQN message');
       clip.ppqn = 96;
     }
   }
@@ -1419,6 +1428,12 @@
     var a = [SMF2CLIP];
     a.push(JZZ.UMP.umpDelta(0).dump());
     a.push(JZZ.UMP.umpTicksPQN(this.ppqn).dump());
+    tt = 0;
+    for (i = 0; i < this.header.length; i++) {
+      a.push(JZZ.UMP.umpDelta(this.header[i].tt - tt).dump());
+      a.push(this.header[i].dump());
+      tt = this.header[i].tt;
+    }
     a.push(JZZ.UMP.umpDelta(0).dump());
     a.push(JZZ.UMP.umpStartClip().dump());
     tt = 0;
