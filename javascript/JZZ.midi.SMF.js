@@ -916,10 +916,9 @@
   Player.prototype.filter = function(f) {
     this._filter = f instanceof Function ? f : _filter;
   };
-  function _div(s) { return (s.charCodeAt(0) << 16) + (s.charCodeAt(1) << 8) + s.charCodeAt(2); }
   Player.prototype._receive = function(e) {
-    if (e.ff == 0x51 && this.ppqn) {
-      this._mul = this.ppqn * 1000.0 / _div(e.dd);
+    if (e.isTempo() && this.ppqn) {
+      this._mul = this.ppqn * (e.isMidi2 ? 100000.00 : 1000.0) / (e.getTempo() || 1);
       this.mul = this._mul * this._speed;
       this._t0 = _now();
       this._p0 = this._pos;
@@ -990,10 +989,10 @@
       this._ttt.push({ t: 0, m: m, ms: 0 });
       for (i = 0; i < this._data.length; i++) {
         e = this._data[i];
-        if (e.ff == 0x51) {
+        if (e.isTempo()) {
           this._durationMS += (e.tt - t) / m;
           t = e.tt;
-          m = this.ppqn * 1000.0 / _div(e.dd);
+          m = this.ppqn * (e.isMidi2 ? 100000.00 : 1000.0) / (e.getTempo() || 1);
           this._ttt.push({ t: t, m: m, ms: this._durationMS });
         }
       }
@@ -1060,7 +1059,7 @@
     for(this._ptr = 0; this._ptr < this._data.length; this._ptr++) {
       var e = this._data[this._ptr];
       if (e.tt >= this._pos) break;
-      if (e.ff == 0x51 && this.ppqn) this._mul = this.ppqn * 1000.0 / _div(e.dd);
+      if (e.isTempo() && this.ppqn) this._mul = this.ppqn * (e.isMidi2 ? 100000.00 : 1000.0) / (e.getTempo() || 1);
     }
     this.mul = this._mul * this._speed;
     this._t0 = _now();

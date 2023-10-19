@@ -31,7 +31,9 @@ time.push(s < 10 ? '0' + s : s);
 console.log('Total time:', time.join(':'));
 
 JZZ().or('Cannot start MIDI engine!').openMidiOut().or('Cannot open MIDI Out!').and(function() {
-  player.connect(this);
+  var m2m1 = JZZ.M2M1();
+  m2m1.connect(this);
+  player.connect(m2m1);
   player.loop(3);
   player.play();
 });
