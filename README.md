@@ -194,6 +194,41 @@ player.play();
 require('fs').writeFileSync('out.syx', syx.dump(), 'binary');
 ```
 
+## MIDI 2.0 Clips
+
+##### Playing MIDI 2.0 clip
+
+```js
+var midiout = JZZ().openMidiOut();
+var data = require('fs').readFileSync('file.midi2', 'binary');
+var clip = new JZZ.MIDI.Clip(data);
+var player = clip.player();
+// since the majority of today's MIDI devices only support MIDI 1.0,
+// we can use a converter:
+var conv = JZZ.M2M1();
+conv.connect(midiout);
+player.connect(conv);
+player.play();
+```
+
+##### Creating MIDI 2.0 clip from scratch
+
+```js
+var clip = new JZZ.MIDI.Clip();
+require('fs').writeFileSync('out.midi2', clip.dump(), 'binary');
+```
+
+##### Most of other calls - same as above
+
+```js
+var player = clip.player();
+var dump = clip.dump();
+console.log(clip.toString());
+console.log('Size:', dump.length, 'bytes');
+console.log('Duration:', player.duration(), 'ticks');
+console.log('Total time:', player.durationMS(), 'milliseconds');
+```
+
 ## Live DEMOs (source code included)
 
 [**Read MIDI file**](https://jazz-soft.net/demo/ReadMidiFile.html) - from file, URL, Base64  
