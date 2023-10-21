@@ -215,6 +215,7 @@ player.play();
 
 ```js
 var clip = new JZZ.MIDI.Clip();
+clip.gr(0).ch(0).noteOn('C5').tick(96).noteOff('C5');
 require('fs').writeFileSync('out.midi2', clip.dump(), 'binary');
 ```
 
