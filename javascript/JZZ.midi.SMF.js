@@ -1443,6 +1443,22 @@
     }
     return a.join('');
   };
+  Clip.prototype.toBuffer = function() {
+    return Buffer.from(this.dump(), 'binary');
+  };
+  Clip.prototype.toUint8Array = function() {
+    var str = this.dump();
+    var buf = new ArrayBuffer(str.length);
+    var arr = new Uint8Array(buf);
+    for (var i = 0; i < str.length; i++) arr[i] = str.charCodeAt(i);
+    return arr;
+  };
+  Clip.prototype.toArrayBuffer = function() {
+    return this.toUint8Array().buffer;
+  };
+  Clip.prototype.toInt8Array = function() {
+    return new Int8Array(this.toArrayBuffer());
+  };
   Clip.prototype.toString = function() {
     var i;
     var a = [SMF2CLIP, 'Header'];
