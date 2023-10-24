@@ -154,39 +154,38 @@
       off = 20;
       s = s.substr(20, s.charCodeAt(16) + s.charCodeAt(17) * 0x100 + s.charCodeAt(18) * 0x10000 + s.charCodeAt(19) * 0x1000000);
     }
-    this.loadSMF(s, off);
+    _loadSMF(this, s, off);
   };
 
   var MThd0006 = 'MThd' + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(6);
-  SMF.prototype.loadSMF = function(s, off) {
-    if (!s.length) _error('Empty file');
+  function _loadSMF(self, s, off) {
     if (s.substr(0, 8) != MThd0006) {
       var z = s.indexOf(MThd0006);
       if (z != -1) {
         s = s.substr(z);
-        this._complain(off, 'Extra leading characters', z);
+        self._complain(off, 'Extra leading characters', z);
         off += z;
       }
       else _error('Not a MIDI file');
     }
-    this._off = off;
-    this.type = s.charCodeAt(8) * 16 + s.charCodeAt(9);
-    this._off_type = off + 8;
-    this.ntrk = s.charCodeAt(10) * 16 + s.charCodeAt(11);
-    this._off_ntrk = off + 10;
+    self._off = off;
+    self.type = s.charCodeAt(8) * 16 + s.charCodeAt(9);
+    self._off_type = off + 8;
+    self.ntrk = s.charCodeAt(10) * 16 + s.charCodeAt(11);
+    self._off_ntrk = off + 10;
     if (s.charCodeAt(12) > 0x7f) {
-      this.fps = 0x100 - s.charCodeAt(12);
-      this.ppf = s.charCodeAt(13);
-      this._off_fps = off + 12;
-      this._off_ppf = off + 13;
+      self.fps = 0x100 - s.charCodeAt(12);
+      self.ppf = s.charCodeAt(13);
+      self._off_fps = off + 12;
+      self._off_ppf = off + 13;
     }
     else{
-      this.ppqn = s.charCodeAt(12) * 256 + s.charCodeAt(13);
-      this._off_ppqn = off + 12;
+      self.ppqn = s.charCodeAt(12) * 256 + s.charCodeAt(13);
+      self._off_ppqn = off + 12;
     }
-    if (this.type > 2) this._complain(8 + off, 'Invalid MIDI file type', this.type);
-    else if (this.type == 0 && this.ntrk > 1) this._complain(10 + off, 'Wrong number of tracks for the type 0 MIDI file', this.ntrk);
-    if (!this.ppf && !this.ppqn) _error('Invalid MIDI header');
+    if (self.type > 2) self._complain(8 + off, 'Invalid MIDI file type', self.type);
+    else if (self.type == 0 && self.ntrk > 1) self._complain(10 + off, 'Wrong number of tracks for the type 0 MIDI file', self.ntrk);
+    if (!self.ppf && !self.ppqn) _error('Invalid MIDI header');
     var n = 0;
     var p = 14;
     while (p < s.length - 8) {
@@ -196,23 +195,23 @@
       var len = (s.charCodeAt(p + 4) << 24) + (s.charCodeAt(p + 5) << 16) + (s.charCodeAt(p + 6) << 8) + s.charCodeAt(p + 7);
       if (len <= 0) { // broken file
         len = s.length - p - 8;
-        this._complain(p + off + 4, 'Invalid track length', s.charCodeAt(p + 4) + '/' + s.charCodeAt(p + 5) + '/' + s.charCodeAt(p + 6) + '/' + s.charCodeAt(p + 7));
+        self._complain(p + off + 4, 'Invalid track length', s.charCodeAt(p + 4) + '/' + s.charCodeAt(p + 5) + '/' + s.charCodeAt(p + 6) + '/' + s.charCodeAt(p + 7));
       }
       p += 8;
       var data = s.substr(p, len);
-      this.push(new Chunk(type, data, offset));
-      if (type == 'MThd') this._complain(offset, 'Unexpected chunk type', 'MThd');
+      self.push(new Chunk(type, data, offset));
+      if (type == 'MThd') self._complain(offset, 'Unexpected chunk type', 'MThd');
       p += len;
     }
-    if (n != this.ntrk) {
-      this._complain(off + 10, 'Incorrect number of tracks', this.ntrk);
-      this.ntrk = n;
+    if (n != self.ntrk) {
+      self._complain(off + 10, 'Incorrect number of tracks', self.ntrk);
+      self.ntrk = n;
     }
-    if (!this.ntrk)  _error('No MIDI tracks');
-    if (!this.type && this.ntrk > 1 || this.type > 2)  this.type = 1;
-    if (p < s.length) this._complain(off + p, 'Extra trailing characters', s.length - p);
-    if (p > s.length) this._complain(off + s.length, 'Incomplete data', p - s.length);
-  };
+    if (!self.ntrk)  _error('No MIDI tracks');
+    if (!self.type && self.ntrk > 1 || self.type > 2)  self.type = 1;
+    if (p < s.length) self._complain(off + p, 'Extra trailing characters', s.length - p);
+    if (p > s.length) self._complain(off + s.length, 'Incomplete data', p - s.length);
+  }
 
   function Warn(obj) {
     if (!(this instanceof Warn)) return new Warn(obj);
