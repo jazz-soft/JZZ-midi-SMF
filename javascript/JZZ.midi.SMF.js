@@ -1244,6 +1244,7 @@
     var self = this instanceof Clip ? this : new Clip();
     self._orig = self;
     self._tick = 0;
+    self.ppqn = 96;
     if (typeof arg != 'undefined') {
       if (arg instanceof Clip) {
         _copyClip(self, arg);
@@ -1291,6 +1292,7 @@
   Clip.prototype._image = function() {
     var F = function() {}; F.prototype = this._orig;
     var img = new F();
+    img._gr = this._gr;
     img._ch = this._ch;
     img._sxid = this._sxid;
     img._tick = this._tick;
@@ -1317,6 +1319,24 @@
     for (i = 0; i < this._orig.length - 1; i++) if (this._orig[i].tt > t) break;
     this._orig.splice(i, 0, msg);
     return this;
+  };
+  Clip.prototype.gr = function(g) {
+    if (g == this._gr || typeof g == 'undefined' && typeof this._gr == 'undefined') return this;
+    if (typeof g != 'undefined') {
+      if (g != parseInt(g) || g < 0 || g > 15) throw RangeError('Bad channel value: ' + g  + ' (must be from 0 to 15)');
+    }
+    var img = this._image();
+    img._gr = g;
+    return img;
+  };
+  Clip.prototype.ch = function(c) {
+    if (c == this._ch || typeof c == 'undefined' && typeof this._ch == 'undefined') return this;
+    if (typeof c != 'undefined') {
+      if (c != parseInt(c) || c < 0 || c > 15) throw RangeError('Bad channel value: ' + c  + ' (must be from 0 to 15)');
+    }
+    var img = this._image();
+    img._ch = c;
+    return img;
   };
 
   function ClipHdr() {}

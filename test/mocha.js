@@ -440,11 +440,23 @@ describe('SMF2', function() {
   it('errors', function() {
     assert.throws(function() { new JZZ.MIDI.Clip('dummy'); });
     var clip = JZZ.MIDI.Clip('xSMF2CLIP');
+    assert.throws(function() { clip.gr(20); });
+    assert.throws(function() { clip.ch(20); });
   });
   it('tick', function() {
     var clip = new JZZ.MIDI.Clip();
     clip.tick(96).umpDelta(96).tick(96).umpEndClip();
     //console.log(clip.toString());
     assert.equal(clip[0].tt, 288);
+  });
+  it('dump', function() {
+    var clip = new JZZ.MIDI.Clip();
+    clip.gr(0).gr(0).ch(1).ch(1).noteOn('C5').tick(96).noteOff('C5').gr().gr().ch().ch();
+    clip = JZZ.MIDI.Clip(clip.dump());
+    clip = JZZ.MIDI.Clip(clip.toBuffer());
+    clip = JZZ.MIDI.Clip(clip.toArrayBuffer());
+    clip = JZZ.MIDI.Clip(clip.toInt8Array());
+    clip = JZZ.MIDI.Clip(clip.toUint8Array());
+    clip = JZZ.MIDI.Clip(clip);
   });
 });
