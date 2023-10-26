@@ -1320,6 +1320,14 @@
     this._orig.splice(i, 0, msg);
     return this;
   };
+  Clip.prototype.sxId = function(id) {
+    if (typeof id == 'undefined') id = Clip.prototype._sxid;
+    if (id == this._sxid) return this;
+    if (id != parseInt(id) || id < 0 || id > 0x7f) throw RangeError('Bad MIDI value: ' + id);
+    var img = this._image();
+    img._sxid = id;
+    return img;
+  };
   Clip.prototype.gr = function(g) {
     if (g == this._gr || typeof g == 'undefined' && typeof this._gr == 'undefined') return this;
     if (typeof g != 'undefined') {
@@ -1492,7 +1500,7 @@
   };
   Clip.prototype.player = function() {
     var pl = new Player();
-    pl.ppqn = 96;
+    pl.ppqn = this.ppqn;
     var i;
     for (i = 0; i < this.length; i++) {
       var e = JZZ.MIDI2(this[i]);

@@ -442,6 +442,7 @@ describe('SMF2', function() {
     var clip = JZZ.MIDI.Clip('xSMF2CLIP');
     assert.throws(function() { clip.gr(20); });
     assert.throws(function() { clip.ch(20); });
+    assert.throws(function() { clip.sxId(256); });
   });
   it('tick', function() {
     var clip = new JZZ.MIDI.Clip();
@@ -451,12 +452,17 @@ describe('SMF2', function() {
   });
   it('dump', function() {
     var clip = new JZZ.MIDI.Clip();
-    clip.gr(0).gr(0).ch(1).ch(1).noteOn('C5').tick(96).noteOff('C5').gr().gr().ch().ch();
+    clip.gr(0).gr(0).ch(1).ch(1).sxId(2).sxId(2).noteOn('C5').tick(96).noteOff('C5').gr().gr().ch().ch().sxId().sxId();
     clip = JZZ.MIDI.Clip(clip.dump());
     clip = JZZ.MIDI.Clip(clip.toBuffer());
     clip = JZZ.MIDI.Clip(clip.toArrayBuffer());
     clip = JZZ.MIDI.Clip(clip.toInt8Array());
     clip = JZZ.MIDI.Clip(clip.toUint8Array());
     clip = JZZ.MIDI.Clip(clip);
+  });
+  it('player', function() {
+    var clip = new JZZ.MIDI.Clip();
+    clip.gr(0).gr(0).ch(1).ch(1).sxId(2).sxId(2).noteOn('C5').tick(96).noteOff('C5').gr().gr().ch().ch().sxId().sxId();
+    clip.player();
   });
 });
