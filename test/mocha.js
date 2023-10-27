@@ -443,6 +443,9 @@ describe('SMF2', function() {
     assert.throws(function() { clip.gr(20); });
     assert.throws(function() { clip.ch(20); });
     assert.throws(function() { clip.sxId(256); });
+    assert.throws(function() { clip.tick(); });
+    assert.throws(function() { clip.add(-1, JZZ.MIDI2.noop()); });
+    assert.throws(function() { clip.header.add(-1, JZZ.MIDI2.noop()); });
   });
   it('tick', function() {
     var clip = new JZZ.MIDI.Clip();
@@ -452,13 +455,18 @@ describe('SMF2', function() {
   });
   it('dump', function() {
     var clip = new JZZ.MIDI.Clip();
+    clip.header.tick(1).program(0, 1, 2).umpEndClip().noop();
+    clip.header.umpDelta(0).noop();
     clip.gr(0).gr(0).ch(1).ch(1).sxId(2).sxId(2).noteOn('C5').tick(96).noteOff('C5').gr().gr().ch().ch().sxId().sxId();
+    clip.noop();
     clip = JZZ.MIDI.Clip(clip.dump());
     clip = JZZ.MIDI.Clip(clip.toBuffer());
     clip = JZZ.MIDI.Clip(clip.toArrayBuffer());
     clip = JZZ.MIDI.Clip(clip.toInt8Array());
     clip = JZZ.MIDI.Clip(clip.toUint8Array());
     clip = JZZ.MIDI.Clip(clip);
+    clip.annotate();
+    //console.log(clip.toString());
   });
   it('player', function() {
     var clip = new JZZ.MIDI.Clip();

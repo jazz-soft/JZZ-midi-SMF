@@ -1347,13 +1347,27 @@
     return img;
   };
 
-  function ClipHdr() {}
+  function ClipHdr() {
+    this._orig = this;
+    this._tick = 0;
+  }
   ClipHdr.prototype = [];
   ClipHdr.prototype.constructor = ClipHdr;
   ClipHdr.prototype._image = Clip.prototype._image;
   ClipHdr.prototype.send = Clip.prototype.send;
   ClipHdr.prototype.tick = Clip.prototype.tick;
-  ClipHdr.prototype.add = Clip.prototype.add;
+  ClipHdr.prototype.add = function(t, msg) {
+    t = parseInt(t);
+    if(isNaN(t) || t < 0) _error('Invalid parameter');
+    msg = JZZ.UMP(msg);
+    if (msg.isStartClip() || msg.isEndClip()) return this;
+    if (msg.isDelta()) return this.tick(msg.getDelta());
+    msg.tt = t;
+    var i;
+    for (i = 0; i < this._orig.length; i++) if (this._orig[i].tt > t) break;
+    this._orig.splice(i, 0, msg);
+    return this;
+  };
 
   function _copyClip(clip, x) {
     var i, m;
