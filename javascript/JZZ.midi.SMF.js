@@ -865,6 +865,7 @@
     self.playing = false;
     self._loop = 0;
     self._data = [];
+    self._hdr = [];
     self._pos = 0;
     self._tick = (function(x) { return function(){ x.tick(); }; })(self);
     for (var k in Player.prototype) if (Player.prototype.hasOwnProperty(k)) self[k] = Player.prototype[k];
@@ -983,6 +984,10 @@
     if (this.ppqn) {
       this._mul = this.ppqn / 500.0; // 120 bpm
       m = this._mul;
+      for (i = 0; i < this._hdr.length; i++) {
+        e = this._data[i];
+        if (e.isTempo()) m = this.ppqn * 100000.00 / (e.getTempo() || 1);
+      }
       t = 0;
       this._durationMS = 0;
       this._ttt.push({ t: 0, m: m, ms: 0 });
@@ -1356,6 +1361,9 @@
   ClipHdr.prototype._image = Clip.prototype._image;
   ClipHdr.prototype.send = Clip.prototype.send;
   ClipHdr.prototype.tick = Clip.prototype.tick;
+  ClipHdr.prototype.gr = Clip.prototype.gr;
+  ClipHdr.prototype.ch = Clip.prototype.ch;
+  ClipHdr.prototype.sxId = Clip.prototype.sxId;
   ClipHdr.prototype.add = function(t, msg) {
     t = parseInt(t);
     if(isNaN(t) || t < 0) _error('Invalid parameter');
@@ -1515,9 +1523,13 @@
   Clip.prototype.player = function() {
     var pl = new Player();
     pl.ppqn = this.ppqn;
-    var i;
+    var i, e;
+    for (i = 0; i < this.header.length; i++) {
+      e = JZZ.MIDI2(this.header[i]);
+      pl._hdr.push(e);
+    }
     for (i = 0; i < this.length; i++) {
-      var e = JZZ.MIDI2(this[i]);
+      e = JZZ.MIDI2(this[i]);
       pl._data.push(e);
     }
     pl._type = 0;
