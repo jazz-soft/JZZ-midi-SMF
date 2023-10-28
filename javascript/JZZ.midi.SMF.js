@@ -985,7 +985,7 @@
       this._mul = this.ppqn / 500.0; // 120 bpm
       m = this._mul;
       for (i = 0; i < this._hdr.length; i++) {
-        e = this._data[i];
+        e = this._hdr[i];
         if (e.isTempo()) m = this.ppqn * 100000.00 / (e.getTempo() || 1);
       }
       t = 0;

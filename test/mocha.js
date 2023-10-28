@@ -470,9 +470,9 @@ describe('SMF2', function() {
   });
   it('player', function() {
     var clip = new JZZ.MIDI.Clip();
-    clip.header.gr(0).umpBPM(120).ch(0).program(8);
+    clip.header.gr(0).umpBPM(240).ch(0).program(8);
     clip.gr(0).gr(0).ch(1).ch(1).sxId(2).sxId(2).noteOn('C5').tick(96).noteOff('C5').gr().gr().ch().ch().sxId().sxId();
     var player = clip.player();
-    //console.log(player.durationMS());
+    assert.equal(player.durationMS(), 250);
   });
 });
