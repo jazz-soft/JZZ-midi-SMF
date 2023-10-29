@@ -884,6 +884,7 @@
     this._pos = 0;
     this._p0 = 0;
     this._t0 = _now();
+    this._list = this._hdr;
     this.tick();
   };
   Player.prototype.stop = function() {
@@ -918,7 +919,7 @@
   };
   Player.prototype._receive = function(e) {
     if (e.isTempo() && this.ppqn) {
-      this._mul = this.ppqn * (e.isMidi2 ? 100000.00 : 1000.0) / (e.getTempo() || 1);
+      this._mul = this.ppqn * (e.isMidi2 ? 100000.0 : 1000.0) / (e.getTempo() || 1);
       this.mul = this._mul * this._speed;
       this._t0 = _now();
       this._p0 = this._pos;
@@ -929,20 +930,28 @@
     var t = _now();
     var e;
     this._pos = this._p0 + (t - this._t0) * this.mul;
-    for(; this._ptr < this._data.length; this._ptr++) {
-      e = this._data[this._ptr];
+    for(; this._ptr < this._list.length; this._ptr++) {
+      e = this._list[this._ptr];
       if (e.tt > this._pos) break;
       this._filter(e);
     }
-    if (this._ptr >= this._data.length) {
-      if (this._loop && this._loop != -1) this._loop--;
-      if (this._loop) {
+    if (this._ptr >= this._list.length) {
+      if (this._list == this._hdr) {
+        this._list = this._data;
         this._ptr = 0;
         this._p0 = 0;
         this._t0 = t;
       }
-      else this.stop();
-      this.onEnd();
+      else {
+        if (this._loop && this._loop != -1) this._loop--;
+        if (this._loop) {
+          this._ptr = 0;
+          this._p0 = 0;
+          this._t0 = t;
+        }
+        else this.stop();
+        this.onEnd();
+      }
     }
     if (this.event == 'stop') {
       this.playing = false;
@@ -986,7 +995,7 @@
       m = this._mul;
       for (i = 0; i < this._hdr.length; i++) {
         e = this._hdr[i];
-        if (e.isTempo()) m = this.ppqn * 100000.00 / (e.getTempo() || 1);
+        if (e.isTempo()) m = this.ppqn * 100000.0 / (e.getTempo() || 1);
       }
       t = 0;
       this._durationMS = 0;
@@ -996,7 +1005,7 @@
         if (e.isTempo()) {
           this._durationMS += (e.tt - t) / m;
           t = e.tt;
-          m = this.ppqn * (e.isMidi2 ? 100000.00 : 1000.0) / (e.getTempo() || 1);
+          m = this.ppqn * (e.isMidi2 ? 100000.0 : 1000.0) / (e.getTempo() || 1);
           this._ttt.push({ t: t, m: m, ms: this._durationMS });
         }
       }
@@ -1060,11 +1069,17 @@
     if (this.playing) this.sndOff();
   };
   Player.prototype._toPos = function() {
-    for(this._ptr = 0; this._ptr < this._data.length; this._ptr++) {
-      var e = this._data[this._ptr];
-      if (e.tt >= this._pos) break;
-      if (e.isTempo() && this.ppqn) this._mul = this.ppqn * (e.isMidi2 ? 100000.00 : 1000.0) / (e.getTempo() || 1);
+    var i, e;
+    for(i = 0; i < this._hdr.length; i++) {
+      e = this._hdr[i];
+      if (e.isTempo()) this._mul = this.ppqn * 100000.0 / (e.getTempo() || 1);
     }
+    for(this._ptr = 0; this._ptr < this._data.length; this._ptr++) {
+      e = this._data[this._ptr];
+      if (e.tt >= this._pos) break;
+      if (e.isTempo() && this.ppqn) this._mul = this.ppqn * (e.isMidi2 ? 100000.0 : 1000.0) / (e.getTempo() || 1);
+    }
+    this._list = this._data;
     this.mul = this._mul * this._speed;
     this._t0 = _now();
     this._p0 = this._pos;
@@ -1203,7 +1218,7 @@
       e.tt = 0;
       pl._data.push(e);
     }
-    pl._type = 0;
+    pl._type = 'syx';
     pl._tracks = 1;
     pl._timing();
     pl.sndOff = function() {};
@@ -1532,7 +1547,7 @@
       e = JZZ.MIDI2(this[i]);
       pl._data.push(e);
     }
-    pl._type = 0;
+    pl._type = 'clip';
     pl._tracks = 1;
     pl._timing();
     pl.sndOff = function() {};
