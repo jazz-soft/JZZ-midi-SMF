@@ -263,7 +263,7 @@ describe('integration: read / write / play', function() {
     smf.toString();
     //console.log(smf.toString());
     var player = smf.player();
-    var sample = new Sample(function() { player.stop(); done(); } , [
+    var sample = new Sample(function() { player.stop(); done(); }, [
       [0xb0, 0x78, 0x00], [0xb1, 0x78, 0x00], [0xb2, 0x78, 0x00], [0xb3, 0x78, 0x00],
       [0xb4, 0x78, 0x00], [0xb5, 0x78, 0x00], [0xb6, 0x78, 0x00], [0xb7, 0x78, 0x00],
       [0xb8, 0x78, 0x00], [0xb9, 0x78, 0x00], [0xba, 0x78, 0x00], [0xbb, 0x78, 0x00],
@@ -425,7 +425,7 @@ describe('SMF2', function() {
     assert.equal(JZZ.MIDI.Clip.version(), JZZ.MIDI.SMF.version());
   });
   it('empty', function() {
-    assert.throws(function() { new JZZ.MIDI.Clip(''); });
+    assert.throws(function() { JZZ.MIDI.Clip(''); });
     var clip = new RawClip();
     clip = JZZ.MIDI.Clip(clip.dump());
     clip = JZZ.MIDI.Clip(clip);
@@ -439,6 +439,7 @@ describe('SMF2', function() {
   });
   it('errors', function() {
     assert.throws(function() { new JZZ.MIDI.Clip('dummy'); });
+    assert.throws(function() { new JZZ.MIDI.Clip(['dummy']); });
     var clip = JZZ.MIDI.Clip('xSMF2CLIP');
     assert.throws(function() { clip.gr(20); });
     assert.throws(function() { clip.ch(20); });
@@ -468,11 +469,22 @@ describe('SMF2', function() {
     clip.annotate();
     //console.log(clip.toString());
   });
-  it('player', function() {
-    var clip = new JZZ.MIDI.Clip();
-    clip.header.gr(0).umpBPM(240).ch(0).program(8);
-    clip.gr(0).gr(0).ch(1).ch(1).sxId(2).sxId(2).noteOn('C5').tick(96).noteOff('C5').gr().gr().ch().ch().sxId().sxId();
+  it('player', function(done) {
+    var clip = JZZ.MIDI.Clip();
+    clip.header.gr(0).umpBPM(2400).ch(0).program(8);
+    clip.gr(0).gr(0).ch(1).ch(1).sxId(2).sxId(2).umpBPM(2400).noteOn('C5').tick(96).noteOff('C5').gr().gr().ch().ch().sxId().sxId();
+    clip.toString();
     var player = clip.player();
-    assert.equal(player.durationMS(), 250);
+    assert.equal(player.durationMS(), 25);
+    var sample = new Sample(done, [
+      [0xd0, 0x10, 0x00, 0x00, 0x00, 0x26, 0x25, 0xa0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+      [0x20, 0xc0, 0x08, 0x00],
+      [0xd0, 0x10, 0x00, 0x00, 0x00, 0x26, 0x25, 0xa0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00],
+      [0x20, 0x91, 0x3c, 0x7f], [0x20, 0x81, 0x3c, 0x40],
+      [0xf0, 0x21, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    ]);
+    player.connect(function(msg) { sample.compare(msg); });
+    player.jump(90);
+    player.play();
   });
 });

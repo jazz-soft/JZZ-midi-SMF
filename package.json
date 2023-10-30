@@ -1,6 +1,6 @@
 {
   "name": "jzz-midi-smf",
-  "version": "1.7.9",
+  "version": "1.8.0",
   "description": "Standard MIDI Files: read / write / play",
   "main": "javascript/JZZ.midi.SMF.js",
   "scripts": {
