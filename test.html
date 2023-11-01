@@ -58,8 +58,18 @@ function clear() {
 }
 
 function load(data) {
+  var smf;
   try {
-    player.load(new JZZ.MIDI.SMF(data));
+    smf = new JZZ.MIDI.Clip(data);
+  }
+  catch (e) {/**/}
+  try {
+    if (!smf) smf = new JZZ.MIDI.SYX(data);
+  }
+  catch (e) {/**/}
+  try {
+    if (!smf) smf = new JZZ.MIDI.SMF(data);
+    player.load(smf);
     player.play();
   }
   catch (e) {
