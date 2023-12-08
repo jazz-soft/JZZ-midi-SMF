@@ -1,6 +1,6 @@
 {
   "name": "jzz-midi-smf",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "Standard MIDI Files: read / write / play",
   "main": "javascript/JZZ.midi.SMF.js",
   "scripts": {
@@ -18,19 +18,19 @@
   ],
   "author": "jazz-soft (https://jazz-soft.net/)",
   "dependencies": {
-    "jzz": "^1.7.4"
+    "jzz": "^1.7.6"
   },
   "devDependencies": {
-    "eslint": "^8.53.0",
+    "eslint": "^8.55.0",
     "grunt": "^1.6.1",
     "grunt-contrib-jshint": "^3.2.0",
     "grunt-contrib-uglify": "^5.2.2",
-    "jzz-gui-player": "^1.6.8",
+    "jzz-gui-player": "^1.6.9",
     "jzz-midi-gm": "^1.3.4",
     "jzz-synth-tiny": "^1.3.7",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "test-midi-files": "^0.0.4"
+    "test-midi-files": "^0.0.7"
   },
   "runkitExampleFilename": "runkit.js",
   "repository": {
