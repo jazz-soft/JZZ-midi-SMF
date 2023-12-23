@@ -1,6 +1,6 @@
 # JZZ-midi-SMF
 
-Standard MIDI Files: read / write / play
+Standard MIDI Files: read / write / play (MIDI 1.0 and MIDI 2.0)
 
 ![Node.js](https://jazz-soft.github.io/img/nodejs.jpg)
 ![Firefox](https://jazz-soft.github.io/img/firefox.jpg)
