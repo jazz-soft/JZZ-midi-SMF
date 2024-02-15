@@ -15,7 +15,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.8.4';
+  var _ver = '1.8.5';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -1484,6 +1484,15 @@
     var w = { off: off, msg: msg, data: data };
     if (typeof tick != 'undefined') w.tick = tick;
     this._warn.push(w);
+  };
+  Clip.prototype.validate = function() {
+    var i;
+    var w = [];
+    if (this._warn) for (i = 0; i < this._warn.length; i++) w.push(Warn(this._warn[i]));
+    if (w.length) {
+      for (i = 0; i < w.length; i++) w[i] = Warn(w[i]);
+      return w;
+    }
   };
 
   Clip.prototype.dump = function() {
