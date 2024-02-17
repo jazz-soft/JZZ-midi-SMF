@@ -15,7 +15,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.8.5';
+  var _ver = '1.8.6';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -1413,7 +1413,6 @@
     if (s.substr(0, 8) != SMF2CLIP) {
       var z = s.indexOf(SMF2CLIP);
       if (z != -1) {
-        s = s.substr(z);
         clip._complain(off, 'Extra leading characters', z);
         off += z;
       }
@@ -1488,6 +1487,7 @@
   Clip.prototype.validate = function() {
     var i;
     var w = [];
+console.log(this._warn, 'this._warn');
     if (this._warn) for (i = 0; i < this._warn.length; i++) w.push(Warn(this._warn[i]));
     if (w.length) {
       for (i = 0; i < w.length; i++) w[i] = Warn(w[i]);
