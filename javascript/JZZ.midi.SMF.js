@@ -44,6 +44,7 @@
     for (var i = 0; i < len; i++) s += String.fromCharCode(u[i]);
     return s;
   }
+  function _hex(x) { return (x < 16 ? '0' : '') + x.toString(16); }
 
   function SMF() {
     var self = this;
@@ -222,7 +223,10 @@
     if (typeof this.off != 'undefined') a.push('offset ' + this.off);
     if (typeof this.track != 'undefined') a.push('track ' + this.track);
     if (typeof this.tick != 'undefined') a.push('tick ' + this.tick);
-    return a.join(' ') + ' -- ' + this.msg + ' (' + this.data + ')';
+    a.push('--');
+    a.push(this.msg);
+    if (typeof this.data != 'undefined') a.push('(' + this.data + ')');
+    return a.join(' ');
   };
 
   SMF.prototype.tracks = function() {
@@ -1413,8 +1417,8 @@
     if (s.substr(0, 8) != SMF2CLIP) {
       var z = s.indexOf(SMF2CLIP);
       if (z != -1) {
-        clip._complain(off, 'Extra leading characters', z);
         off += z;
+        clip._complain(off, 'Extra leading characters', off);
       }
       else _error('Not a clip');
     }
@@ -1430,6 +1434,12 @@
       t = s.charCodeAt(off) >> 4;
       len = [4, 4, 4, 8, 8, 16, 4, 4, 8, 8, 8, 12, 12, 16, 16, 16][t];
       a = [];
+      if (s.length < off + len) {
+        for (i = off; i < s.length; i++) a.push(_hex(s.charCodeAt(i)));
+        this._complain(off, 'Incomplete message', a.join(' '));
+        off += len;
+        break;
+      }
       for (i = 0; i < len; i++) a.push(s.charCodeAt(off + i));
       prev = m;
       m = JZZ.UMP(a);
@@ -1487,7 +1497,6 @@
   Clip.prototype.validate = function() {
     var i;
     var w = [];
-console.log(this._warn, 'this._warn');
     if (this._warn) for (i = 0; i < this._warn.length; i++) w.push(Warn(this._warn[i]));
     if (w.length) {
       for (i = 0; i < w.length; i++) w[i] = Warn(w[i]);
