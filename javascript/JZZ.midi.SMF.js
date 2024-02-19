@@ -15,7 +15,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.8.6';
+  var _ver = '1.8.7';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -1487,6 +1487,8 @@
       clip._complain(off, 'Missing Ticks PQN message');
       clip.ppqn = 96;
     }
+    if (inHdr) clip._complain(off, 'No Start of Clip message');
+    else if (!ended) clip._complain(off, 'No End of Clip message');
   }
   Clip.prototype._complain = function(off, msg, data, tick) {
     if (!this._warn) this._warn = [];
