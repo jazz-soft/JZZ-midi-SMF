@@ -15,7 +15,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.8.7';
+  var _ver = '1.8.8';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -1436,7 +1436,7 @@
       a = [];
       if (s.length < off + len) {
         for (i = off; i < s.length; i++) a.push(_hex(s.charCodeAt(i)));
-        this._complain(off, 'Incomplete message', a.join(' '));
+        clip._complain(off, 'Incomplete message', a.join(' '));
         off += len;
         break;
       }

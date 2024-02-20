@@ -448,6 +448,14 @@ describe('SMF2', function() {
     assert.throws(function() { clip.add(-1, JZZ.MIDI2.noop()); });
     assert.throws(function() { clip.header.add(-1, JZZ.MIDI2.noop()); });
   });
+  it('warnings', function() {
+    var clip = new JZZ.MIDI.Clip('abc' + (new RawClip()).dump() + "abc");
+    var val = clip.validate();
+    assert.equal(val[0].toString(), 'offset 3 -- Extra leading characters (3)');
+    assert.equal(val[1].toString(), 'offset 11 -- Incomplete message (61 62 63)');
+    assert.equal(val[2].toString(), 'offset 15 -- Missing Ticks PQN message');
+    assert.equal(val[3].toString(), 'offset 15 -- No Start of Clip message');
+  });
   it('tick', function() {
     var clip = new JZZ.MIDI.Clip();
     clip.tick(96).umpDelta(96).tick(96).umpEndClip();
