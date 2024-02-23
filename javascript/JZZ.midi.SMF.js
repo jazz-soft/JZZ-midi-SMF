@@ -1496,12 +1496,18 @@
     if (typeof tick != 'undefined') w.tick = tick;
     this._warn.push(w);
   };
+  function _validate_clip(clip) {
+  }
   Clip.prototype.validate = function() {
     var i;
     var w = [];
+    _validate_clip(this);
     if (this._warn) for (i = 0; i < this._warn.length; i++) w.push(Warn(this._warn[i]));
     if (w.length) {
       for (i = 0; i < w.length; i++) w[i] = Warn(w[i]);
+      w.sort(function(a, b) {
+        return (a.off || 0) - (b.off || 0) || (a.tick || 0) - (b.tick || 0);
+      });
       return w;
     }
   };
