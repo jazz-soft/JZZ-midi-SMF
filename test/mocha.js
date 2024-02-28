@@ -460,6 +460,7 @@ describe('SMF2', function() {
     clip = new JZZ.MIDI.Clip(clip.dump());
     val = clip.validate();
     assert.equal(val[0].toString(), 'offset 16 -- Consequential Delta Ticks message');
+    assert.equal(val[1].toString(), 'offset 36 -- Missing Delta Ticks message (20903c7f -- Note On)');
   });
   it('tick', function() {
     var clip = new JZZ.MIDI.Clip();
