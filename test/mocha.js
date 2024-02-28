@@ -456,11 +456,13 @@ describe('SMF2', function() {
     assert.equal(val[2].toString(), 'offset 15 -- Missing Ticks PQN message');
     assert.equal(val[3].toString(), 'offset 15 -- No Start of Clip message');
     clip = new RawClip();
-    clip.umpTicksPQN(96).umpDelta(0).umpDelta(0).umpStartClip().noteOn(0, 0, 'C5').noteOff(0, 0, 'C5');
+    clip.umpTicksPQN(96).umpDelta(0).umpTicksPQN(0).umpDelta(0).umpDelta(0).umpStartClip().noteOn(0, 0, 'C5').noteOff(0, 0, 'C5');
     clip = new JZZ.MIDI.Clip(clip.dump());
     val = clip.validate();
-    assert.equal(val[0].toString(), 'offset 16 -- Consequential Delta Ticks message');
-    assert.equal(val[1].toString(), 'offset 36 -- Missing Delta Ticks message (20903c7f -- Note On)');
+    assert.equal(val[0].toString(), 'offset 16 -- Multiple Ticks PQN message');
+    assert.equal(val[1].toString(), 'offset 16 -- Bad Ticks PQN value: 0');
+    assert.equal(val[2].toString(), 'offset 24 -- Consequential Delta Ticks message');
+    assert.equal(val[3].toString(), 'offset 44 tick 0 -- Missing Delta Ticks message (20903c7f -- Note On)');
   });
   it('tick', function() {
     var clip = new JZZ.MIDI.Clip();

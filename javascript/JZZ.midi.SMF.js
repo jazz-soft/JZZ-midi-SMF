@@ -1450,7 +1450,7 @@
       else {
         m.tt = tt;
         if (prev && !prev.isDelta()) {
-          clip._complain(off, "Missing Delta Ticks message", m.toString());
+          clip._complain(off, "Missing Delta Ticks message", m.toString(), tt);
         }
         if (inHdr) {
           if (m.isStartClip()) {
