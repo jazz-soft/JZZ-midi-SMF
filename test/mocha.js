@@ -463,6 +463,13 @@ describe('SMF2', function() {
     assert.equal(val[1].toString(), 'offset 16 -- Bad Ticks PQN value: 0');
     assert.equal(val[2].toString(), 'offset 24 -- Consequential Delta Ticks message');
     assert.equal(val[3].toString(), 'offset 44 tick 0 -- Missing Delta Ticks message (20903c7f -- Note On)');
+    clip = new RawClip();
+    clip.umpTicksPQN(96).umpDelta(0).umpEndClip().umpDelta(0).umpStartClip().umpDelta(0).umpStartClip().umpDelta(0).umpEndClip().umpDelta(0).umpEndClip();
+    clip = new JZZ.MIDI.Clip(clip.dump());
+    val = clip.validate();
+    assert.equal(val[0].toString(), 'offset 16 -- Unexpected End of Clip message');
+    assert.equal(val[1].toString(), 'offset 56 -- Repeated Start of Clip message');
+    assert.equal(val[2].toString(), 'offset 96 -- Repeated End of Clip message');
   });
   it('tick', function() {
     var clip = new JZZ.MIDI.Clip();
