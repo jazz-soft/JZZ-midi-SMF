@@ -1500,6 +1500,26 @@
     this._warn.push(w);
   };
   function _validate_clip(clip) {
+    var i, k, d, m;
+    var p = {};
+    for (i = 0; i < clip.length; i++) {
+      m = clip[i];
+      k = undefined;
+      if (m.isFlex()) {
+        k = (m[0] & 0xf) + (m[1] & 0x3f) * 16;
+        k = 'f' + k;
+        d = m[1] >> 6;
+      }
+      if (k) {
+        if (p[k]) {
+          if (d == 0 || d == 1) clip._complain(p[k].off, 'Missing series end', p[k].toString(), p[k].tick);
+        }
+        else {
+          if (d == 2 || d == 3) clip._complain(m.off, 'Missing series start', m.toString(), m.tick);
+        }
+        p[k] = (d == 0 || d == 3) ? undefined : m;
+      }
+    }
   }
   Clip.prototype.validate = function() {
     var i;

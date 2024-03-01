@@ -470,6 +470,9 @@ describe('SMF2', function() {
     assert.equal(val[0].toString(), 'offset 16 -- Unexpected End of Clip message');
     assert.equal(val[1].toString(), 'offset 56 -- Repeated Start of Clip message');
     assert.equal(val[2].toString(), 'offset 96 -- Repeated End of Clip message');
+    clip = new JZZ.MIDI.Clip();
+    val = clip.validate();
+    assert.equal(typeof val, 'undefined');
   });
   it('tick', function() {
     var clip = new JZZ.MIDI.Clip();
