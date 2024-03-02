@@ -1510,6 +1510,14 @@
         k = 'f' + k;
         d = m[1] >> 6;
       }
+      if (m.isData()) {
+        k = 'd' + (m[0] & 0xf);
+        d = (m[1] >> 4) & 3;
+      }
+      if (m.isSX()) {
+        k = 's' + (m[0] & 0xf);
+        d = (m[1] >> 4) & 3;
+      }
       if (k) {
         if (p[k]) {
           if (d == 0 || d == 1) clip._complain(p[k].off, 'Missing series end', p[k].toString(), p[k].tick);
