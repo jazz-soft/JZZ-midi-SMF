@@ -473,6 +473,17 @@ describe('SMF2', function() {
     clip = new JZZ.MIDI.Clip();
     val = clip.validate();
     assert.equal(typeof val, 'undefined');
+    var a = JZZ.UMP.umpText(0, 'text text text text text text');
+    clip.send(a[0]).send(a[1]).send(a[2]);
+    clip = new JZZ.MIDI.Clip(clip.dump());
+    val = clip.validate();
+    assert.equal(typeof val, 'undefined');
+    clip = new JZZ.MIDI.Clip();
+    clip.send(a[0]).send(a[1]).send(a[2]).tick(96).send(a[2]).send(a[1]).send(a[0]);
+    clip = new JZZ.MIDI.Clip(clip.dump());
+    val = clip.validate();
+    assert.equal(val[0].toString(), 'offset 100 tick 96 -- Missing series start (d0d00200 20746578 74000000 00000000 -- Text)');
+    assert.equal(val[3].toString(), 'offset 140 tick 96 -- Missing series end (d0500200 74657874 20746578 74207465 -- Text)');
   });
   it('tick', function() {
     var clip = new JZZ.MIDI.Clip();

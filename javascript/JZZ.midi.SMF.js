@@ -1449,6 +1449,7 @@
       }
       else {
         m.tt = tt;
+        m.off = off;
         if (prev && !prev.isDelta()) {
           clip._complain(off, "Missing Delta Ticks message", m.toString(), tt);
         }
@@ -1520,13 +1521,18 @@
       }
       if (k) {
         if (p[k]) {
-          if (d == 0 || d == 1) clip._complain(p[k].off, 'Missing series end', p[k].toString(), p[k].tick);
+          if (d == 0 || d == 1) clip._complain(p[k].off, 'Missing series end', p[k].toString(), p[k].tt);
         }
         else {
-          if (d == 2 || d == 3) clip._complain(m.off, 'Missing series start', m.toString(), m.tick);
+          if (d == 2 || d == 3) clip._complain(m.off, 'Missing series start', m.toString(), m.tt);
         }
         p[k] = (d == 0 || d == 3) ? undefined : m;
       }
+    }
+    d = Object.keys(p);
+    for (i = 0; i < d.length; i++) {
+      m = p[d[i]];
+      if (m) clip._complain(m.off, 'Missing series end', m.toString(), m.tt);
     }
   }
   Clip.prototype.validate = function() {
