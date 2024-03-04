@@ -484,6 +484,20 @@ describe('SMF2', function() {
     val = clip.validate();
     assert.equal(val[0].toString(), 'offset 100 tick 96 -- Missing series start (d0d00200 20746578 74000000 00000000 -- Text)');
     assert.equal(val[3].toString(), 'offset 140 tick 96 -- Missing series end (d0500200 74657874 20746578 74207465 -- Text)');
+    a = JZZ.UMP.umpData(0, 'data data data');
+    clip = new JZZ.MIDI.Clip();
+    clip.send(a[1]).send(a[0]);
+    clip = new JZZ.MIDI.Clip(clip.dump());
+    val = clip.validate();
+    assert.equal(val[0].toString(), 'offset 40 tick 0 -- Missing series start (50310061 00000000 00000000 00000000 -- Data)');
+    assert.equal(val[1].toString(), 'offset 60 tick 0 -- Missing series end (501d0064 61746120 64617461 20646174 -- Data)');
+    a = JZZ.UMP.sxMidiSoft(0, 4, 'karaoke');
+    clip = new JZZ.MIDI.Clip();
+    clip.send(a[1]).send(a[0]);
+    clip = new JZZ.MIDI.Clip(clip.dump());
+    val = clip.validate();
+    assert.equal(val[0].toString(), 'offset 40 tick 0 -- Missing series start (30366172 616f6b65 -- SysEx)');
+    assert.equal(val[1].toString(), 'offset 52 tick 0 -- Missing series end (30160020 2400046b -- SysEx)');
   });
   it('tick', function() {
     var clip = new JZZ.MIDI.Clip();
