@@ -1,6 +1,6 @@
 {
   "name": "jzz-midi-smf",
-  "version": "1.8.9",
+  "version": "1.9.0",
   "description": "Standard MIDI Files: read / write / play (MIDI 1.0 and MIDI 2.0)",
   "main": "javascript/JZZ.midi.SMF.js",
   "scripts": {
@@ -18,14 +18,14 @@
   ],
   "author": "jazz-soft (https://jazz-soft.net/)",
   "dependencies": {
-    "jzz": "^1.8.0"
+    "jzz": "^1.8.1"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
     "grunt": "^1.6.1",
     "grunt-contrib-jshint": "^3.2.0",
     "grunt-contrib-uglify": "^5.2.2",
-    "jzz-gui-player": "^1.7.0",
+    "jzz-gui-player": "^1.7.1",
     "jzz-midi-gm": "^1.3.5",
     "jzz-synth-tiny": "^1.3.8",
     "mocha": "^10.3.0",

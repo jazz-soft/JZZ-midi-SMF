@@ -15,7 +15,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.8.9';
+  var _ver = '1.9.0';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -1596,6 +1596,17 @@
     return a.join('\n');
   };
   Clip.prototype.annotate = function() {
+    var i, ctxt;
+    ctxt = JZZ.Context();
+    for (i = 0; i < this.header.length; i++) {
+      if (this.header[i].lbl) this.header[i].lbl = undefined;
+      ctxt._read(this.header[i]);
+    }
+    ctxt = JZZ.Context();
+    for (i = 0; i < this.length; i++) {
+      if (this[i].lbl) this[i].lbl = undefined;
+      ctxt._read(this[i]);
+    }
     return this;
   };
   Clip.prototype.player = function() {
