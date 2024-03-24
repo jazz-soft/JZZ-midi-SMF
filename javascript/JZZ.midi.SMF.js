@@ -784,19 +784,40 @@
     }
     return a.join('\n  ');
   };
-
+  function _msg(msg) {
+    if (msg.length || msg.isSMF()) return msg;
+    _error('Not a MIDI message');
+  }
   MTrk.prototype.add = function(t, msg) {
     t = parseInt(t);
     if(isNaN(t) || t < 0) _error('Invalid parameter');
-    msg = JZZ.MIDI(msg);
-    msg.tt = t;
+    var i, j, a;
+    try {
+      a = [_msg(JZZ.MIDI(msg))];
+    }
+    catch (e) {
+      try {
+        a = [];
+        for (i = 0; i < msg.length; i++) {
+          a.push(_msg(JZZ.MIDI(msg[i])));
+        }
+        if (!i) throw e;
+      }
+      catch (ee) {
+        throw i ? ee : e;
+      }
+    }
     if (this[this._orig.length - 1].tt < t) this[this._orig.length - 1].tt = t; // end of track
     if (msg.ff == 0x2f || msg[0] > 0xf0 && msg[0] != 0xf7) return this;
-    var i;
     for (i = 0; i < this._orig.length - 1; i++) {
       if (this._orig[i].tt > t) break;
     }
-    this._orig.splice(i, 0, msg);
+    for (j = 0; j < a.length; j++) {
+      msg = a[j];
+      msg.tt = t;
+      this._orig.splice(i, 0, msg);
+      i++;
+    }
     return this;
   };
 

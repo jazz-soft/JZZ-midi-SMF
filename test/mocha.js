@@ -105,11 +105,22 @@ describe('functions', function() {
     assert.equal(chk.type, 'fake');
     assert.equal(trk.type, 'MTrk');
   });
+  it('add', function() {
+    var t = new JZZ.MIDI.SMF.MTrk();
+    t.add(10, JZZ.MIDI.bank(0, 1, 2));
+    assert.equal(t[0].toString(), 'b0 00 01 -- Bank Select MSB');
+    assert.equal(t[1].toString(), 'b0 20 02 -- Bank Select LSB');
+  });
   it('throw', function() {
     assert.throws(function() { trk.add(); });
+    assert.throws(function() { trk.add(0); });
+    assert.throws(function() { trk.add(0, 'dummy'); });
+    assert.throws(function() { trk.add(0, []); });
+    assert.throws(function() { trk.add(0, [[0x80, 0, 0], []]); });
     assert.throws(function() { trk.tick(); });
     assert.throws(function() { trk.ch(-1); });
     assert.throws(function() { trk.sxId(-1); });
+    trk.add(0, [[0x80, 0, 0], []])
   });
   it('validate', function() {
     var smf = new JZZ.MIDI.SMF(1);
