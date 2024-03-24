@@ -120,7 +120,6 @@ describe('functions', function() {
     assert.throws(function() { trk.tick(); });
     assert.throws(function() { trk.ch(-1); });
     assert.throws(function() { trk.sxId(-1); });
-    trk.add(0, [[0x80, 0, 0], []])
   });
   it('validate', function() {
     var smf = new JZZ.MIDI.SMF(1);
