@@ -791,22 +791,15 @@
   MTrk.prototype.add = function(t, msg) {
     t = parseInt(t);
     if(isNaN(t) || t < 0) _error('Invalid parameter');
-    var i, j, a;
+    var i, j;
+    var a = [];
     try {
-      a = [_msg(JZZ.MIDI(msg))];
+      a.push(JZZ.MIDI(msg));
     }
     catch (e) {
-      try {
-        a = [];
-        for (i = 0; i < msg.length; i++) {
-          a.push(_msg(JZZ.MIDI(msg[i])));
-        }
-        if (!i) throw e;
-      }
-      catch (ee) {
-        throw i ? ee : e;
-      }
+      for (i = 0; i < msg.length; i++) a.push(JZZ.MIDI(msg[i]));
     }
+    for (i = 0; i < a.length; i++) _msg(a[i]);
     if (this[this._orig.length - 1].tt < t) this[this._orig.length - 1].tt = t; // end of track
     if (msg.ff == 0x2f || msg[0] > 0xf0 && msg[0] != 0xf7) return this;
     for (i = 0; i < this._orig.length - 1; i++) {
