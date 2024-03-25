@@ -116,6 +116,7 @@ describe('functions', function() {
     assert.throws(function() { trk.add(0); });
     assert.throws(function() { trk.add(0, 'dummy'); });
     assert.throws(function() { trk.add(0, []); });
+    assert.throws(function() { trk.add(0, {}); });
     assert.throws(function() { trk.add(0, [[0x80, 0, 0], []]); });
     assert.throws(function() { trk.tick(); });
     assert.throws(function() { trk.ch(-1); });

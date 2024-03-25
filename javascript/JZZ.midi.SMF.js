@@ -799,6 +799,7 @@
     catch (e) {
       for (i = 0; i < msg.length; i++) a.push(JZZ.MIDI(msg[i]));
     }
+    if (!a.length) _error('Not a MIDI message');
     for (i = 0; i < a.length; i++) _msg(a[i]);
     if (this[this._orig.length - 1].tt < t) this[this._orig.length - 1].tt = t; // end of track
     if (msg.ff == 0x2f || msg[0] > 0xf0 && msg[0] != 0xf7) return this;
