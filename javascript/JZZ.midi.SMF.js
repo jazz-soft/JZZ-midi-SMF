@@ -1345,6 +1345,18 @@
     img._tick = this._tick + t;
     return img;
   };
+  function _ump(msg) {
+    if (!msg || !msg.length) _error('Not a MIDI message');
+    var i;
+    var a = [];
+    try {
+      a.push(JZZ.UMP(msg));
+    }
+    catch (e) {
+      for (i = 0; i < msg.length; i++) a.push(JZZ.UMP(msg[i]));
+    }
+    return a;
+  }
   Clip.prototype.add = function(t, msg) {
     t = parseInt(t);
     if(isNaN(t) || t < 0) _error('Invalid parameter');
