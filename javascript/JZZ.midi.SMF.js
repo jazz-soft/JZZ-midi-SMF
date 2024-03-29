@@ -1358,18 +1358,29 @@
     return a;
   }
   Clip.prototype.add = function(t, msg) {
+    var i, j, d, e;
     t = parseInt(t);
     if(isNaN(t) || t < 0) _error('Invalid parameter');
-    msg = JZZ.UMP(msg);
-    var end = this._orig[this._orig.length - 1];
-    if (end.tt < t) end.tt = t;
-    if (msg.isStartClip() || msg.isEndClip()) return this;
-    if (msg.isDelta()) return this.tick(msg.getDelta());
-    msg.tt = t;
-    var i;
-    for (i = 0; i < this._orig.length - 1; i++) if (this._orig[i].tt > t) break;
-    this._orig.splice(i, 0, msg);
-    return this;
+    var arr = _ump(msg);
+    var self = this;
+    if (this.length) e = this._orig[this._orig.length - 1];
+    if (!e.isEndClip()) e = undefined;
+    if (e && e.tt < t) e.tt = t;
+    for (i = 0; i < arr.length; i++) {
+      msg = arr[i];
+      if (msg.isStartClip() || msg.isEndClip()) continue;
+      if (msg.isDelta()) {
+        d = msg.getDelta();
+        t += d;
+        if (e && e.tt < t) e.tt = t;
+        self = self.tick(msg.getDelta());
+        continue;
+      }
+      msg.tt = t;
+      for (j = 0; j < this._orig.length - 1; j++) if (this._orig[j].tt > t) break;
+      this._orig.splice(j, 0, msg);
+    }
+    return self;
   };
   Clip.prototype.sxId = function(id) {
     if (typeof id == 'undefined') id = Clip.prototype._sxid;
