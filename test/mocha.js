@@ -510,6 +510,16 @@ describe('SMF2', function() {
     assert.equal(val[0].toString(), 'offset 40 tick 0 -- Missing series start (30366172 616f6b65 -- SysEx)');
     assert.equal(val[1].toString(), 'offset 52 tick 0 -- Missing series end (30160020 2400046b -- SysEx)');
   });
+  it('add', function() {
+    var clip = new JZZ.MIDI.Clip();
+    clip.header.add(0, JZZ.UMP.umpText(0, 'text text text'));
+    clip.add(0, JZZ.UMP.umpText(0, 'text text text'));
+    assert.throws(function() { clip.add(0); });
+    assert.throws(function() { clip.add(0, []); });
+    assert.throws(function() { clip.add(0, [[]]); });
+    assert.throws(function() { clip.add(0, [undefined]); });
+    //console.log(clip.toString());
+  });
   it('tick', function() {
     var clip = new JZZ.MIDI.Clip();
     clip.tick(96).umpDelta(96).tick(96).umpEndClip();

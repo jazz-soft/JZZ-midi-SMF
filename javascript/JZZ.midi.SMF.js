@@ -1353,7 +1353,10 @@
       a.push(JZZ.UMP(msg));
     }
     catch (e) {
-      for (i = 0; i < msg.length; i++) a.push(JZZ.UMP(msg[i]));
+      for (i = 0; i < msg.length; i++) {
+        if (!msg[i] || !msg[i].length) _error('Not a MIDI message');
+        a.push(JZZ.UMP(msg[i]));
+      }
     }
     return a;
   }
