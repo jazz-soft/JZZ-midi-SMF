@@ -15,7 +15,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.9.1';
+  var _ver = '1.9.2';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -150,20 +150,20 @@
   };
   SMF.prototype.load = function(s) {
     var off = 0;
-    if (s.substr(0, 4) == 'RIFF' && s.substr(8, 8) == 'RMIDdata') {
+    if (s.substring(0, 4) == 'RIFF' && s.substring(8, 16) == 'RMIDdata') {
       this.rmi = true;
       off = 20;
-      s = s.substr(20, s.charCodeAt(16) + s.charCodeAt(17) * 0x100 + s.charCodeAt(18) * 0x10000 + s.charCodeAt(19) * 0x1000000);
+      s = s.substring(20, 20 + s.charCodeAt(16) + s.charCodeAt(17) * 0x100 + s.charCodeAt(18) * 0x10000 + s.charCodeAt(19) * 0x1000000);
     }
     _loadSMF(this, s, off);
   };
 
   var MThd0006 = 'MThd' + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(0) + String.fromCharCode(6);
   function _loadSMF(self, s, off) {
-    if (s.substr(0, 8) != MThd0006) {
+    if (s.substring(0, 8) != MThd0006) {
       var z = s.indexOf(MThd0006);
       if (z != -1) {
-        s = s.substr(z);
+        s = s.substring(z);
         self._complain(off, 'Extra leading characters', z);
         off += z;
       }
@@ -191,7 +191,7 @@
     var p = 14;
     while (p < s.length - 8) {
       var offset = p + off;
-      var type = s.substr(p, 4);
+      var type = s.substring(p, p + 4);
       if (type == 'MTrk') n++;
       var len = (s.charCodeAt(p + 4) << 24) + (s.charCodeAt(p + 5) << 16) + (s.charCodeAt(p + 6) << 8) + s.charCodeAt(p + 7);
       if (len <= 0) { // broken file
@@ -199,7 +199,7 @@
         self._complain(p + off + 4, 'Invalid track length', s.charCodeAt(p + 4) + '/' + s.charCodeAt(p + 5) + '/' + s.charCodeAt(p + 6) + '/' + s.charCodeAt(p + 7));
       }
       p += 8;
-      var data = s.substr(p, len);
+      var data = s.substring(p, p + len);
       self.push(new Chunk(type, data, offset));
       if (type == 'MThd') self._complain(offset, 'Unexpected chunk type', 'MThd');
       p += len;
@@ -572,14 +572,14 @@
   };
 
   function _validate_msg_data(trk, s, p, m, t, off) {
-    var x = s.substr(p, m);
+    var x = s.substring(p, p + m);
     if (x.length < m) {
       trk._complain(off, 'Incomplete track data', m - x.length, t);
-      x = (x + '\x00\x00').substr(0, m);
+      x = (x + '\x00\x00').substring(0, m);
     }
     for (var i = 0; i < m; i++) if (x.charCodeAt(i) > 127) {
       trk._complain(off + i, 'Bad MIDI value set to 0', x.charCodeAt(i), t);
-      x = x.substr(0, i) + '\x00' + x.substr(i + 1);
+      x = x.substring(0, i) + '\x00' + x.substring(i + 1);
     }
     return x;
   }
@@ -619,32 +619,32 @@
     off += 8;
     var offset = p + off;
     while (p < s.length) {
-      m = _validate_number(this, s.substr(p, 4), offset, t, true);
+      m = _validate_number(this, s.substring(p, p + 4), offset, t, true);
       p += m[0];
       t += m[1];
       offset = p + off;
       if (s.charCodeAt(p) == 0xff) {
-        st = s.substr(p, 2);
+        st = s.substring(p, p + 2);
         if (st.length < 2) {
           this._complain(offset, 'Incomplete track data', 3 - st.length, t);
           st = '\xff\x2f';
         }
         p += 2;
-        m = _validate_number(this, s.substr(p, 4), offset + 2, t);
+        m = _validate_number(this, s.substring(p, p + 4), offset + 2, t);
         p += m[0];
-        this.push (new Event(t, st, s.substr(p, m[1]), offset));
+        this.push (new Event(t, st, s.substring(p, p + m[1]), offset));
         p += m[1];
       }
       else if (s.charCodeAt(p) == 0xf0 || s.charCodeAt(p) == 0xf7) {
-        st = s.substr(p, 1);
+        st = s.substring(p, p + 1);
         p += 1;
-        m = _validate_number(this, s.substr(p, 4), offset + 1, t);
+        m = _validate_number(this, s.substring(p, p + 4), offset + 1, t);
         p += m[0];
-        this.push(new Event(t, st, s.substr(p, m[1]), offset));
+        this.push(new Event(t, st, s.substring(p, p + m[1]), offset));
         p += m[1];
       }
       else if (s.charCodeAt(p) & 0x80) {
-        w = s.substr(p, 1);
+        w = s.substring(p, p + 1);
         p += 1;
         m = _msglen(w.charCodeAt(0));
         if (w.charCodeAt(0) > 0xf0) this._complain(offset, 'Unexpected MIDI message', w.charCodeAt(0).toString(16), t);
@@ -673,8 +673,8 @@
   function _shortmsg(msg) {
     var s = msg.toString();
     if (s.length > 80) {
-      s = s.substr(0, 78);
-      s = s.substr(0, s.lastIndexOf(' ')) + ' ...';
+      s = s.substring(0, 78);
+      s = s.substring(0, s.lastIndexOf(' ')) + ' ...';
     }
     return s;
   }
@@ -1444,7 +1444,7 @@
   }
   function _loadClip(clip, s, off) {
     if (!s.length) _error('Empty clip');
-    if (s.substr(0, 8) != SMF2CLIP) {
+    if (s.substring(0, 8) != SMF2CLIP) {
       var z = s.indexOf(SMF2CLIP);
       if (z != -1) {
         off += z;

@@ -58,7 +58,7 @@ describe('functions', function() {
     });
     assert.throws(function() { // Invalid MIDI header
       var dump = JZZ.MIDI.SMF(0, 24, 16).dump();
-      JZZ.MIDI.SMF(dump.substr(0, 13) + '\0' + dump.substr(14));
+      JZZ.MIDI.SMF(dump.substring(0, 13) + '\0' + dump.substring(14));
     });
     assert.throws(function() {
       JZZ.MIDI.SMF.Chunk();
@@ -159,7 +159,7 @@ describe('functions', function() {
       .dataIncr(3).rpn(4, 0x7f, 0x7f).dataDecr(4)
     ;
     var dump = smf.dump();
-    dump = dump.substr(0, 9) + '\3' + dump.substr(10);
+    dump = dump.substring(0, 9) + '\3' + dump.substring(10);
     dump = dump.replace('MTrk', 'MThd')
     dump = dump.replace('\xf0\7\xf7\xf7\xf7\xf7\xf7\xf7\xf7', '\xf1\0\0\xf3\0\0\xf2\0\0');
     smf = JZZ.MIDI.SMF(dump);
