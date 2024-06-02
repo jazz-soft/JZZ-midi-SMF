@@ -15,7 +15,7 @@
   /* istanbul ignore next */
   if (JZZ.MIDI.SMF) return;
 
-  var _ver = '1.9.2';
+  var _ver = '1.9.3';
 
   var _now = JZZ.lib.now;
   function _error(s) { throw new Error(s); }
@@ -616,6 +616,7 @@
     var w = '';
     var st;
     var m;
+    var rs;
     off += 8;
     var offset = p + off;
     while (p < s.length) {
@@ -624,6 +625,7 @@
       t += m[1];
       offset = p + off;
       if (s.charCodeAt(p) == 0xff) {
+        rs = false;
         st = s.substring(p, p + 2);
         if (st.length < 2) {
           this._complain(offset, 'Incomplete track data', 3 - st.length, t);
@@ -636,6 +638,7 @@
         p += m[1];
       }
       else if (s.charCodeAt(p) == 0xf0 || s.charCodeAt(p) == 0xf7) {
+        rs = false;
         st = s.substring(p, p + 1);
         p += 1;
         m = _validate_number(this, s.substring(p, p + 4), offset + 1, t);
@@ -644,6 +647,7 @@
         p += m[1];
       }
       else if (s.charCodeAt(p) & 0x80) {
+        rs = true;
         w = s.substring(p, p + 1);
         p += 1;
         m = _msglen(w.charCodeAt(0));
@@ -652,6 +656,8 @@
         p += m;
       }
       else if (w.charCodeAt(0) & 0x80) { // running status
+        if (!rs) this._complain(offset, 'Interrupted running status', w.charCodeAt(0).toString(16), t);
+        rs = true;
         m = _msglen(w.charCodeAt(0));
         if (w.charCodeAt(0) > 0xf0) this._complain(offset, 'Unexpected MIDI message', w.charCodeAt(0).toString(16), t);
         this.push(new Event(t, w, _validate_msg_data(this, s, p, m, t, offset), offset));
