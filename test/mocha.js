@@ -129,7 +129,7 @@ describe('functions', function() {
     smf.validate();
     trk.smfBPM(90).smfTimeSignature('3/4').smfSMPTE(JZZ.SMPTE())
       .smf(0, 'xx').smf(0, 'xxx').smf(5, '')
-      .smf(32, 'x').smf(32, 'xx').smf(32, '\1')
+      .smf(32, 'x').smf(32, 'xx').smf(32, '\x01')
       .smf(33, 'x').smf(33, 'xx')
       .smf(81, '').smf(81, 'x').smf(81, 'xxxx')
       .smf(84, 'xxxxx').smf(84, 'xxxxxx')
@@ -159,9 +159,9 @@ describe('functions', function() {
       .dataIncr(3).rpn(4, 0x7f, 0x7f).dataDecr(4)
     ;
     var dump = smf.dump();
-    dump = dump.substring(0, 9) + '\3' + dump.substring(10);
+    dump = dump.substring(0, 9) + '\x03' + dump.substring(10);
     dump = dump.replace('MTrk', 'MThd')
-    dump = dump.replace('\xf0\7\xf7\xf7\xf7\xf7\xf7\xf7\xf7', '\xf1\0\0\xf3\0\0\xf2\0\0');
+    dump = dump.replace('\xf0\x07\xf7\xf7\xf7\xf7\xf7\xf7\xf7', '\xf1\x00\x00\xf3\x00\x00\xf2\x00\x00');
     smf = JZZ.MIDI.SMF(dump);
     smf.validate();
     //console.log(smf.validate());
