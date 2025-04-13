@@ -3,4 +3,5 @@ minified
 test*
 coverage
 Gruntfile.js
+eslint.config.mjs
 *.html
