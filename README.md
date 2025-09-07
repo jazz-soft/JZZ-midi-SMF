@@ -14,7 +14,6 @@ Standard MIDI Files: read / write / play
 [![npm](https://img.shields.io/npm/dt/jzz-midi-smf.svg)](https://www.npmjs.com/package/jzz-midi-smf)
 [![build](https://github.com/jazz-soft/JZZ-midi-SMF/actions/workflows/build.yml/badge.svg)](https://github.com/jazz-soft/JZZ-midi-SMF/actions)
 [![Coverage Status](https://coveralls.io/repos/github/jazz-soft/JZZ-midi-SMF/badge.svg?branch=master)](https://coveralls.io/github/jazz-soft/JZZ-midi-SMF?branch=master)
-[![Try jzz-midi-smf on RunKit](https://badge.runkitcdn.com/jzz-midi-smf.svg)](https://npm.runkit.com/jzz-midi-smf)
 
 ## Install
 
